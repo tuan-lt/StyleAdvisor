@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-surface: #F7F4EF;
+  --color-surface-dark: #17181B;
+  --color-surface-raised: #FFFFFF;
+  --color-ink: #1C1B19;
+  --color-ink-muted: #6B665E;
+  --color-border: #E4DED4;
+  --color-accent: #1F2A44;
+  --color-thread: #B08A5B;
+  --color-verified: #3F6B4F;
+  --color-caution: #8A5A12;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, .font-serif {
+  font-family: 'Newsreader', Georgia, Cambria, 'Times New Roman', Times, serif;
+}
