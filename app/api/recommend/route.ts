@@ -11,6 +11,7 @@ import {
   UserProfile,
   Occasion,
   SeasonOfWear,
+  NudgeType,
 } from "../../../types/catalog";
 
 
@@ -31,6 +32,7 @@ interface RecommendRequestBody {
   flow?: "occasion" | "everyday" | "flow_a" | "flow_b";
   formality_target?: number;
   style_preference?: string;
+  nudge?: NudgeType;
 }
 
 /**
@@ -47,6 +49,8 @@ function generateCacheKey(body: RecommendRequestBody): string {
     season_of_wear: body.season_of_wear || body.user_profile?.season_of_wear,
     audience_text: (body.audience_text || "").trim().toLowerCase(),
     flow: body.flow || "occasion",
+    formality_target: body.formality_target ?? null,
+    nudge: body.nudge ?? null,
   };
   return crypto.createHash("md5").update(JSON.stringify(normalized)).digest("hex");
 }
@@ -63,23 +67,67 @@ function generateDeterministicRecommendation(
   const audience = body.audience_text || "important meeting";
   const occasion = body.occasion || "pitch";
 
-  // Select 1 candidate per available slot
-  const topGarment = candidates_by_slot.top[0];
-  const bottomGarment = candidates_by_slot.bottom[0];
-  const shoesGarment = candidates_by_slot.shoes[0];
-  const outerwearGarment = candidates_by_slot.outerwear[0];
-  const accessoryGarment = candidates_by_slot.accessory[0];
+  let targetFormality = body.formality_target || 7;
+  let nudgeReasoning = "";
 
-  const targetFormality = body.formality_target || 7;
+  if (body.nudge === "too_formal") {
+    targetFormality = Math.max(3, targetFormality - 2);
+    nudgeReasoning =
+      "Re-calibrated down in formality per your feedback: softened structure with more relaxed, approachable layers.";
+  } else if (body.nudge === "too_casual") {
+    targetFormality = Math.min(10, targetFormality + 2);
+    nudgeReasoning =
+      "Elevated formality and structure per your feedback: dialed in sharper tailoring and authoritative textures.";
+  } else if (body.nudge === "not_me") {
+    nudgeReasoning =
+      "Pivoted aesthetic silhouette per your feedback: curated an alternative tonal harmony while preserving room stakes.";
+  }
+
+  // Pick candidates according to nudge
+  const pickGarment = (slot: GarmentSlot): Garment | undefined => {
+    const list = [...(candidates_by_slot[slot] || [])];
+    if (list.length === 0) return undefined;
+
+    if (body.nudge === "too_formal") {
+      list.sort((a, b) => a.formality_score - b.formality_score);
+      return list[0];
+    } else if (body.nudge === "too_casual") {
+      list.sort((a, b) => b.formality_score - a.formality_score);
+      return list[0];
+    } else if (body.nudge === "not_me") {
+      return list.length > 1 ? list[1] : list[0];
+    }
+    return list[0];
+  };
+
+  const topGarment = pickGarment("top");
+  const bottomGarment = pickGarment("bottom");
+  const shoesGarment = pickGarment("shoes");
+  const outerwearGarment = pickGarment("outerwear");
+  const accessoryGarment = pickGarment("accessory");
+
+  const baseReasoning = `Selected ${topGarment ? topGarment.name : "smart top"} paired with ${
+    bottomGarment ? bottomGarment.name : "tailored trousers"
+  }${outerwearGarment ? ` and anchored by the ${outerwearGarment.name}` : ""}. The ensemble balances intentional tailoring with practical West Coast weather resistance, letting your ideas take center stage without sartorial distraction.`;
+
+  const reasoning = nudgeReasoning ? `${nudgeReasoning} ${baseReasoning}` : baseReasoning;
 
   return {
     calibration: {
       formality_target: targetFormality,
-      audience_read: `Tailored for ${occasion} context with audience consideration: "${audience}".`,
+      audience_read: `Tailored for ${occasion} context with audience consideration: "${audience}".${
+        body.nudge ? ` (Calibrated for ${body.nudge.replace("_", " ")})` : ""
+      }`,
       risk_assessment:
-        "Balanced formality avoiding overly stiff corporate attire while maintaining executive presence.",
+        body.nudge === "too_formal"
+          ? "Avoided overly rigid corporate lines in favor of approachable smart-casual tailoring."
+          : body.nudge === "too_casual"
+          ? "Steered clear of under-dressed casual pieces, locking in structured refinement."
+          : "Avoided conventional silhouettes, exploring alternate tonal harmonies.",
     },
-    interpretation_summary: `Curated ensemble for ${occasion} in Canadian coastal weather, prioritizing understated confidence and refined proportion.`,
+    interpretation_summary: `Curated ensemble for ${occasion} in Canadian coastal weather, prioritizing understated confidence and refined proportion.${
+      body.nudge ? ` Formality re-calibrated (${targetFormality}/10).` : ""
+    }`,
     selected_garment_ids: {
       outerwear: outerwearGarment?.id,
       top: topGarment?.id || "",
@@ -87,9 +135,7 @@ function generateDeterministicRecommendation(
       shoes: shoesGarment?.id || "",
       accessory: accessoryGarment?.id,
     },
-    reasoning: `Selected ${topGarment ? topGarment.name : "smart top"} paired with ${
-      bottomGarment ? bottomGarment.name : "tailored trousers"
-    }${outerwearGarment ? ` and anchored by the ${outerwearGarment.name}` : ""}. The ensemble balances intentional tailoring with practical West Coast weather resistance, letting your ideas take center stage without sartorial distraction.`,
+    reasoning,
     override_applied: false,
     caution_notes: outerwearGarment?.fabric.care.includes("Dry clean")
       ? ["Outerwear requires professional dry cleaning."]
@@ -110,6 +156,18 @@ async function callOpenAIEngine(
     throw new Error("NO_API_KEY");
   }
 
+  let nudgeGuideline = "";
+  if (body.nudge === "too_formal") {
+    nudgeGuideline =
+      "DISLIKE NUDGE FEEDBACK [TOO FORMAL]: The user felt the previous outfit was overly formal or rigid. You MUST decrease the formality score by 1-2 points and choose more relaxed, approachable, or casual pieces from the candidate pool. In your reasoning, explicitly describe how this new calibration softens formality while maintaining refinement.";
+  } else if (body.nudge === "too_casual") {
+    nudgeGuideline =
+      "DISLIKE NUDGE FEEDBACK [TOO CASUAL]: The user felt the previous outfit was too casual or underdressed. You MUST increase the formality score by 1-2 points and choose sharper, more structured, or authoritative pieces from the candidate pool. In your reasoning, explicitly describe how this new calibration elevates structure and authority.";
+  } else if (body.nudge === "not_me") {
+    nudgeGuideline =
+      "DISLIKE NUDGE FEEDBACK [NOT ME]: The user felt the previous outfit did not match their personal aesthetic identity. You MUST preserve the target formality level, but swap the primary aesthetic/silhouette and select an alternative set of garments with a distinct tonal/silhouette personality from the candidate pool. In your reasoning, explicitly highlight the new style direction.";
+  }
+
   // Strip catalog down to minimal metadata (No product URLs or arbitrary noise)
   const candidatePoolPrompt = Object.entries(candidatesBySlot).map(([slot, items]) => ({
     slot,
@@ -128,7 +186,8 @@ ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
 - You MUST select EXACTLY ONE garment ID per required slot (top, bottom, shoes) and optionally outerwear/accessory ONLY from the provided candidate list.
 - NEVER invent or hallucinate new garment IDs, brands, prices, or links.
 - Write editorial styling reasoning in an assured, refined tone (which will be rendered in Newsreader serif).
-- Output STRICT JSON matching the schema provided.`;
+- Output STRICT JSON matching the schema provided.
+${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
 
   const userPrompt = JSON.stringify({
     task: "Select and calibrate an outfit for the user",
@@ -138,7 +197,9 @@ ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
       season_of_wear: body.season_of_wear || body.user_profile.season_of_wear,
       audience_description: body.audience_text,
       target_formality: body.formality_target || 7,
+      nudge_feedback: body.nudge || undefined,
     },
+    nudge_directive: nudgeGuideline || undefined,
     candidate_pool_by_slot: candidatePoolPrompt,
     required_json_format: {
       calibration: {
@@ -154,7 +215,7 @@ ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
         shoes: "required-garment-id",
         accessory: "garment-id-or-null",
       },
-      reasoning: "Paragraph of editorial styling rationale",
+      reasoning: "Paragraph of editorial styling rationale (must mention nudge calibration if nudge was provided)",
       override_applied: false,
       caution_notes: ["Optional array of fit/care warnings"],
     },
@@ -203,6 +264,18 @@ async function callAnthropicEngine(
     throw new Error("NO_API_KEY");
   }
 
+  let nudgeGuideline = "";
+  if (body.nudge === "too_formal") {
+    nudgeGuideline =
+      "DISLIKE NUDGE FEEDBACK [TOO FORMAL]: Decrease formality score by 1-2 points and choose more relaxed/casual pieces from candidate pool. Mention this adjustment in reasoning.";
+  } else if (body.nudge === "too_casual") {
+    nudgeGuideline =
+      "DISLIKE NUDGE FEEDBACK [TOO CASUAL]: Increase formality score by 1-2 points and choose sharper/more structured pieces from candidate pool. Mention this adjustment in reasoning.";
+  } else if (body.nudge === "not_me") {
+    nudgeGuideline =
+      "DISLIKE NUDGE FEEDBACK [NOT ME]: Preserve target formality level, but swap primary aesthetic/silhouette and select an alternative set of garments with a distinct personality. Mention this shift in reasoning.";
+  }
+
   const candidatePoolPrompt = Object.entries(candidatesBySlot).map(([slot, items]) => ({
     slot,
     items: items.map((g) => ({
@@ -217,14 +290,18 @@ async function callAnthropicEngine(
 
   const systemPrompt = `You are an elite Senior Stylist for "Style Advisor".
 ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
-Select garment IDs ONLY from the candidate pool provided. Respond ONLY with valid JSON matching Section 7.2 schema.`;
+Select garment IDs ONLY from the candidate pool provided. Respond ONLY with valid JSON matching Section 7.2 schema.
+${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
 
   const userPrompt = `Context: ${JSON.stringify({
     user_context: {
       gender_cut: body.user_profile.gender_cut,
       occasion: body.occasion,
       audience_description: body.audience_text,
+      target_formality: body.formality_target || 7,
+      nudge: body.nudge,
     },
+    nudge_directive: nudgeGuideline || undefined,
     candidate_pool: candidatePoolPrompt,
   })}
 Respond with JSON object containing: calibration, interpretation_summary, selected_garment_ids, reasoning, override_applied, caution_notes.`;

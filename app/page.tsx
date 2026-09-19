@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useProfileStorage } from "../lib/useProfileStorage";
 import { SharedProfile } from "../components/SharedProfile";
 import { OccasionResult } from "../components/OccasionResult";
 import { CapsuleResult } from "../components/CapsuleResult";
 import { SharedCart } from "../components/SharedCart";
 import { CheckoutModal } from "../components/CheckoutModal";
-import { Garment, Occasion, RecommendApiResponse } from "../types/catalog";
+import { Garment, Occasion, RecommendApiResponse, NudgeType } from "../types/catalog";
 
 type ViewState = "profile" | "result";
 
@@ -28,8 +29,15 @@ export default function Home() {
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
 
-  const fetchRecommendation = async (formalityOverride?: number) => {
-    setIsLoading(true);
+  const fetchRecommendation = async (
+    formalityOverride?: number,
+    nudge?: NudgeType
+  ) => {
+    if (nudge) {
+      setIsNudging(true);
+    } else {
+      setIsLoading(true);
+    }
     try {
       const payload = {
         user_profile: profile,
@@ -37,6 +45,7 @@ export default function Home() {
         audience_text: audienceText,
         flow,
         formality_target: formalityOverride,
+        nudge,
       };
 
       const res = await fetch("/api/recommend", {
@@ -57,11 +66,11 @@ export default function Home() {
       alert("Network error or timeout. Engaging fallback.");
     } finally {
       setIsLoading(false);
+      setIsNudging(false);
     }
   };
 
-  const handleNudge = async (nudgeType: "too_formal" | "too_casual" | "not_me") => {
-    setIsNudging(true);
+  const handleNudge = async (nudgeType: NudgeType) => {
     const currentFormality = recommendationData?.calibration.formality_target || 7;
     let targetFormality = currentFormality;
 
@@ -69,15 +78,11 @@ export default function Home() {
       targetFormality = Math.max(3, currentFormality - 2);
     } else if (nudgeType === "too_casual") {
       targetFormality = Math.min(10, currentFormality + 2);
-    } else {
-      // "Not me" -> Switch style preferences
-      updateProfile({
-        preferred_styles: ["Modern Tech Casual", "Quiet Luxury"],
-      });
+    } else if (nudgeType === "not_me") {
+      targetFormality = currentFormality;
     }
 
-    await fetchRecommendation(targetFormality);
-    setIsNudging(false);
+    await fetchRecommendation(targetFormality, nudgeType);
   };
 
   const handleReplanCapsule = () => {
@@ -155,6 +160,14 @@ export default function Home() {
                 Edit Profile
               </button>
             )}
+
+            <Link
+              href="/admin"
+              className="text-xs font-medium text-ink-muted hover:text-ink transition-colors"
+              title="Internal Catalog Management"
+            >
+              Admin
+            </Link>
 
             {/* Cart Drawer Trigger */}
             <button

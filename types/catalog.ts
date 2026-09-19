@@ -182,6 +182,8 @@ export interface UserProfile {
   email?: string;
 }
 
+export type NudgeType = 'too_formal' | 'too_casual' | 'not_me';
+
 /**
  * Occasion Flow (Flow A) specific input.
  */
@@ -192,6 +194,7 @@ export interface OccasionInput {
   audience_text?: string;
   formality_target?: number;
   style?: string;
+  nudge?: NudgeType;
 }
 
 /**
@@ -204,7 +207,17 @@ export interface EverydayInput {
   occasions?: Occasion[];
 }
 
-export type CandidateFilterInput = (UserProfile & Partial<OccasionInput> & Partial<EverydayInput>) | (UserProfile & OccasionInput);
+export type CandidateFilterInput = UserProfile & {
+  flow?: 'occasion' | 'flow_a' | 'everyday' | 'flow_b';
+  occasion?: Occasion;
+  season_of_wear?: SeasonOfWear;
+  audience_text?: string;
+  formality_target?: number;
+  style?: string;
+  nudge?: NudgeType;
+  lifestyle?: string[];
+  occasions?: Occasion[];
+};
 
 export type RelaxedField = 'palette' | 'style' | 'lifestyle';
 

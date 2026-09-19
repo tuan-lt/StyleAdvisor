@@ -10,10 +10,34 @@
     "image_url": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "women",
     "budget_tier": "premium",
-    "occasions": ["pitch", "work", "business-casual", "formal", "smart-casual"],
-    "palette_seasons": ["autumn", "deep_autumn", "true_autumn", "winter", "deep_winter"],
-    "body_types": ["athletic", "slim", "average", "hourglass", "rectangle", "tall"],
-    "season_of_wear": ["fall", "winter", "spring", "all-season"],
+    "occasions": [
+      "pitch",
+      "work",
+      "business-casual",
+      "formal",
+      "smart-casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "deep_autumn",
+      "true_autumn",
+      "winter",
+      "deep_winter"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "hourglass",
+      "rectangle",
+      "tall"
+    ],
+    "season_of_wear": [
+      "fall",
+      "winter",
+      "spring",
+      "all-season"
+    ],
     "formality_score": 8,
     "color": "Rich Camel",
     "hex_color": "#B08A5B",
@@ -43,10 +67,32 @@
     "image_url": "https://images.unsplash.com/photo-1544923246-77307dd654cb?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "men",
     "budget_tier": "premium",
-    "occasions": ["pitch", "work", "business-casual", "formal", "date-night"],
-    "palette_seasons": ["winter", "true_winter", "deep_winter", "autumn", "cool_winter"],
-    "body_types": ["athletic", "slim", "average", "tall", "inverted-triangle"],
-    "season_of_wear": ["fall", "winter", "spring"],
+    "occasions": [
+      "pitch",
+      "work",
+      "business-casual",
+      "formal",
+      "date-night"
+    ],
+    "palette_seasons": [
+      "winter",
+      "true_winter",
+      "deep_winter",
+      "autumn",
+      "cool_winter"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "tall",
+      "inverted-triangle"
+    ],
+    "season_of_wear": [
+      "fall",
+      "winter",
+      "spring"
+    ],
     "formality_score": 8,
     "color": "Midnight Navy",
     "hex_color": "#1F2A44",
@@ -76,10 +122,30 @@
     "image_url": "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "men",
     "budget_tier": "mid",
-    "occasions": ["casual", "travel", "smart-casual", "outdoor"],
-    "palette_seasons": ["autumn", "true_autumn", "summer", "soft_autumn", "winter"],
-    "body_types": ["athletic", "slim", "average", "tall"],
-    "season_of_wear": ["spring", "fall", "all-season"],
+    "occasions": [
+      "casual",
+      "travel",
+      "smart-casual",
+      "outdoor"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "true_autumn",
+      "summer",
+      "soft_autumn",
+      "winter"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "tall"
+    ],
+    "season_of_wear": [
+      "spring",
+      "fall",
+      "all-season"
+    ],
     "formality_score": 4,
     "color": "Dark Olive Moss",
     "hex_color": "#3F6B4F",
@@ -109,10 +175,37 @@
     "image_url": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "men",
     "budget_tier": "mid",
-    "occasions": ["pitch", "work", "business-casual", "smart-casual", "casual", "date-night"],
-    "palette_seasons": ["winter", "summer", "spring", "autumn", "true_winter", "cool_summer", "true_spring"],
-    "body_types": ["athletic", "slim", "average", "tall", "rectangle"],
-    "season_of_wear": ["spring", "summer", "fall", "winter", "all-season"],
+    "occasions": [
+      "pitch",
+      "work",
+      "business-casual",
+      "smart-casual",
+      "casual",
+      "date-night"
+    ],
+    "palette_seasons": [
+      "winter",
+      "summer",
+      "spring",
+      "autumn",
+      "true_winter",
+      "cool_summer",
+      "true_spring"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "tall",
+      "rectangle"
+    ],
+    "season_of_wear": [
+      "spring",
+      "summer",
+      "fall",
+      "winter",
+      "all-season"
+    ],
     "formality_score": 6,
     "color": "Crisp Chalk White",
     "hex_color": "#F7F4EF",
@@ -142,10 +235,36 @@
     "image_url": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "unisex",
     "budget_tier": "budget",
-    "occasions": ["casual", "smart-casual", "lounge", "travel", "work"],
-    "palette_seasons": ["summer", "soft_summer", "winter", "cool_winter", "autumn"],
-    "body_types": ["athletic", "slim", "average", "tall", "curvy", "plus", "rectangle"],
-    "season_of_wear": ["spring", "summer", "fall", "winter", "all-season"],
+    "occasions": [
+      "casual",
+      "smart-casual",
+      "lounge",
+      "travel",
+      "work"
+    ],
+    "palette_seasons": [
+      "summer",
+      "soft_summer",
+      "winter",
+      "cool_winter",
+      "autumn"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "tall",
+      "curvy",
+      "plus",
+      "rectangle"
+    ],
+    "season_of_wear": [
+      "spring",
+      "summer",
+      "fall",
+      "winter",
+      "all-season"
+    ],
     "formality_score": 3,
     "color": "Heather Slate Grey",
     "hex_color": "#6B665E",
@@ -175,10 +294,34 @@
     "image_url": "https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "women",
     "budget_tier": "budget",
-    "occasions": ["pitch", "work", "smart-casual", "casual", "date-night"],
-    "palette_seasons": ["autumn", "deep_autumn", "warm_autumn", "winter", "deep_winter"],
-    "body_types": ["athletic", "slim", "average", "hourglass", "curvy", "petite"],
-    "season_of_wear": ["spring", "fall", "winter", "all-season"],
+    "occasions": [
+      "pitch",
+      "work",
+      "smart-casual",
+      "casual",
+      "date-night"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "deep_autumn",
+      "warm_autumn",
+      "winter",
+      "deep_winter"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "hourglass",
+      "curvy",
+      "petite"
+    ],
+    "season_of_wear": [
+      "spring",
+      "fall",
+      "winter",
+      "all-season"
+    ],
     "formality_score": 6,
     "color": "Espresso Ochre",
     "hex_color": "#8A5A12",
@@ -208,10 +351,32 @@
     "image_url": "https://images.unsplash.com/photo-1625910513413-7e44a4964177?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "men",
     "budget_tier": "mid",
-    "occasions": ["work", "business-casual", "smart-casual", "travel", "outdoor"],
-    "palette_seasons": ["winter", "deep_winter", "true_winter", "summer", "cool_summer"],
-    "body_types": ["athletic", "slim", "average", "tall"],
-    "season_of_wear": ["spring", "summer", "fall", "all-season"],
+    "occasions": [
+      "work",
+      "business-casual",
+      "smart-casual",
+      "travel",
+      "outdoor"
+    ],
+    "palette_seasons": [
+      "winter",
+      "deep_winter",
+      "true_winter",
+      "summer",
+      "cool_summer"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "tall"
+    ],
+    "season_of_wear": [
+      "spring",
+      "summer",
+      "fall",
+      "all-season"
+    ],
     "formality_score": 5,
     "color": "Deep Ink Navy",
     "hex_color": "#1C1B19",
@@ -241,10 +406,37 @@
     "image_url": "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "women",
     "budget_tier": "mid",
-    "occasions": ["pitch", "work", "business-casual", "formal", "smart-casual", "date-night"],
-    "palette_seasons": ["winter", "true_winter", "deep_winter", "autumn", "cool_winter"],
-    "body_types": ["athletic", "slim", "average", "hourglass", "tall", "curvy", "rectangle"],
-    "season_of_wear": ["spring", "summer", "fall", "winter", "all-season"],
+    "occasions": [
+      "pitch",
+      "work",
+      "business-casual",
+      "formal",
+      "smart-casual",
+      "date-night"
+    ],
+    "palette_seasons": [
+      "winter",
+      "true_winter",
+      "deep_winter",
+      "autumn",
+      "cool_winter"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "hourglass",
+      "tall",
+      "curvy",
+      "rectangle"
+    ],
+    "season_of_wear": [
+      "spring",
+      "summer",
+      "fall",
+      "winter",
+      "all-season"
+    ],
     "formality_score": 7,
     "color": "Ink Black",
     "hex_color": "#17181B",
@@ -274,10 +466,35 @@
     "image_url": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "men",
     "budget_tier": "mid",
-    "occasions": ["pitch", "work", "business-casual", "smart-casual", "travel", "casual"],
-    "palette_seasons": ["autumn", "warm_autumn", "true_autumn", "spring", "soft_autumn"],
-    "body_types": ["athletic", "slim", "average", "tall", "inverted-triangle"],
-    "season_of_wear": ["spring", "summer", "fall", "winter", "all-season"],
+    "occasions": [
+      "pitch",
+      "work",
+      "business-casual",
+      "smart-casual",
+      "travel",
+      "casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "warm_autumn",
+      "true_autumn",
+      "spring",
+      "soft_autumn"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "tall",
+      "inverted-triangle"
+    ],
+    "season_of_wear": [
+      "spring",
+      "summer",
+      "fall",
+      "winter",
+      "all-season"
+    ],
     "formality_score": 6,
     "color": "Trench Camel Khaki",
     "hex_color": "#B08A5B",
@@ -307,10 +524,32 @@
     "image_url": "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "men",
     "budget_tier": "budget",
-    "occasions": ["work", "business-casual", "smart-casual", "casual", "date-night"],
-    "palette_seasons": ["winter", "true_winter", "deep_winter", "summer", "cool_summer"],
-    "body_types": ["athletic", "slim", "average", "tall"],
-    "season_of_wear": ["spring", "summer", "fall", "all-season"],
+    "occasions": [
+      "work",
+      "business-casual",
+      "smart-casual",
+      "casual",
+      "date-night"
+    ],
+    "palette_seasons": [
+      "winter",
+      "true_winter",
+      "deep_winter",
+      "summer",
+      "cool_summer"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "tall"
+    ],
+    "season_of_wear": [
+      "spring",
+      "summer",
+      "fall",
+      "all-season"
+    ],
     "formality_score": 5,
     "color": "Deep Pacific Navy",
     "hex_color": "#1F2A44",
@@ -340,10 +579,37 @@
     "image_url": "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "unisex",
     "budget_tier": "mid",
-    "occasions": ["pitch", "work", "smart-casual", "casual", "travel", "outdoor"],
-    "palette_seasons": ["winter", "summer", "autumn", "cool_winter", "soft_summer", "deep_winter"],
-    "body_types": ["athletic", "slim", "average", "tall", "curvy", "plus"],
-    "season_of_wear": ["spring", "summer", "fall", "winter", "all-season"],
+    "occasions": [
+      "pitch",
+      "work",
+      "smart-casual",
+      "casual",
+      "travel",
+      "outdoor"
+    ],
+    "palette_seasons": [
+      "winter",
+      "summer",
+      "autumn",
+      "cool_winter",
+      "soft_summer",
+      "deep_winter"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "tall",
+      "curvy",
+      "plus"
+    ],
+    "season_of_wear": [
+      "spring",
+      "summer",
+      "fall",
+      "winter",
+      "all-season"
+    ],
     "formality_score": 4,
     "color": "Storm Charcoal Grey",
     "hex_color": "#6B665E",
@@ -373,10 +639,35 @@
     "image_url": "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=800&q=80",
     "gender_cut": "unisex",
     "budget_tier": "budget",
-    "occasions": ["pitch", "work", "business-casual", "smart-casual", "casual", "travel"],
-    "palette_seasons": ["autumn", "warm_autumn", "true_autumn", "spring", "soft_autumn"],
-    "body_types": ["athletic", "slim", "average", "tall", "curvy", "petite", "plus"],
-    "season_of_wear": ["fall", "winter", "spring"],
+    "occasions": [
+      "pitch",
+      "work",
+      "business-casual",
+      "smart-casual",
+      "casual",
+      "travel"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "warm_autumn",
+      "true_autumn",
+      "spring",
+      "soft_autumn"
+    ],
+    "body_types": [
+      "athletic",
+      "slim",
+      "average",
+      "tall",
+      "curvy",
+      "petite",
+      "plus"
+    ],
+    "season_of_wear": [
+      "fall",
+      "winter",
+      "spring"
+    ],
     "formality_score": 6,
     "color": "Toffee Camel Thread",
     "hex_color": "#B08A5B",
