@@ -126,6 +126,8 @@ export interface Garment {
   styling_notes?: string;
   /** Stock availability status */
   in_stock: boolean;
+  /** Ingestion or verification ISO date string (e.g. "2026-09-19") */
+  verified_date?: string;
 }
 
 /**

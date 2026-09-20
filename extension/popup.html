@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Style Advisor Ingestor</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-group">
+        <span class="logo-icon">✨</span>
+        <div class="title-wrap">
+          <h1>Style Advisor</h1>
+          <span class="badge-tag">Catalog Ingestor</span>
+        </div>
+      </div>
+      <div id="endpointStatusBadge" class="status-badge checking">
+        <span class="dot"></span>
+        <span id="statusText">Checking...</span>
+      </div>
+    </header>
+
+    <!-- Scanner / Loading Area -->
+    <div id="loadingBox" class="loading-box">
+      <div class="spinner"></div>
+      <p>Scanning active webpage for product details...</p>
+    </div>
+
+    <!-- Product Details Form -->
+    <main id="productForm" class="product-form hidden">
+      <!-- Preview Card -->
+      <div class="preview-card">
+        <div class="image-box">
+          <img id="previewImg" src="" alt="Product Preview">
+          <div id="noImgFallback" class="no-img-fallback hidden">No Img</div>
+        </div>
+        <div class="preview-info">
+          <span id="previewBrand" class="preview-brand">Brand</span>
+          <h2 id="previewTitle" class="preview-title">Product Name</h2>
+          <div class="preview-meta">
+            <span id="previewPrice" class="preview-price">$0 CAD</span>
+            <span id="previewSlot" class="slot-pill">TOP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editable Fields -->
+      <div class="form-fields">
+        <div class="field-row">
+          <div class="field-col flex-2">
+            <label for="inputTitle">Title / Name *</label>
+            <input type="text" id="inputTitle" required>
+          </div>
+          <div class="field-col flex-1">
+            <label for="inputBrand">Brand *</label>
+            <input type="text" id="inputBrand" required>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-col flex-1">
+            <label for="inputPrice">Price (CAD) *</label>
+            <input type="number" id="inputPrice" min="0" step="1" required>
+          </div>
+          <div class="field-col flex-1">
+            <label for="selectSlot">Wardrobe Slot *</label>
+            <select id="selectSlot">
+              <option value="top">TOP (Tops / Shirts)</option>
+              <option value="bottom">BOTTOM (Pants / Jeans)</option>
+              <option value="outerwear">OUTERWEAR (Coats / Jackets)</option>
+              <option value="shoes">SHOES (Footwear)</option>
+              <option value="accessory">ACCESSORY (Bags / Belts)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-col flex-1">
+            <label for="inputColor">Color Name</label>
+            <input type="text" id="inputColor" placeholder="e.g. Black, Navy">
+          </div>
+          <div class="field-col flex-1">
+            <label for="inputHex">Color Swatch</label>
+            <div class="hex-picker-row">
+              <input type="color" id="inputHex" value="#2C2C2C">
+              <span id="hexValueText" class="hex-text">#2C2C2C</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-col full-width">
+            <label for="inputFabric">Fabric / Material Composition</label>
+            <input type="text" id="inputFabric" placeholder="e.g. 100% Wool, 80% Nylon 20% Elastane">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-col full-width">
+            <label for="inputImage">Image URL</label>
+            <input type="url" id="inputImage" placeholder="https://...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="action-footer">
+        <button type="button" id="btnIngest" class="btn-primary">
+          <span id="btnIngestIcon">🚀</span>
+          <span id="btnIngestText">Ingest into Catalog</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- Settings / Target Endpoint (Collapsible) -->
+    <footer class="footer-settings">
+      <div class="endpoint-config">
+        <label for="endpointUrl">Target API:</label>
+        <input type="text" id="endpointUrl" value="http://localhost:3000/api/admin/catalog">
+      </div>
+      <div class="footer-links">
+        <a href="http://localhost:3000/admin" target="_blank" class="admin-link">Open /admin UI ↗</a>
+      </div>
+    </footer>
+
+    <!-- Result / Toast Notification -->
+    <div id="toastMessage" class="toast hidden"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

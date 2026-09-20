@@ -1,5 +1,235 @@
 [
   {
+    "id": "ca_wilfred_reverie-silk-dress_6693",
+    "name": "Reverie Silk Dress",
+    "brand": "Wilfred",
+    "slot": "top",
+    "price": 198,
+    "currency": "CAD",
+    "product_url": "https://www.aritzia.com/en/product/reverie-silk-dress/136328.html?color=38405",
+    "image_url": "https://assets.aritzia.com/image/upload/c_crop,ar_1920:2623,g_south/q_auto,f_auto,dpr_auto/f26_a08_136328_38405_off_a",
+    "gender_cut": "women",
+    "budget_tier": "mid",
+    "occasions": [
+      "work",
+      "smart-casual",
+      "casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "winter"
+    ],
+    "body_types": [
+      "average",
+      "athletic"
+    ],
+    "season_of_wear": [
+      "all-season",
+      "fall"
+    ],
+    "formality_score": 6,
+    "color": "Classic",
+    "hex_color": "#2c2c2c",
+    "fabric": {
+      "composition": "Premium Fabric Blend",
+      "care": "Machine wash cold. Hang dry.",
+      "sustainable": false
+    },
+    "return_policy": {
+      "window_days": 30,
+      "free_returns": true,
+      "policy_note": "Free returns and exchanges within 30 days at Wilfred."
+    },
+    "description": "Crafted by Wilfred for refined wardrobe versatility in Canadian climates.",
+    "styling_notes": "Pairs seamlessly with tailored foundation pieces.",
+    "in_stock": true,
+    "verified_date": "2026-09-20"
+  },
+  {
+    "id": "ca_aritzia_the-finch-trench-coa_9717",
+    "name": "The Finch Trench Coat - City Twill",
+    "brand": "Aritzia",
+    "slot": "outerwear",
+    "price": 298,
+    "currency": "CAD",
+    "product_url": "https://www.aritzia.com/en/product/the-finch-trench-coat/127628.html?color=34050",
+    "image_url": "https://assets.aritzia.com/image/upload/c_crop,ar_1920:2623,g_south/q_auto,f_auto,dpr_auto/f26_a05_127628_34050_off_a",
+    "gender_cut": "unisex",
+    "budget_tier": "luxury",
+    "occasions": [
+      "work",
+      "smart-casual",
+      "casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "winter"
+    ],
+    "body_types": [
+      "average",
+      "athletic"
+    ],
+    "season_of_wear": [
+      "all-season",
+      "fall"
+    ],
+    "formality_score": 8,
+    "color": "Classic",
+    "hex_color": "#2c2c2c",
+    "fabric": {
+      "composition": "Premium Fabric Blend",
+      "care": "Machine wash cold. Hang dry.",
+      "sustainable": false
+    },
+    "return_policy": {
+      "window_days": 30,
+      "free_returns": true,
+      "policy_note": "Free returns and exchanges within 30 days at Aritzia."
+    },
+    "description": "Crafted by Aritzia for refined wardrobe versatility in Canadian climates.",
+    "styling_notes": "Pairs seamlessly with tailored foundation pieces.",
+    "in_stock": true,
+    "verified_date": "2026-09-19"
+  },
+  {
+    "id": "ca_aritzia_opulence-solid-brass_3624",
+    "name": "Opulence Solid Brass Leather Belt",
+    "brand": "Aritzia",
+    "slot": "accessory",
+    "price": 98,
+    "currency": "CAD",
+    "product_url": "https://www.aritzia.com/en/product/opulence-solid-brass-leather-belt/136151.html?color=1461",
+    "image_url": "https://assets.aritzia.com/image/upload/c_crop,ar_1920:2623,g_south/q_auto,f_auto,dpr_auto/f26_n04_136151_1461_off_a",
+    "gender_cut": "unisex",
+    "budget_tier": "mid",
+    "occasions": [
+      "work",
+      "smart-casual",
+      "casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "winter"
+    ],
+    "body_types": [
+      "average",
+      "athletic"
+    ],
+    "season_of_wear": [
+      "all-season",
+      "fall"
+    ],
+    "formality_score": 6,
+    "color": "Classic",
+    "hex_color": "#2c2c2c",
+    "fabric": {
+      "composition": "Premium Fabric Blend",
+      "care": "Machine wash cold. Hang dry.",
+      "sustainable": false
+    },
+    "return_policy": {
+      "window_days": 30,
+      "free_returns": true,
+      "policy_note": "Free returns and exchanges within 30 days at Aritzia."
+    },
+    "description": "Crafted by Aritzia for refined wardrobe versatility in Canadian climates.",
+    "styling_notes": "Pairs seamlessly with tailored foundation pieces.",
+    "in_stock": true,
+    "verified_date": "2026-09-19"
+  },
+  {
+    "id": "ca_aritzia_the-effortless-pant-_0327",
+    "name": "The Effortless Pant™ Crepe",
+    "brand": "Aritzia",
+    "slot": "bottom",
+    "price": 148,
+    "currency": "CAD",
+    "product_url": "https://www.aritzia.com/en/product/the-effortless-pant/72574.html",
+    "image_url": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=800&q=80",
+    "gender_cut": "unisex",
+    "budget_tier": "mid",
+    "occasions": [
+      "work",
+      "smart-casual",
+      "casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "winter"
+    ],
+    "body_types": [
+      "average",
+      "athletic"
+    ],
+    "season_of_wear": [
+      "all-season",
+      "fall"
+    ],
+    "formality_score": 7,
+    "color": "Birch White",
+    "hex_color": "#F2EFE9",
+    "fabric": {
+      "composition": "100% Japanese Crepe Polyester",
+      "care": "Machine wash cold. Hang dry.",
+      "sustainable": false
+    },
+    "return_policy": {
+      "window_days": 30,
+      "free_returns": true,
+      "policy_note": "Free returns and exchanges within 30 days at Aritzia."
+    },
+    "description": "Crafted by Aritzia for refined wardrobe versatility in Canadian climates.",
+    "styling_notes": "Pairs seamlessly with tailored foundation pieces.",
+    "in_stock": true,
+    "verified_date": "2026-09-19"
+  },
+  {
+    "id": "ca_lululemon_align-high-rise-pant_1398",
+    "name": "Align High-Rise Pant 25\"",
+    "brand": "Lululemon",
+    "slot": "bottom",
+    "price": 118,
+    "currency": "CAD",
+    "product_url": "https://shop.lululemon.com/p/women-pants/Align-Pant-2/_/prod2020012",
+    "image_url": "https://images.lululemon.com/is/image/lululemon/LW5CQAS_0001_1",
+    "gender_cut": "women",
+    "budget_tier": "mid",
+    "occasions": [
+      "work",
+      "smart-casual",
+      "casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "winter"
+    ],
+    "body_types": [
+      "average",
+      "athletic"
+    ],
+    "season_of_wear": [
+      "all-season",
+      "fall"
+    ],
+    "formality_score": 7,
+    "color": "Black",
+    "hex_color": "#2C2C2C",
+    "fabric": {
+      "composition": "81% Nylon, 19% Lycra elastane",
+      "care": "Machine wash cold. Hang dry.",
+      "sustainable": false
+    },
+    "return_policy": {
+      "window_days": 30,
+      "free_returns": true,
+      "policy_note": "Free returns and exchanges within 30 days at Lululemon."
+    },
+    "description": "Crafted by Lululemon for refined wardrobe versatility in Canadian climates.",
+    "styling_notes": "Pairs seamlessly with tailored foundation pieces.",
+    "in_stock": true,
+    "verified_date": "2026-09-19"
+  },
+  {
     "id": "aritzia-agency-blazer-wool",
     "name": "Babaton Agency Wool-Blend Blazer",
     "brand": "Aritzia",
@@ -684,6 +914,98 @@
     },
     "description": "Plush, non-scratchy extra-fine merino wool knitted in a rich architectural rib. Provides lightweight thermal insulation without excess bulk.",
     "styling_notes": "Drape gently over an overcoat lapel or loop once around the neck to inject subtle warmth and tonal richness to monochrome outfits.",
+    "in_stock": true
+  },
+  {
+    "id": "aritzia-leiden-dress-7996",
+    "name": "Leiden Dress - Crepette™",
+    "brand": "Aritzia",
+    "slot": "accessory",
+    "price": 168,
+    "currency": "CAD",
+    "product_url": "https://www.aritzia.com/en/product/leiden-dress/129937.html?color=37627",
+    "image_url": "https://assets.aritzia.com/image/upload/q_auto,f_auto,dpr_auto,w_1920/f26_a08_129937_37627_on_a",
+    "gender_cut": "women",
+    "budget_tier": "mid",
+    "occasions": [
+      "work",
+      "smart-casual",
+      "casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "winter"
+    ],
+    "body_types": [
+      "average",
+      "athletic"
+    ],
+    "season_of_wear": [
+      "all-season",
+      "fall"
+    ],
+    "formality_score": 6,
+    "color": "Classic",
+    "hex_color": "#2c2c2c",
+    "fabric": {
+      "composition": "Premium Fabric Blend",
+      "care": "Machine wash cold. Hang dry.",
+      "sustainable": false
+    },
+    "return_policy": {
+      "window_days": 30,
+      "free_returns": true,
+      "policy_note": "Free returns and exchanges within 30 days at Aritzia."
+    },
+    "description": "Crafted by Aritzia for refined wardrobe versatility in Canadian climates.",
+    "styling_notes": "Pairs seamlessly with tailored foundation pieces.",
+    "in_stock": true,
+    "verified_date": "2026-09-19"
+  },
+  {
+    "id": "kotn-men-s-a-2-bomber-jacket-0775",
+    "name": "Men's A-2 Bomber Jacket",
+    "brand": "Kotn",
+    "slot": "outerwear",
+    "price": 328,
+    "currency": "CAD",
+    "product_url": "https://kotn.com/products/mens-a-2-bomber-jacket?colour=field-green",
+    "image_url": "https://cdn.shopify.com/s/files/1/0932/1356/files/MENS_A2_BOMBER_JACKET_WASHED_BLACK_02_7fb1daf2-97a3-40fe-8c64-99644f14fe01.jpg?v=1788886099",
+    "gender_cut": "men",
+    "budget_tier": "premium",
+    "occasions": [
+      "casual",
+      "travel",
+      "outdoor",
+      "smart-casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "winter"
+    ],
+    "body_types": [
+      "average",
+      "athletic"
+    ],
+    "season_of_wear": [
+      "all-season",
+      "fall"
+    ],
+    "formality_score": 5,
+    "color": "Classic",
+    "hex_color": "#2C2C2C",
+    "fabric": {
+      "composition": "100% cotton",
+      "care": "spot clean",
+      "sustainable": false
+    },
+    "return_policy": {
+      "window_days": 30,
+      "free_returns": true,
+      "policy_note": "Free returns and exchanges within 30 days at Kotn."
+    },
+    "description": "Your everyday layer, reimagined. Cut from durable corded cloth that softens and molds to you over time, this bomber is lightly padded for warmth without the bulk. Designed with classic workwear detailing and finished with our signature back-right pocket, embroidered with the Kotn flower. Made from 100% cotton.",
+    "styling_notes": "Pair with tailored foundation pieces to balance structure and effortless refinement.",
     "in_stock": true
   }
 ]
