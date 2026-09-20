@@ -157,8 +157,8 @@ export default function AdminCatalogPage() {
             const prevIds = new Set(prevGarments.map((g: Garment) => g.id));
             const newItems = json.data.filter((g: Garment) => !prevIds.has(g.id));
             if (newItems.length > 0) {
-              const newIdSet = new Set(newItems.map((g: Garment) => g.id));
-              setNewlyIngestedIds((prev) => new Set([...Array.from(prev), ...Array.from(newIdSet)]));
+              const newIds: string[] = newItems.map((g: Garment) => g.id);
+              setNewlyIngestedIds((prev) => new Set<string>([...Array.from(prev), ...newIds]));
               showToast(`✨ Ingested ${newItems.length} new item(s) from Extension: "${newItems[0].name}" (${newItems[0].brand})`, "success");
             }
           }
@@ -349,7 +349,7 @@ export default function AdminCatalogPage() {
 
       if (json.success && json.garment) {
         showToast(`✓ Ingested "${json.garment.name}" via Extension API!`, "success");
-        setNewlyIngestedIds((prev) => new Set([...Array.from(prev), json.garment.id]));
+        setNewlyIngestedIds((prev) => new Set<string>([...Array.from(prev), json.garment.id as string]));
         setManualJsonInput("");
         fetchCatalog();
       } else {
