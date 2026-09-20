@@ -54,42 +54,47 @@ Traditional AI styling tools often hallucinate non-existent clothes, outdated pr
 
 ## 🏛️ Architecture & Data Flow
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              CLIENT BROWSER                                 │
-│  Next.js 14 App Router • React 18 • Tailwind CSS • LocalStorage Profile     │
-└──────────────────────┬───────────────────────────────▲──────────────────────┘
-                       │                               │
-                       │ JSON Request                  │ Verified Outfits &
-                       │ (Profile + Occasion)          │ Garment Models
-                       ▼                               │
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            NEXT.JS BACKEND APIS                             │
-│                                                                             │
-│  1. /api/recommend (POST)                                                   │
-│     ├─ Step 1: lib/catalog-filter.ts (Hard deterministic filter)            │
-│     ├─ Step 2: LLM JSON Mode (Claude 3.5 Sonnet / OpenAI GPT-4o)            │
-│     ├─ Step 3: Schema & ID Validation against data/catalog.json             │
-│     └─ Step 4: Deterministic Cache (Input Hash Key, 15s Hard Timeout)       │
-│                                                                             │
-│  2. /api/admin/catalog (GET, POST, OPTIONS, DELETE - CORS Enabled)          │
-│     ├─ Preflight CORS handler for Chrome Extensions                         │
-│     └─ Auto-generates deterministic IDs & updates data/catalog.json         │
-│                                                                             │
-│  3. /api/admin/verify-url (POST)                                            │
-│     └─ Real-time retailer URL & HTTP health ping verifier                   │
-│                                                                             │
-│  4. /api/admin/extract-product (POST)                                       │
-│     └─ Smart server-side OpenGraph / DOM scraper fallback                   │
-└──────────────────────────────────────┬──────────────────────────────────────┘
-                                       │
-                ┌──────────────────────┴──────────────────────┐
-                ▼                                             ▼
-┌───────────────────────────────┐             ┌───────────────────────────────┐
-│     CHROME EXTENSION (MV3)    │             │       LOCAL REPOSITORY        │
-│   DOM / JSON-LD Web Scraper   │             │   data/catalog.json (~180+    │
-│   1-Click Ingest Popup Hub    │             │   Verified Retailer Garments) │
-└───────────────────────────────┘             └───────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Client["📱 Client Browser"]
+        UI["Next.js 14 App Router • React 18 • Tailwind CSS"]
+        Storage[("LocalStorage Profile Cache")]
+        UI <--> Storage
+    end
+
+    subgraph Backend["⚙️ Next.js Backend APIs"]
+        subgraph RecommendEngine["1. /api/recommend (POST)"]
+            Filter["lib/catalog-filter.ts<br/>Deterministic Code Filter"]
+            LLM["LLM Styling Engine<br/>Claude 3.5 Sonnet / GPT-4o"]
+            Validator["Schema & Code Validator<br/>Zero-Hallucination Guard"]
+            Cache[("Deterministic In-Memory Cache<br/>Hash Key • 15s Hard Timeout")]
+            
+            Filter --> LLM --> Validator --> Cache
+        end
+
+        subgraph AdminCatalog["2. /api/admin/catalog (CORS API)"]
+            CORS["OPTIONS Preflight CORS Handler"]
+            IDGen["Deterministic ID & Date Generator"]
+            CORS --> IDGen
+        end
+
+        subgraph AdminTools["3. /api/admin/verify-url & extract-product"]
+            HealthPing["Retailer Live URL Health Verifier"]
+            DOMScrape["Server-side DOM & OpenGraph Scraper"]
+        end
+    end
+
+    subgraph StorageLayer["📦 Data Layer & Browser Tooling"]
+        MasterCatalog[("data/catalog.json<br/>Verified Canadian Retailer Garments")]
+        ChromeExt["🧩 Chrome Extension (Manifest V3)<br/>DOM / JSON-LD 1-Click Scraper"]
+    end
+
+    UI -->|"1. JSON Profile & Occasion"| Filter
+    Cache -->|"2. Verified Outfits & Garments"| UI
+    ChromeExt -->|"Cross-Origin POST / OPTIONS"| AdminCatalog
+    IDGen -->|"Save New Garments"| MasterCatalog
+    Validator -.->|"Validate Candidate IDs"| MasterCatalog
+    HealthPing -.->|"Batch Ping Links"| MasterCatalog
 ```
 
 ---
