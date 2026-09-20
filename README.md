@@ -102,36 +102,70 @@ flowchart TD
 ## 🚀 Quick Start
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) v18.17+ or v20+
-- [Docker](https://www.docker.com/) & Docker Compose (Optional, for containerized run)
+- **Node.js** v18.17+ or v20+ *(if running locally without Docker)*
+- **Docker Desktop** *(recommended for running with 1 click)*
+
+---
+
+### 🐳 Step 0: Installing Docker (For Complete Beginners)
+
+If you do not have Docker installed on your computer yet:
+
+1. **Download Docker Desktop:**
+   - Go to the official Docker website: **[https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)**
+   - Click the download button for your operating system:
+     * **Mac**: Choose *Apple Chip (M1/M2/M3/M4)* or *Intel Chip*.
+     * **Windows**: Download the Windows installer *(Ensure WSL 2 is enabled during installation)*.
+     * **Linux**: Follow the instructions for your distribution (Ubuntu, Debian, Fedora, Arch).
+
+2. **Install & Launch Docker Desktop:**
+   - Open the downloaded installer and follow the on-screen setup prompts.
+   - Once installed, open the **Docker Desktop** application.
+   - Wait until you see the **whale icon (🐳)** in your menu bar (Mac) or system tray (Windows) turn **green** / show *"Engine running"*.
+
+3. **Verify Installation:**
+   Open your Terminal (or PowerShell) and run:
+   ```bash
+   docker --version
+   docker compose version
+   ```
+   If version numbers appear (e.g. `Docker version 27.x.x`), you are ready to proceed!
 
 ---
 
 ### Option A: Running with Docker (Recommended)
 
-1. **Clone the repository:**
+1. **Open your Terminal** (Terminal on macOS / Linux, or PowerShell / Command Prompt on Windows).
+
+2. **Clone the repository and navigate into the project folder:**
    ```bash
-   git clone https://github.com/tuanlt/style-advisor.git
-   cd style-advisor
+   # Clone repository via HTTPS or SSH
+   git clone https://github.com/tuan-lt/StyleAdvisor.git
+
+   # Navigate into the cloned project directory
+   cd StyleAdvisor
    ```
 
-2. **Configure environment variables:**
+3. **Configure environment variables:**
    ```bash
+   # Copy sample environment file to local configuration
    cp .env.example .env.local
    ```
-   Add your API keys in `.env.local`:
+   Open `.env.local` in your editor and provide your LLM API key:
    ```env
    ANTHROPIC_API_KEY=your_anthropic_api_key_here
    # or
    OPENAI_API_KEY=your_openai_api_key_here
    ```
 
-3. **Start the Docker container:**
+4. **Build and start the Docker container:**
    ```bash
    docker compose up -d
    ```
+   *(To view live container logs, run `docker compose logs -f web`)*
 
-4. Open **[http://localhost:3000](http://localhost:3000)** in your browser.
+5. **Access the application:**
+   Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ---
 
