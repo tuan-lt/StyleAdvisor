@@ -56,7 +56,7 @@ export default function AdminCatalogPage() {
     isChecking?: boolean;
   }>({ isChecking: false });
   const [isAutoSyncEnabled, setIsAutoSyncEnabled] = useState<boolean>(true);
-  const [newlyIngestedIds, setNewlyIngestedIds] = useState<Set<string>>(new Set());
+  const [newlyIngestedIds, setNewlyIngestedIds] = useState<string[]>([]);
   const [manualJsonInput, setManualJsonInput] = useState<string>("");
   const [isIngestingJson, setIsIngestingJson] = useState<boolean>(false);
   const [copiedEndpoint, setCopiedEndpoint] = useState<boolean>(false);
@@ -157,8 +157,8 @@ export default function AdminCatalogPage() {
             const prevIds = new Set(prevGarments.map((g: Garment) => g.id));
             const newItems = json.data.filter((g: Garment) => !prevIds.has(g.id));
             if (newItems.length > 0) {
-              const newIds: string[] = newItems.map((g: Garment) => g.id);
-              setNewlyIngestedIds((prev) => new Set<string>([...Array.from(prev), ...newIds]));
+              const newIds = newItems.map((g: Garment) => g.id);
+              setNewlyIngestedIds((prev) => [...prev, ...newIds]);
               showToast(`✨ Ingested ${newItems.length} new item(s) from Extension: "${newItems[0].name}" (${newItems[0].brand})`, "success");
             }
           }
@@ -349,7 +349,7 @@ export default function AdminCatalogPage() {
 
       if (json.success && json.garment) {
         showToast(`✓ Ingested "${json.garment.name}" via Extension API!`, "success");
-        setNewlyIngestedIds((prev) => new Set<string>([...Array.from(prev), json.garment.id as string]));
+        setNewlyIngestedIds((prev) => [...prev, json.garment.id]);
         setManualJsonInput("");
         fetchCatalog();
       } else {
@@ -726,7 +726,7 @@ export default function AdminCatalogPage() {
                 ) : (
                   filteredGarments.map((garment) => {
                     const health = urlHealthMap[garment.id];
-                    const isNewIngest = newlyIngestedIds.has(garment.id);
+                    const isNewIngest = newlyIngestedIds.includes(garment.id);
 
                     return (
                       <tr
