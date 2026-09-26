@@ -153,6 +153,42 @@ function extractProductDataFromDOM() {
     }
   }
 
+  // Known Canadian Brands Mapping
+  const KNOWN_BRANDS = [
+    { key: "lululemon", name: "Lululemon" },
+    { key: "aritzia", name: "Aritzia" },
+    { key: "canadagoose", name: "Canada Goose" },
+    { key: "arcteryx", name: "Arc'teryx" },
+    { key: "roots", name: "Roots" },
+    { key: "kotn", name: "Kotn" },
+    { key: "tentree", name: "Tentree" },
+    { key: "mackage", name: "Mackage" },
+    { key: "mooseknuckles", name: "Moose Knuckles" },
+    { key: "herschel", name: "Herschel Supply Co." },
+    { key: "provinceofcanada", name: "Province of Canada" },
+    { key: "encircled", name: "Encircled" },
+    { key: "frankandoak", name: "Frank And Oak" },
+    { key: "clubmonaco", name: "Club Monaco" },
+    { key: "reigningchamp", name: "Reigning Champ" },
+    { key: "simons", name: "Simons" },
+    { key: "vessi", name: "Vessi" },
+    { key: "nakedandfamous", name: "Naked & Famous Denim" },
+    { key: "lole", name: "Lolë" },
+    { key: "commongoods", name: "Common Goods" },
+    { key: "rw-co", name: "RW&CO" },
+    { key: "rwco", name: "RW&CO" },
+    { key: "sorel", name: "Sorel" },
+    { key: "baffin", name: "Baffin" },
+    { key: "kamik", name: "Kamik" },
+  ];
+
+  for (const kb of KNOWN_BRANDS) {
+    if (hostname.includes(kb.key)) {
+      result.brand = kb.name;
+      break;
+    }
+  }
+
   // Generic Brand Fallback from hostname
   if (!result.brand) {
     const parts = hostname.replace("www.", "").split(".");

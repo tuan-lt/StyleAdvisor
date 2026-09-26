@@ -66,13 +66,27 @@ function detectBrand(url: string, siteName?: string): string {
     if (host.includes("aritzia")) return "Aritzia";
     if (host.includes("rw-co") || host.includes("rwco")) return "RW&CO";
     if (host.includes("lululemon")) return "Lululemon";
-    if (host.includes("kotn")) return "Kotn";
-    if (host.includes("vessi")) return "Vessi";
-    if (host.includes("clubmonaco")) return "Club Monaco";
-    if (host.includes("frankandoak")) return "Frank And Oak";
-    if (host.includes("simons")) return "Simons";
-    if (host.includes("reigningchamp")) return "Reigning Champ";
+    if (host.includes("canadagoose")) return "Canada Goose";
+    if (host.includes("arcteryx")) return "Arc'teryx";
     if (host.includes("roots")) return "Roots";
+    if (host.includes("kotn")) return "Kotn";
+    if (host.includes("tentree")) return "Tentree";
+    if (host.includes("mackage")) return "Mackage";
+    if (host.includes("mooseknuckles")) return "Moose Knuckles";
+    if (host.includes("herschel")) return "Herschel Supply Co.";
+    if (host.includes("provinceofcanada")) return "Province of Canada";
+    if (host.includes("encircled")) return "Encircled";
+    if (host.includes("frankandoak")) return "Frank And Oak";
+    if (host.includes("clubmonaco")) return "Club Monaco";
+    if (host.includes("reigningchamp")) return "Reigning Champ";
+    if (host.includes("simons")) return "Simons";
+    if (host.includes("vessi")) return "Vessi";
+    if (host.includes("nakedandfamous")) return "Naked & Famous Denim";
+    if (host.includes("lole")) return "Lolë";
+    if (host.includes("commongoods")) return "Common Goods";
+    if (host.includes("sorel")) return "Sorel";
+    if (host.includes("baffin")) return "Baffin";
+    if (host.includes("kamik")) return "Kamik";
 
     if (siteName) {
       return siteName.trim();
