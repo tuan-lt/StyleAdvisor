@@ -31,9 +31,9 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const zipBuffer = await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" });
+    const zipUint8Array = await zip.generateAsync({ type: "uint8array", compression: "DEFLATE" });
 
-    return new NextResponse(zipBuffer, {
+    return new NextResponse(zipUint8Array as unknown as BodyInit, {
       status: 200,
       headers: {
         "Content-Type": "application/zip",
