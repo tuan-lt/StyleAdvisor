@@ -1536,7 +1536,7 @@ export default function AdminCatalogPage() {
                 </div>
                 <ul className="list-disc list-inside space-y-1.5 text-ink-muted leading-relaxed pl-1">
                   <li>
-                    <strong className="text-ink">Target URL:</strong> Ensure your Chrome Extension is configured to send HTTP <code className="text-ink font-mono font-semibold">POST</code> requests to <code className="text-accent font-mono font-semibold">http://localhost:3000/api/admin/catalog</code>.
+                    <strong className="text-ink">Target URL:</strong> Configure your Chrome Extension to send HTTP <code className="text-ink font-mono font-semibold">POST</code> requests to <code className="text-accent font-mono font-semibold">http://localhost:3000/api/admin/catalog</code> (Local) or <code className="text-accent font-mono font-semibold">https://StyleAdvisor.online/api/admin/catalog</code> (Production).
                   </li>
                   <li>
                     <strong className="text-ink">Preflight (CORS):</strong> The backend responds to browser preflight (<code className="text-ink font-mono">OPTIONS</code>) with status <code className="text-ink font-mono">200</code> and wildcards, so you don&apos;t need custom headers or proxying.

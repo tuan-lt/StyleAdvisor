@@ -22,14 +22,14 @@ export function SharedCart({
 }: SharedCartProps) {
   if (!isOpen) return null;
 
-  // De-duplicate items
+  // De-duplicate items per PRD FR-4.1
   const uniqueItemsMap = new Map<string, Garment>();
   for (const item of cartItems) {
     uniqueItemsMap.set(item.id, item);
   }
   const uniqueItems = Array.from(uniqueItemsMap.values());
 
-  const totalCad = uniqueItems.reduce((acc, item) => acc + item.price, 0);
+  const totalCad = uniqueItems.reduce((acc, item) => acc + (item.price_cad || item.price || 0), 0);
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -44,15 +44,15 @@ export function SharedCart({
           {/* Cart Header */}
           <div className="p-6 border-b border-border flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-serif text-ink font-medium">Your Fitting Cart</h2>
+              <h2 className="text-xl font-serif text-ink font-medium">Fitting Bag (Shared Cart)</h2>
               <p className="text-xs text-ink-muted mt-0.5">
-                {uniqueItems.length} {uniqueItems.length === 1 ? "garment" : "garments"} selected
+                {uniqueItems.length} {uniqueItems.length === 1 ? "garment" : "garments"} verified
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="p-2 text-ink-muted hover:text-ink rounded-fitting hover:bg-surface transition-colors"
+              className="p-2 text-ink-muted hover:text-ink rounded-fitting hover:bg-surface transition-colors cursor-pointer"
             >
               ✕
             </button>
@@ -61,9 +61,9 @@ export function SharedCart({
           {/* Cart Body */}
           <div className="p-6 overflow-y-auto flex-1">
             {uniqueItems.length === 0 ? (
-              /* Empty Cart Calm View ("You're ready. Wear what you have.") */
+              /* Empty Cart Calm View per PRD FR-4.3 ("You're ready. Wear what you have.") */
               <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-12 px-4">
-                <div className="w-16 h-16 rounded-full bg-verified/10 text-verified flex items-center justify-center text-2xl">
+                <div className="w-16 h-16 rounded-full bg-verified/10 text-verified flex items-center justify-center text-2xl font-bold">
                   ✓
                 </div>
                 <div className="space-y-1.5">
@@ -80,7 +80,7 @@ export function SharedCart({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="mt-4 px-6 py-2.5 rounded-fitting bg-surface border border-border text-xs font-semibold text-ink hover:bg-surface-raised transition-all"
+                  className="mt-4 px-6 py-2.5 rounded-fitting bg-surface border border-border text-xs font-semibold text-ink hover:bg-surface-raised transition-all cursor-pointer"
                 >
                   Return to Advisor
                 </button>
@@ -93,7 +93,7 @@ export function SharedCart({
                   <button
                     type="button"
                     onClick={onClearCart}
-                    className="text-caution hover:underline"
+                    className="text-caution hover:underline cursor-pointer"
                   >
                     Clear All
                   </button>
@@ -102,7 +102,6 @@ export function SharedCart({
                 <div className="space-y-3 divide-y divide-border">
                   {uniqueItems.map((item) => (
                     <div key={item.id} className="pt-3 first:pt-0 flex items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={item.image_url}
                         alt={item.name}
@@ -113,12 +112,14 @@ export function SharedCart({
                           {item.brand} • {item.slot}
                         </div>
                         <h4 className="text-xs font-medium text-ink truncate">{item.name}</h4>
-                        <div className="text-xs font-semibold text-ink mt-0.5">${item.price} CAD</div>
+                        <div className="text-xs font-bold text-ink mt-0.5 font-mono tabular-nums">
+                          ${(item.price_cad || item.price || 0).toFixed(2)} CAD
+                        </div>
                       </div>
                       <button
                         type="button"
                         onClick={() => onRemoveItem(item.id)}
-                        className="text-xs text-ink-muted hover:text-caution p-1"
+                        className="text-xs text-ink-muted hover:text-caution p-1 cursor-pointer"
                         title="Remove"
                       >
                         ✕
@@ -135,12 +136,12 @@ export function SharedCart({
             <div className="p-6 border-t border-border bg-surface/40 space-y-4">
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs text-ink-muted">
-                  <span>Partner Merchant Total</span>
-                  <span>CAD</span>
+                  <span>Canadian Merchant Total</span>
+                  <span className="font-mono">CAD</span>
                 </div>
                 <div className="flex justify-between text-xl font-serif text-ink font-semibold">
                   <span>Estimated Total</span>
-                  <span>${totalCad}</span>
+                  <span className="font-mono tabular-nums">${totalCad.toFixed(2)}</span>
                 </div>
                 <p className="text-[11px] text-ink-muted">
                   No hidden markup. Order directly through verified Canadian retailers.
@@ -150,7 +151,7 @@ export function SharedCart({
               <button
                 type="button"
                 onClick={onOpenCheckout}
-                className="w-full py-3.5 px-4 rounded-fitting bg-accent hover:bg-accent/95 text-white font-medium text-sm tracking-wide shadow-fitting-raised transition-all"
+                className="w-full py-3.5 px-4 rounded-fitting bg-accent hover:bg-navy-light text-white font-medium text-sm tracking-wide shadow-fitting-raised transition-all cursor-pointer"
               >
                 Proceed to Checkout ({uniqueItems.length} items) →
               </button>

@@ -115,14 +115,23 @@
       </div>
     </main>
 
-    <!-- Settings / Target Endpoint (Collapsible) -->
+    <!-- Settings / Target Endpoint (Supports Localhost & StyleAdvisor.online) -->
     <footer class="footer-settings">
+      <div class="environment-switcher" style="display: flex; gap: 6px; margin-bottom: 8px;">
+        <button type="button" id="btnEnvLocal" class="env-btn active" style="flex: 1; padding: 4px; font-size: 11px; border-radius: 4px; border: 1px solid #ccc; background: #fff; cursor: pointer;">
+          Local (localhost:3000)
+        </button>
+        <button type="button" id="btnEnvProd" class="env-btn" style="flex: 1; padding: 4px; font-size: 11px; border-radius: 4px; border: 1px solid #ccc; background: #f0f0f0; cursor: pointer;">
+          Live (StyleAdvisor.online)
+        </button>
+      </div>
       <div class="endpoint-config">
         <label for="endpointUrl">Target API:</label>
         <input type="text" id="endpointUrl" value="http://localhost:3000/api/admin/catalog">
       </div>
-      <div class="footer-links">
-        <a href="http://localhost:3000/admin" target="_blank" class="admin-link">Open /admin UI ↗</a>
+      <div class="footer-links" style="margin-top: 6px; display: flex; justify-content: space-between;">
+        <a id="adminLinkLocal" href="http://localhost:3000/admin" target="_blank" class="admin-link">Local Admin ↗</a>
+        <a id="adminLinkProd" href="https://StyleAdvisor.online/admin" target="_blank" class="admin-link">Live Admin ↗</a>
       </div>
     </footer>
 

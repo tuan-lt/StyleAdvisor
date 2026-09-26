@@ -1,18 +1,49 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { UserProfile, GenderCut, BudgetTier, BodyType, PaletteSeason, SeasonOfWear } from "../types/catalog";
+import { UserProfile } from "../types/catalog";
 
-const STORAGE_KEY = "style_advisor_profile_v1";
+const STORAGE_KEY = "style_advisor_profile_v4_2";
 
+/**
+ * Default profile configured strictly for Persona Sam (31, Founder pitching VCs in Gastown)
+ * per PRD v4.2 Section 1 (OPEN-2) & Section 3.1
+ */
 export const DEFAULT_PROFILE: UserProfile = {
-  gender_cut: "men",
-  budget_tier: ["mid", "premium"],
-  body_type: "athletic",
+  // 1. Gender expression (Female · Neutral · Male)
+  gender_expression: "Male",
+  gender_cut: "male",
+
+  // 2. Budget ($ · $$ · $$$)
+  budget: "$$",
+  budget_tier: "$$",
+
+  // 3. Size (XS to XXL)
+  size: "M",
+
+  // 4. Body Type (5 neutral silhouettes + Not sure)
+  body_type: "rectangle",
+
+  // 5. Seasonal Colour (4-season wheel + Not sure)
+  seasonal_colour: "autumn",
   palette_season: "autumn",
-  preferred_styles: ["Tailored Minimal", "Smart Casual"],
-  lifestyle_tags: ["Tech / Startups", "Travel", "Coffee Meetings"],
-  season_of_wear: "fall",
+
+  // 6. Complexion (Dark · Medium · Light)
+  complexion: "medium",
+
+  // 7. Style (Casual · Sporty · Classic · Nerdy · Trendy · Fabulous)
+  style: "classic",
+  preferred_styles: ["classic"],
+
+  // 8. Season or Climate (Spring/Summer · Fall/Winter)
+  season_or_climate: "Fall/Winter",
+  season_of_wear: "fall_winter",
+
+  // 9. Lifestyle (Multi-select up to 2: New Grad, Family, Outdoors, Office Professional)
+  lifestyle: ["office_professional"],
+  lifestyle_tags: ["office_professional"],
+
+  // Wardrobe checklist & pilot access
   owned_item_ids: [],
   email: "",
 };
@@ -49,7 +80,7 @@ export function useProfileStorage() {
     });
   }, []);
 
-  // Toggle owned garment ID
+  // Toggle owned garment ID for the "I Already Have This" feature
   const toggleOwnedItem = useCallback((garmentId: string) => {
     setProfile((prev) => {
       const current = new Set(prev.owned_item_ids || []);

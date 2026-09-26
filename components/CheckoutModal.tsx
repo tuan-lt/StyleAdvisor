@@ -17,20 +17,20 @@ export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }:
 
   if (!isOpen) return null;
 
-  const totalCad = cartItems.reduce((acc, item) => acc + item.price, 0);
+  const totalCad = cartItems.reduce((acc, item) => acc + (item.price_cad || item.price || 0), 0);
 
   const getWtpLabel = (val: number) => {
-    if (val === 0) return "$0 (Ad-supported / Free only)";
-    if (val < 25) return `$${val} CAD (Occasional single event calibration)`;
-    if (val < 60) return `$${val} CAD (Seasonal Wardrobe Refresh Concierge)`;
-    return `$${val} CAD (Full Executive Stylist Retainer)`;
+    if (val === 0) return "$0 CAD (Free online links only)";
+    if (val <= 20) return `$${val} CAD / order (Occasional high-stakes event styling)`;
+    if (val <= 50) return `$${val} CAD / month (Quarterly seasonal wardrobe concierge)`;
+    return `$${val} CAD / month (VIP On-demand home delivery & tailoring)`;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
-    // Persist research capture
+    // Persist research capture per PRD FR-4.4
     try {
       const researchData = {
         email,
@@ -60,37 +60,37 @@ export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }:
         {/* Header */}
         <div className="flex justify-between items-start border-b border-border pb-4">
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-thread">Direct Partner Checkout</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-thread">Private Pilot Intake</div>
             <h2 className="text-2xl font-serif text-ink font-medium mt-0.5">
-              {isSubmitted ? "Your Fitting Bag is Ready" : "Complete Outfit Verification"}
+              {isSubmitted ? "Pilot Access Reserved" : "Checkout is Coming Soon"}
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-ink-muted hover:text-ink rounded-fitting transition-colors"
+            className="p-1.5 text-ink-muted hover:text-ink rounded-fitting transition-colors cursor-pointer"
           >
             ✕
           </button>
         </div>
 
         {isSubmitted ? (
-          /* Confirmation View with Direct Partner Links */
+          /* Confirmation View with Direct Partner Links (PRD FR-4.2) */
           <div className="space-y-6 py-2">
             <div className="p-4 bg-verified/10 border border-verified/20 rounded-fitting text-center space-y-1.5">
               <div className="w-10 h-10 rounded-full bg-verified text-white flex items-center justify-center mx-auto text-lg font-bold">
                 ✓
               </div>
-              <h3 className="text-base font-serif font-medium text-ink">Outfit Blueprint Saved</h3>
+              <h3 className="text-base font-serif font-medium text-ink">You are on the VIP Pilot List</h3>
               <p className="text-xs text-ink-muted">
-                A copy of your calibrated recommendations and care instructions has been reserved for{" "}
-                <strong className="text-ink">{email}</strong>.
+                Your styling preferences have been saved for <strong className="text-ink">{email}</strong>.
+                Below are your direct merchant links to order today with zero markup.
               </p>
             </div>
 
             <div className="space-y-2">
               <div className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
-                Direct Merchant Links (Zero Markup)
+                Direct Canadian Retailer Links
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto divide-y divide-border">
                 {cartItems.map((item) => (
@@ -99,12 +99,12 @@ export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }:
                       <span className="font-semibold text-ink">{item.brand}:</span> {item.name}
                     </div>
                     <a
-                      href={item.product_url}
+                      href={item.retailer_url || item.product_url}
                       target="_blank"
-                      rel="noreferrer"
-                      className="px-2.5 py-1 rounded bg-accent text-white font-medium hover:bg-accent/90 shrink-0 ml-2"
+                      rel="noopener noreferrer"
+                      className="text-thread hover:underline font-bold shrink-0 ml-2"
                     >
-                      Buy at {item.brand} (${item.price}) ↗
+                      Buy on {item.brand} ↗
                     </a>
                   </div>
                 ))}
@@ -114,70 +114,72 @@ export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }:
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-3 rounded-fitting bg-surface border border-border text-xs font-semibold text-ink hover:bg-surface-raised transition-all"
+              className="w-full py-3 rounded-fitting bg-accent text-white font-serif text-sm font-medium hover:bg-navy-light transition-all cursor-pointer"
             >
-              Return to Style Advisor
+              Back to Fitting Room
             </button>
           </div>
         ) : (
-          /* Research Capture Form: Email + 1 WTP Question */
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-ink-muted block">
-                Your Email (For Outfit Blueprint Delivery)
+          /* Intake Form (Email + 1 Quantitative WTP Question - PRD FR-4.4) */
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="p-3.5 bg-surface rounded-fitting border border-border text-xs text-ink-muted leading-relaxed">
+              Direct unified 1-click checkout across multiple Canadian retailers is launching next month. Join our private Vancouver pilot for free white-glove styling delivery.
+            </div>
+
+            {/* Email Input */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-ink">
+                Your Work or Personal Email
               </label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="sam.founder@gastowntech.ca"
-                className="w-full px-4 py-3 text-sm bg-surface/40 border border-border rounded-fitting focus:outline-none focus:ring-1 focus:ring-accent focus:bg-surface-raised transition-all"
+                placeholder="sam@earlystagestartup.ca"
+                className="w-full px-4 py-2.5 text-sm bg-surface/50 border border-border rounded-fitting focus:outline-none focus:ring-1 focus:ring-accent focus:bg-surface-raised transition-all"
               />
             </div>
 
-            {/* WTP Slider Question */}
-            <div className="space-y-3 bg-surface p-4 sm:p-5 rounded-fitting border border-border">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold uppercase tracking-wider text-ink block">
-                  Stylist Feedback & Pricing Question
+            {/* 1 Quantitative WTP Question (PRD FR-4.4) */}
+            <div className="space-y-2.5">
+              <div className="flex justify-between items-start">
+                <label className="text-xs font-semibold uppercase tracking-wider text-ink">
+                  Willingness-to-Pay (WTP) Survey
                 </label>
-                <p className="text-xs text-ink-muted leading-relaxed">
-                  What would you consider a fair seasonal subscription price for an AI advisor that eliminates wardrobe guesswork?
-                </p>
+                <span className="text-xs font-bold text-thread font-mono">
+                  ${wtpAmount} CAD
+                </span>
               </div>
-
-              <div className="pt-2 space-y-2">
-                <input
-                  type="range"
-                  min="0"
-                  max="120"
-                  step="5"
-                  value={wtpAmount}
-                  onChange={(e) => setWtpAmount(Number(e.target.value))}
-                  className="w-full accent-thread cursor-pointer"
-                />
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-ink-muted">$0 CAD</span>
-                  <span className="font-semibold text-thread font-mono text-sm">
-                    {getWtpLabel(wtpAmount)}
-                  </span>
-                  <span className="text-ink-muted">$120 CAD</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3 pt-2">
-              <button
-                type="submit"
-                className="w-full py-3.5 px-4 rounded-fitting bg-accent hover:bg-accent/95 text-white font-medium text-sm tracking-wide shadow-fitting-raised transition-all"
-              >
-                Access Direct Partner Links →
-              </button>
-              <p className="text-[11px] text-center text-ink-muted">
-                Strictly no spam or countdown banners. Fitting Room guarantee.
+              <p className="text-xs text-ink-muted">
+                How much would you pay for a concierge service that delivers your curated outfit to your door with pre-verified sizes and free home returns?
               </p>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                value={wtpAmount}
+                onChange={(e) => setWtpAmount(Number(e.target.value))}
+                className="w-full accent-accent cursor-pointer"
+              />
+              <div className="text-xs font-medium text-ink bg-surface/60 border border-border p-2 rounded-fitting">
+                {getWtpLabel(wtpAmount)}
+              </div>
             </div>
+
+            {/* Summary info */}
+            <div className="flex justify-between items-center text-xs text-ink-muted border-t border-border pt-3">
+              <span>Current Selection:</span>
+              <span className="font-bold text-ink font-mono">${totalCad.toFixed(2)} CAD ({cartItems.length} items)</span>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-base font-medium tracking-wide transition-all shadow-fitting-raised cursor-pointer"
+            >
+              Request Private Pilot Access & View Links
+            </button>
           </form>
         )}
       </div>

@@ -1,29 +1,64 @@
 /**
  * Style Advisor - Garment Metadata Schema & Catalog Types
- * Matching PRD Section 6.1 specification and Core Architectural Laws.
+ * Matching PRD v4.2 specification and Zero-Hallucination Architecture.
  */
 
 export type GarmentSlot = 'outerwear' | 'top' | 'bottom' | 'shoes' | 'accessory';
 
-export type GenderCut = 'men' | 'women' | 'unisex';
+export type GenderCut =
+  | 'male'
+  | 'female'
+  | 'neutral'
+  | 'men'
+  | 'women'
+  | 'unisex';
 
-export type BudgetTier = 'budget' | 'mid' | 'premium' | 'luxury';
+export type BudgetTier =
+  | '$'
+  | '$$'
+  | '$$$'
+  | 'budget'
+  | 'mid'
+  | 'premium'
+  | 'luxury';
 
-export type SeasonOfWear = 'spring' | 'summer' | 'fall' | 'winter' | 'all-season';
+export type ClothingSize = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL';
+
+export type SeasonOfWear =
+  | 'all_season'
+  | 'spring_summer'
+  | 'fall_winter'
+  | 'spring'
+  | 'summer'
+  | 'fall'
+  | 'winter'
+  | 'all-season';
 
 export type Occasion =
+  | 'pitch'
+  | 'interview'
+  | 'date'
+  | 'family'
+  | 'funeral'
+  | 'court'
+  | 'wedding'
+  | 'work'
   | 'casual'
   | 'smart-casual'
   | 'business-casual'
   | 'formal'
-  | 'pitch'
-  | 'work'
   | 'date-night'
   | 'travel'
   | 'lounge'
   | 'outdoor';
 
 export type BodyType =
+  | 'rectangle'
+  | 'bottom_triangle'
+  | 'oval'
+  | 'top_triangle'
+  | 'double_triangle'
+  | 'not_sure'
   | 'athletic'
   | 'slim'
   | 'average'
@@ -33,17 +68,15 @@ export type BodyType =
   | 'plus'
   | 'inverted-triangle'
   | 'hourglass'
-  | 'rectangle'
   | 'pear'
   | 'apple';
 
 export type PaletteSeason =
-  // 4 Primary seasonal groups
   | 'winter'
   | 'summer'
   | 'autumn'
   | 'spring'
-  // 12 Detailed Flow subtypes
+  | 'not_sure'
   | 'true_winter'
   | 'deep_winter'
   | 'cool_winter'
@@ -61,46 +94,60 @@ export type PaletteSeason =
   | 'bright_spring'
   | 'warm_spring';
 
+export type Complexion = 'dark' | 'medium' | 'light';
+
+export type StyleOption =
+  | 'casual'
+  | 'sporty'
+  | 'classic'
+  | 'nerdy'
+  | 'trendy'
+  | 'fabulous'
+  | string;
+
+export type LifestyleTag =
+  | 'new_grad'
+  | 'family'
+  | 'outdoors'
+  | 'office_professional'
+  | string;
+
 export interface FabricDetails {
-  /** Primary material description (e.g., "100% Egyptian Cotton", "Wool-Cashmere Blend") */
   composition: string;
-  /** Breathability / weight / weave note */
   weave?: string;
-  /** Care instructions summary */
   care: string;
-  /** Ethical or sustainability certification */
   sustainable?: boolean;
 }
 
 export interface ReturnPolicy {
-  /** Return window in days */
   window_days: number;
-  /** Whether returns are free/prepaid */
   free_returns: boolean;
-  /** Human-readable policy breakdown */
   policy_note: string;
 }
 
 export interface Garment {
-  /** Unique deterministic identifier (e.g. "aritzia-agency-blazer-01") */
+  /** Deterministic identifier (e.g. "ca_rwco_089", "ca_art_042") */
   id: string;
-  /** Garment public title */
+  garment_id?: string;
+  /** Public title */
   name: string;
-  /** Canadian / Partner brand name (e.g. "Aritzia", "RW&CO", "Lululemon", "Kotn", "Vessi") */
+  /** Canadian / Partner brand name (e.g. "Aritzia", "RW&CO", "Lululemon", "Kotn", "Vessi", "Frank And Oak") */
   brand: string;
   /** Wardrobe category slot */
   slot: GarmentSlot;
   /** Price in CAD */
   price: number;
+  price_cad?: number;
   /** Currency code, standard CAD */
   currency: 'CAD';
-  /** Direct link to the brand's verified product page */
+  /** Direct link to the brand's verified Canadian retailer page */
   product_url: string;
-  /** Optimized product image URL */
+  retailer_url?: string;
+  /** High-res optimized product image URL */
   image_url: string;
   /** Target gender silhouette / cut */
-  gender_cut: GenderCut;
-  /** Budget categorization */
+  gender_cut: GenderCut | GenderCut[];
+  /** Budget categorization tier ($ / $$ / $$$ or budget / mid / luxury) */
   budget_tier: BudgetTier;
   /** Suitable wear occasions */
   occasions: Occasion[];
@@ -108,25 +155,30 @@ export interface Garment {
   palette_seasons: PaletteSeason[];
   /** Flattering body silhouettes */
   body_types: BodyType[];
+  /** Associated style tags (classic, casual, trendy, sporty, nerdy, fabulous) */
+  styles?: StyleOption[];
   /** Weather & climate season compatibility */
   season_of_wear: SeasonOfWear[];
-  /** Formality calibration score (1 = ultra-casual loungewear, 10 = black-tie formal) */
+  /** Formality level (1 to 5) or score (1 to 10) */
+  formality_level?: number;
   formality_score: number;
+  /** Available size spectrum (e.g. "XS - XXL", "28W - 38W") */
+  size_range?: string;
   /** Primary color name */
-  color: string;
-  /** Approximate hex color for UI swatch rendering */
-  hex_color: string;
-  /** Detailed fabric & care information */
-  fabric: FabricDetails;
-  /** Merchant return terms */
-  return_policy: ReturnPolicy;
-  /** Curated product description */
-  description: string;
+  color?: string;
+  /** Hex color for swatch rendering */
+  hex_color?: string;
+  /** Fabric & composition information */
+  fabric: string | FabricDetails;
+  /** Merchant return policy */
+  return_policy: string | ReturnPolicy;
+  /** Product description */
+  description?: string;
   /** Stylist rationale and pairing notes */
   styling_notes?: string;
   /** Stock availability status */
   in_stock: boolean;
-  /** Ingestion or verification ISO date string (e.g. "2026-09-19") */
+  /** Ingestion or verification ISO date (e.g. "2026-10-10") */
   verified_date?: string;
 }
 
@@ -141,8 +193,11 @@ export interface CatalogFilterCriteria {
   season_of_wear?: SeasonOfWear[];
   palette_season?: PaletteSeason;
   body_type?: BodyType;
+  style?: StyleOption;
+  lifestyle?: LifestyleTag[];
   slots?: GarmentSlot[];
   brands?: string[];
+  size?: ClothingSize;
 }
 
 /**
@@ -165,21 +220,48 @@ export interface OutfitRecommendation {
   };
   /** Estimated total outfit cost in CAD */
   total_price_cad: number;
-  /** Any caution / disclosure notes (e.g. dry-clean only, specific fit warning) */
+  /** Any caution / disclosure notes */
   caution_notes?: string[];
 }
 
 /**
- * Core User Profile representing the 9 persistent onboarding variables.
+ * Core User Profile representing the 9 persistent onboarding variables (PRD FR-1).
  */
 export interface UserProfile {
-  gender_cut: GenderCut;
-  budget_tier: BudgetTier | BudgetTier[];
+  // 1. Gender expression (Female · Neutral · Male)
+  gender_cut?: GenderCut;
+  gender_expression?: 'Female' | 'Neutral' | 'Male' | GenderCut;
+
+  // 2. Budget ($ · $$ · $$$) - Hard constraint
+  budget_tier?: BudgetTier | BudgetTier[];
+  budget?: '$' | '$$' | '$$$' | BudgetTier;
+
+  // 3. Size (XS - XXL) - Soft preference
+  size?: ClothingSize;
+
+  // 4. Body Type (5 neutral silhouettes + Not sure)
   body_type?: BodyType;
+
+  // 5. Seasonal Colour (4-season wheel + Not sure)
   palette_season?: PaletteSeason;
-  preferred_styles?: string[];
-  lifestyle_tags?: string[];
+  seasonal_colour?: PaletteSeason;
+
+  // 6. Complexion (Dark · Medium · Light) - Optional
+  complexion?: Complexion;
+
+  // 7. Style (Casual · Sporty · Classic · Nerdy · Trendy · Fabulous)
+  preferred_styles?: StyleOption[];
+  style?: StyleOption;
+
+  // 8. Season or Climate (Spring/Summer · Fall/Winter)
   season_of_wear?: SeasonOfWear;
+  season_or_climate?: 'Spring/Summer' | 'Fall/Winter' | SeasonOfWear;
+
+  // 9. Lifestyle (Multi-select up to 2: New Grad, Family, Outdoors, Office Professional)
+  lifestyle_tags?: LifestyleTag[];
+  lifestyle?: LifestyleTag[];
+
+  // User persistence & Wardrobe checklist
   owned_item_ids?: string[];
   email?: string;
 }
@@ -195,7 +277,7 @@ export interface OccasionInput {
   season_of_wear: SeasonOfWear;
   audience_text?: string;
   formality_target?: number;
-  style?: string;
+  style?: StyleOption;
   nudge?: NudgeType;
 }
 
@@ -205,7 +287,7 @@ export interface OccasionInput {
 export interface EverydayInput {
   flow: 'everyday' | 'flow_b';
   season_of_wear: SeasonOfWear;
-  lifestyle?: string[];
+  lifestyle?: LifestyleTag[];
   occasions?: Occasion[];
 }
 
@@ -215,9 +297,9 @@ export type CandidateFilterInput = UserProfile & {
   season_of_wear?: SeasonOfWear;
   audience_text?: string;
   formality_target?: number;
-  style?: string;
+  style?: StyleOption;
   nudge?: NudgeType;
-  lifestyle?: string[];
+  lifestyle?: LifestyleTag[];
   occasions?: Occasion[];
 };
 
@@ -235,22 +317,24 @@ export interface FilterCandidatesResult {
 }
 
 export interface LLMRecommendationPayload {
-
   calibration: {
-    formality_target: number; // 1-10
-    audience_read: string;
-    risk_assessment: string;
+    formality_score: number; // 1-5 or 1-10
+    formality_target?: number;
+    signal?: string;
+    notes?: string;
+    audience_read?: string;
+    risk_assessment?: string;
   };
   interpretation_summary: string;
   selected_garment_ids: {
-    outerwear?: string;
+    outerwear?: string | null;
     top: string;
     bottom: string;
     shoes: string;
-    accessory?: string;
+    accessory?: string | null;
   };
   reasoning: string;
-  override_applied: boolean;
+  override_applied?: string | null | boolean;
   caution_notes?: string[];
 }
 
@@ -259,9 +343,12 @@ export interface RecommendApiResponse {
   cached?: boolean;
   data?: {
     calibration: {
-      formality_target: number;
-      audience_read: string;
-      risk_assessment: string;
+      formality_score: number;
+      formality_target?: number;
+      signal?: string;
+      notes?: string;
+      audience_read?: string;
+      risk_assessment?: string;
     };
     interpretation_summary: string;
     selected_garments: {
@@ -272,15 +359,15 @@ export interface RecommendApiResponse {
       accessory?: Garment;
     };
     selected_garment_ids: {
-      outerwear?: string;
+      outerwear?: string | null;
       top: string;
       bottom: string;
       shoes: string;
-      accessory?: string;
+      accessory?: string | null;
     };
     total_price_cad: number;
     reasoning: string;
-    override_applied: boolean;
+    override_applied?: string | null | boolean;
     caution_notes: string[];
     filter_metadata: {
       relaxed_field: RelaxedField | null;
@@ -291,5 +378,3 @@ export interface RecommendApiResponse {
   error?: string;
   message?: string;
 }
-
-

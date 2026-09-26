@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Garment, GarmentSlot } from "../types/catalog";
 import rawCatalog from "../data/catalog.json";
 
@@ -30,355 +30,351 @@ export function CapsuleResult({
   const [activeCombinationIndex, setActiveCombinationIndex] = useState<number>(0);
   const [filterSlot, setFilterSlot] = useState<string>("all");
 
-  // Define Starter Set of 5 Core Canadian Staples
-  const starterSetIds = new Set([
-    "aritzia-agency-blazer-wool",
-    "kotn-oxford-button-down",
-    "lululemon-abc-slim-pant",
-    "vessi-cityscape-waterproof-sneaker",
-    "kotn-ribbed-merino-scarf",
-  ]);
+  // Select 15 modular foundation items from the Canadian catalog (5 Tops, 4 Bottoms, 3 Outerwear, 2 Shoes, 1 Accessory)
+  const capsule15: Garment[] = useMemo(() => {
+    const tops = catalog.filter((g) => g.slot === "top").slice(0, 5);
+    const bottoms = catalog.filter((g) => g.slot === "bottom").slice(0, 4);
+    const outerwear = catalog.filter((g) => g.slot === "outerwear").slice(0, 3);
+    const shoes = catalog.filter((g) => g.slot === "shoes").slice(0, 2);
+    const accessories = catalog.filter((g) => g.slot === "accessory").slice(0, 1);
+    return [...tops, ...bottoms, ...outerwear, ...shoes, ...accessories];
+  }, []);
 
-  // Curate 3 Worked Outfit Combinations from Catalog
-  const combinations = [
-    {
-      id: "combo-1",
-      title: "Combination 01: Executive Pitch & Venture Board",
-      subtitle: "Tailored authority with subtle West Coast ease",
-      formality: 8,
-      garment_ids: [
-        "rwco-wool-blend-overcoat",
-        "kotn-oxford-button-down",
-        "lululemon-abc-slim-pant",
-        "vessi-cityscape-waterproof-sneaker",
-      ],
-      styling_tip: "Fasten the topcoat button when standing; unbutton for a confident seated pitch.",
-    },
-    {
-      id: "combo-2",
-      title: "Combination 02: Daily Studio & Creative Strategy",
-      subtitle: "Comfortable high-density knitwear and sharp architectural drape",
-      formality: 6,
-      garment_ids: [
-        "aritzia-agency-blazer-wool",
-        "kotn-heavyweight-essential-tee",
-        "aritzia-effortless-pant",
-        "vessi-cityscape-waterproof-sneaker",
-        "kotn-ribbed-merino-scarf",
-      ],
-      styling_tip: "Loop the merino scarf loosely to add warm camel texture against dark monochrome trousers.",
-    },
-    {
-      id: "combo-3",
-      title: "Combination 03: Modern Tech Commute & Offsite",
-      subtitle: "All-weather water resistance with sleek minimalist tailoring",
-      formality: 5,
-      garment_ids: [
-        "lululemon-sojourn-jacket",
-        "lululemon-evolution-polo",
-        "rwco-tailored-stretch-chino",
-        "vessi-cityscape-waterproof-sneaker",
-      ],
-      styling_tip: "Designed for variable Pacific weather — 100% waterproof shoes with four-way stretch chinos.",
-    },
-  ];
+  // Starter Set of 5 Core Foundation Pieces (PRD FR-3.1)
+  const starterSetIds = useMemo(() => {
+    return new Set([
+      capsule15.find((g) => g.slot === "outerwear")?.id || "",
+      capsule15.find((g) => g.slot === "top")?.id || "",
+      capsule15.find((g) => g.slot === "bottom")?.id || "",
+      capsule15.find((g) => g.slot === "shoes")?.id || "",
+      capsule15.find((g) => g.slot === "accessory")?.id || "",
+    ].filter(Boolean));
+  }, [capsule15]);
 
-  // Helper map
-  const catalogMap = new Map<string, Garment>(catalog.map((g) => [g.id, g]));
+  // 3 Worked Outfits (PRD FR-3.1)
+  const combinations = useMemo(() => {
+    return [
+      {
+        id: "combo-1",
+        title: "Worked Outfit 01: Hybrid Office & Client Review",
+        subtitle: "Tailored structure with breathable all-day mobility",
+        formality: 4,
+        garments: [
+          capsule15.find((g) => g.slot === "outerwear") || capsule15[5],
+          capsule15.find((g) => g.slot === "top") || capsule15[0],
+          capsule15.find((g) => g.slot === "bottom") || capsule15[6],
+          capsule15.find((g) => g.slot === "shoes") || capsule15[12],
+        ].filter(Boolean) as Garment[],
+        styling_tip: "Button the blazer when entering formal rooms; pair with neutral chinos for effortless West Coast polish.",
+      },
+      {
+        id: "combo-2",
+        title: "Worked Outfit 02: Downtown Studio & Creative Standup",
+        subtitle: "Minimalist drape paired with comfortable certified organic cotton",
+        formality: 3,
+        garments: [
+          capsule15.filter((g) => g.slot === "top")[1] || capsule15[1],
+          capsule15.filter((g) => g.slot === "bottom")[1] || capsule15[7],
+          capsule15.find((g) => g.slot === "shoes") || capsule15[12],
+          capsule15.find((g) => g.slot === "accessory") || capsule15[14],
+        ].filter(Boolean) as Garment[],
+        styling_tip: "Clean tonal layering allows easy movement between morning school runs and afternoon coworking spaces.",
+      },
+      {
+        id: "combo-3",
+        title: "Worked Outfit 03: Weekend Commute & Offsite",
+        subtitle: "Weatherproof protection with sleek minimalist lines",
+        formality: 2,
+        garments: [
+          capsule15.filter((g) => g.slot === "outerwear")[1] || capsule15[10],
+          capsule15.filter((g) => g.slot === "top")[2] || capsule15[2],
+          capsule15.filter((g) => g.slot === "bottom")[2] || capsule15[8],
+          capsule15.filter((g) => g.slot === "shoes")[1] || capsule15[13],
+        ].filter(Boolean) as Garment[],
+        styling_tip: "Waterproof footwear keeps you dry in coastal drizzle without sacrificing refined silhouettes.",
+      },
+    ];
+  }, [capsule15]);
 
-  // Active combo garments
   const activeCombo = combinations[activeCombinationIndex];
-  const activeComboGarments = activeCombo.garment_ids
-    .map((id) => catalogMap.get(id))
-    .filter((g): g is Garment => !!g);
 
   // Filter grid items
-  const filteredGrid = catalog.filter((g) => {
-    if (filterSlot === "all") return true;
-    if (filterSlot === "starter") return starterSetIds.has(g.id);
-    return g.slot === filterSlot;
-  });
+  const filteredGrid = useMemo(() => {
+    return capsule15.filter((g) => {
+      if (filterSlot === "all") return true;
+      if (filterSlot === "starter") return starterSetIds.has(g.id);
+      return g.slot === filterSlot;
+    });
+  }, [capsule15, filterSlot, starterSetIds]);
 
-  const unownedStarterCount = Array.from(starterSetIds).filter((id) => !ownedItemIds.includes(id)).length;
+  const unownedCapsuleItems = capsule15.filter((g) => !ownedItemIds.includes(g.id));
+  const fullCapsuleTotal = capsule15.reduce((sum, g) => sum + (g.price_cad || g.price || 0), 0);
+  const unownedCapsuleTotal = unownedCapsuleItems.reduce((sum, g) => sum + (g.price_cad || g.price || 0), 0);
+
+  const starterSetItems = capsule15.filter((g) => starterSetIds.has(g.id));
+  const starterSetTotal = starterSetItems.reduce((sum, g) => sum + (g.price_cad || g.price || 0), 0);
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-12 pb-24">
-      {/* Top Header */}
+    <div className="w-full max-w-5xl mx-auto space-y-10 pb-24">
+      {/* Top Bar Navigation */}
       <div className="flex items-center justify-between border-b border-border pb-4">
         <button
           type="button"
           onClick={onBackToEdit}
-          className="text-xs font-semibold text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors"
+          className="text-xs font-semibold text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors cursor-pointer"
         >
           <span>←</span> Back to Fitting Profile
         </button>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-ink-muted">Owned Items in Capsule:</span>
-          <span className="text-xs font-bold text-moss px-2 py-0.5 bg-moss/10 rounded-full border border-moss/20">
-            {ownedItemIds.length} Owned
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-ink-muted font-mono">15-Piece Capsule Matrix</span>
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-verified/15 text-verified font-bold">
+            12+ Outfit Variations
           </span>
         </div>
       </div>
 
-      {/* Hero Overview */}
-      <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-3 shadow-fitting-card">
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-0.5 rounded-full bg-accent text-white text-[11px] font-bold uppercase tracking-wider">
-            Flow B
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-thread">
-            15-Piece Modular Capsule Engine
+      {/* 1. Serif Headline & Lifestyle Reasoning Paragraph (PRD FR-3.1) */}
+      <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-4 shadow-fitting-card">
+        <div className="flex items-center justify-between">
+          <div className="text-xs font-bold uppercase tracking-widest text-thread">
+            Wardrobe Architecture
+          </div>
+          <span className="text-[11px] font-mono text-ink-muted bg-surface px-2 py-0.5 rounded border border-border">
+            Newsreader Serif
           </span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-serif text-ink font-normal">
-          The 3 Worked Combinations
+        <h1 className="text-2xl sm:text-3xl font-serif text-ink font-medium">
+          The Modular Vancouver Capsule
         </h1>
-        <p className="text-sm text-ink-muted max-w-2xl leading-relaxed">
-          3 distinct formality calibrations constructed from a unified Canadian wardrobe matrix. Toggling{" "}
-          <strong className="text-ink font-semibold">&ldquo;I already have this&rdquo;</strong> will dynamically re-balance the remaining unowned pieces.
+        <p className="font-serif text-[18px] sm:text-[19px] text-ink leading-relaxed italic">
+          &ldquo;Translating hybrid office requirements and unpredictable coastal climates into an interconnected 15-piece matrix. By standardizing tonal undertones across Canadian tailoring and technical knits, any single top coordinates with every single bottom, eliminating morning decision fatigue.&rdquo;
         </p>
       </div>
 
-      {/* PART 1: The 3 Worked Outfit Combinations */}
-      <div className="space-y-6">
-        {/* Tab Nav for Combinations */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {combinations.map((combo, idx) => (
-            <button
-              key={combo.id}
-              type="button"
-              onClick={() => setActiveCombinationIndex(idx)}
-              className={`p-4 rounded-fitting text-left border transition-all ${
-                activeCombinationIndex === idx
-                  ? "bg-surface border-accent shadow-sm ring-1 ring-accent"
-                  : "bg-surface-raised border-border hover:border-thread/50"
-              }`}
-            >
-              <div className="text-[11px] font-bold uppercase tracking-wider text-thread">
-                Look 0{idx + 1} • Formality {combo.formality}/10
-              </div>
-              <div className="text-sm font-serif font-medium text-ink mt-1 truncate">{combo.title.split(":")[1] || combo.title}</div>
-              <div className="text-xs text-ink-muted mt-1 truncate">{combo.subtitle}</div>
-            </button>
-          ))}
-        </div>
-
-        {/* Active Combination Card */}
-        <div className="bg-surface-raised border border-border rounded-fitting-lg overflow-hidden shadow-fitting-raised">
-          <div className="p-5 sm:p-6 border-b border-border bg-surface/50 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-accent">Active Ensemble</div>
-              <h2 className="text-xl font-serif text-ink font-medium">{activeCombo.title}</h2>
-              <p className="text-xs text-ink-muted mt-0.5">{activeCombo.styling_tip}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                onAddAllToCart(activeComboGarments.filter((g) => !ownedItemIds.includes(g.id)))
-              }
-              className="py-2 px-4 rounded-fitting bg-accent hover:bg-accent/90 text-white text-xs font-semibold tracking-wide transition-all"
-            >
-              Add Unowned Items to Cart
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
-            {activeComboGarments.map((garment) => {
-              const isOwned = ownedItemIds.includes(garment.id);
-              const inCart = cartItemIds.includes(garment.id);
-              const isStarter = starterSetIds.has(garment.id);
-
-              return (
-                <div
-                  key={garment.id}
-                  className={`p-4 flex flex-col justify-between space-y-4 ${
-                    isOwned ? "bg-surface/60 opacity-80" : "bg-surface-raised"
-                  }`}
-                >
-                  <div className="space-y-3">
-                    <div className="relative aspect-3/4 rounded-fitting overflow-hidden bg-surface border border-border">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={garment.image_url}
-                        alt={garment.name}
-                        className="w-full h-full object-cover"
-                      />
-                      {isStarter && (
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-thread text-white text-[10px] font-bold uppercase tracking-wider">
-                          Starter Set
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-ink-muted">
-                        {garment.slot} • {garment.brand}
-                      </div>
-                      <h3 className="text-sm font-serif font-medium text-ink mt-0.5">{garment.name}</h3>
-                      <div className="text-xs font-semibold text-ink mt-1">${garment.price} CAD</div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 pt-2 border-t border-border">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onToggleOwned(garment.id);
-                        if (onReplanCapsule) onReplanCapsule();
-                      }}
-                      className={`w-full py-1.5 px-2 rounded-fitting text-xs border transition-all ${
-                        isOwned
-                          ? "bg-moss/10 border-moss text-moss font-semibold"
-                          : "bg-surface border-border text-ink-muted hover:text-ink"
-                      }`}
-                    >
-                      {isOwned ? "✓ Owned" : "I Have This"}
-                    </button>
-                    {!isOwned && (
-                      <button
-                        type="button"
-                        onClick={() => onAddToCart(garment)}
-                        className={`w-full py-1.5 px-2 rounded-fitting text-xs font-medium transition-all ${
-                          inCart
-                            ? "bg-verified text-white"
-                            : "bg-surface border border-border hover:bg-accent hover:text-white text-ink"
-                        }`}
-                      >
-                        {inCart ? "In Cart ✓" : "+ Add to Cart"}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* PART 2: The 15-Item Modular Grid & Starter Set of 5 Highlights */}
-      <div className="space-y-6 pt-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
+      {/* 2. Three Worked Outfits Carousel / Tabs (PRD FR-3.1) */}
+      <div className="bg-surface-raised border border-border rounded-fitting-lg overflow-hidden shadow-fitting-raised">
+        <div className="p-5 sm:p-6 border-b border-border bg-surface/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-thread">Full Inventory</span>
-              <span className="text-xs text-ink-muted">
-                • {unownedStarterCount} Unowned in Starter Set
-              </span>
-            </div>
-            <h2 className="text-2xl font-serif text-ink font-medium mt-1">Modular Wardrobe Matrix</h2>
+            <div className="text-xs font-bold uppercase tracking-wider text-thread">Demonstration Outfits</div>
+            <h2 className="text-xl font-serif text-ink mt-0.5 font-medium">3 Ready-to-Wear Combinations</h2>
           </div>
-
-          {/* Slot Filters */}
-          <div className="flex flex-wrap gap-1.5">
-            {[
-              { id: "all", label: "All Items (12)" },
-              { id: "starter", label: "Starter Set of 5 ★" },
-              { id: "outerwear", label: "Outerwear" },
-              { id: "top", label: "Tops" },
-              { id: "bottom", label: "Bottoms" },
-              { id: "shoes", label: "Footwear" },
-            ].map((tab) => (
+          <div className="flex gap-1.5 bg-surface p-1 rounded-fitting border border-border">
+            {combinations.map((c, idx) => (
               <button
-                key={tab.id}
+                key={c.id}
                 type="button"
-                onClick={() => setFilterSlot(tab.id)}
-                className={`px-3 py-1.5 rounded-fitting text-xs font-medium border transition-all ${
-                  filterSlot === tab.id
-                    ? "bg-accent text-white border-accent shadow-xs"
-                    : "bg-surface border-border text-ink-muted hover:text-ink"
+                onClick={() => setActiveCombinationIndex(idx)}
+                className={`py-1.5 px-3 rounded text-xs font-semibold transition-all cursor-pointer ${
+                  activeCombinationIndex === idx
+                    ? "bg-accent text-white shadow-xs"
+                    : "text-ink-muted hover:text-ink"
                 }`}
               >
-                {tab.label}
+                Look 0{idx + 1}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Asymmetric Re-planning Banner Notice */}
-        {isReplanning && (
-          <div className="p-3 bg-accent/10 border border-accent/20 rounded-fitting text-xs text-accent flex items-center gap-2">
-            <svg className="animate-spin h-4 w-4 text-accent" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            <span>Asymmetrically re-balancing remaining unowned garments against your capsule...</span>
+        {/* Active Worked Outfit Breakdown */}
+        <div className="p-6 space-y-6">
+          <div className="space-y-1">
+            <h3 className="text-lg font-serif font-medium text-ink">{activeCombo.title}</h3>
+            <p className="text-xs text-ink-muted">{activeCombo.subtitle}</p>
           </div>
-        )}
 
-        {/* 15-Item Responsive Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {activeCombo.garments.map((garment) => {
+              const isOwned = ownedItemIds.includes(garment.id);
+              return (
+                <div
+                  key={garment.id}
+                  className={`p-3 rounded-fitting border transition-all flex flex-col justify-between ${
+                    isOwned ? "bg-surface/50 opacity-70 border-dashed border-border" : "bg-surface/30 border-border"
+                  }`}
+                >
+                  <div className="space-y-2">
+                    <div className="aspect-3/4 rounded bg-surface border border-border overflow-hidden relative">
+                      <img src={garment.image_url} alt={garment.name} className="w-full h-full object-cover" />
+                      <span className="absolute bottom-1 right-1 text-[9px] uppercase font-bold bg-accent text-white px-1 rounded">
+                        {garment.slot}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase font-bold text-thread">{garment.brand}</div>
+                      <div className="text-xs font-serif font-medium text-ink line-clamp-1">{garment.name}</div>
+                      <div className="text-xs font-bold text-ink font-mono mt-0.5">
+                        ${(garment.price_cad || garment.price || 0).toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <label className="mt-3 pt-2 border-t border-border/60 flex items-center gap-1.5 text-[11px] text-ink-muted cursor-pointer hover:text-ink">
+                    <input
+                      type="checkbox"
+                      checked={isOwned}
+                      onChange={() => {
+                        onToggleOwned(garment.id);
+                        if (onReplanCapsule) onReplanCapsule();
+                      }}
+                      className="w-3.5 h-3.5 rounded border-border text-accent focus:ring-accent"
+                    />
+                    <span>{isOwned ? "Owned" : "I have this"}</span>
+                  </label>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="bg-surface/60 border border-border rounded-fitting p-3.5 flex items-start gap-2.5 text-xs text-ink-muted">
+            <span className="text-thread font-bold">Styling Note:</span>
+            <span>{activeCombo.styling_tip}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. 15-Item Interactive Grid with Starter Set of 5 Highlight (PRD FR-3.1) */}
+      <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-6 shadow-fitting-raised">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-5">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-thread">Capsule Inventory</span>
+              <span className="text-xs px-2 py-0.5 rounded bg-surface border border-border text-ink-muted font-mono">
+                15 Items
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-serif text-ink mt-0.5 font-medium">
+              Coordinated Capsule Grid
+            </h2>
+          </div>
+
+          {/* Running Totals with Starter Set of 5 Highlights */}
+          <div className="flex flex-wrap items-center gap-4 text-right">
+            <div className="bg-surface border border-border rounded-fitting px-3 py-2 text-left">
+              <div className="text-[11px] font-bold text-thread uppercase tracking-wider">Starter Set of 5</div>
+              <div className="text-sm font-bold text-ink font-mono">${starterSetTotal.toFixed(2)} CAD</div>
+            </div>
+            <div className="bg-surface border border-border rounded-fitting px-3 py-2 text-left">
+              <div className="text-[11px] font-bold text-ink-muted uppercase tracking-wider">
+                {unownedCapsuleItems.length < 15 ? `Remaining (${unownedCapsuleItems.length})` : "Full 15-Piece Total"}
+              </div>
+              <div className="text-sm font-bold text-ink font-mono">${unownedCapsuleTotal.toFixed(2)} CAD</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onAddAllToCart(unownedCapsuleItems)}
+              disabled={unownedCapsuleItems.length === 0}
+              className="py-2.5 px-4 rounded-fitting bg-accent hover:bg-navy-light text-white text-xs font-semibold tracking-wide transition-all disabled:opacity-40 cursor-pointer"
+            >
+              {unownedCapsuleItems.length === 0 ? "Wardrobe Covers This" : `Add All to Cart (${unownedCapsuleItems.length})`}
+            </button>
+          </div>
+        </div>
+
+        {/* Slot Filters */}
+        <div className="flex flex-wrap gap-2">
+          {[
+            { id: "all", label: "All 15 Pieces" },
+            { id: "starter", label: "★ Starter Set of 5" },
+            { id: "outerwear", label: "Outerwear (3)" },
+            { id: "top", label: "Tops (5)" },
+            { id: "bottom", label: "Bottoms (4)" },
+            { id: "shoes", label: "Shoes (2)" },
+            { id: "accessory", label: "Accessories (1)" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setFilterSlot(tab.id)}
+              className={`py-1.5 px-3 rounded-fitting text-xs font-medium border transition-all cursor-pointer ${
+                filterSlot === tab.id
+                  ? "bg-accent text-white border-accent shadow-xs"
+                  : "bg-surface border-border text-ink-muted hover:border-thread/50"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Grid of Items */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {filteredGrid.map((garment) => {
             const isOwned = ownedItemIds.includes(garment.id);
-            const inCart = cartItemIds.includes(garment.id);
+            const isInCart = cartItemIds.includes(garment.id);
             const isStarter = starterSetIds.has(garment.id);
 
             return (
               <div
                 key={garment.id}
-                className={`border rounded-fitting-lg p-4 flex flex-col justify-between space-y-3 transition-all ${
-                  isStarter
-                    ? "border-thread/50 bg-thread/5 shadow-xs"
-                    : "border-border bg-surface-raised hover:border-ink/20"
-                } ${isOwned ? "opacity-60 bg-surface/80" : ""}`}
+                className={`p-3.5 rounded-fitting border transition-all flex flex-col justify-between ${
+                  isOwned
+                    ? "bg-surface/40 border-dashed border-border opacity-65"
+                    : isStarter
+                    ? "bg-surface-raised border-thread/50 shadow-xs ring-1 ring-thread/20"
+                    : "bg-surface-raised border-border hover:border-accent/40"
+                }`}
               >
                 <div className="space-y-2.5">
-                  <div className="relative aspect-4/5 rounded-fitting overflow-hidden bg-surface border border-border">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={garment.image_url}
-                      alt={garment.name}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="aspect-3/4 rounded bg-surface border border-border overflow-hidden relative">
+                    <img src={garment.image_url} alt={garment.name} className="w-full h-full object-cover" />
                     {isStarter && (
-                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-thread text-white text-[10px] font-bold uppercase tracking-wider shadow-xs">
-                        Starter Set of 5
+                      <span className="absolute top-1 left-1 text-[9px] font-bold bg-thread text-white px-1.5 py-0.5 rounded shadow-xs">
+                        Starter 5
                       </span>
                     )}
-                    <span className="absolute bottom-2 right-2 text-[10px] px-2 py-0.5 rounded bg-black/60 text-white font-medium backdrop-blur-xs">
-                      {garment.brand}
+                    <span className="absolute bottom-1 right-1 text-[9px] uppercase font-bold bg-accent text-white px-1 rounded">
+                      {garment.slot}
                     </span>
                   </div>
 
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-thread">
-                      {garment.slot}
-                    </div>
-                    <h3 className="text-sm font-serif font-medium text-ink line-clamp-1">{garment.name}</h3>
-                    <div className="flex items-center justify-between text-xs mt-1">
-                      <span className="font-semibold text-ink">${garment.price} CAD</span>
-                      <span className="text-ink-muted text-[11px]">{garment.color}</span>
+                    <div className="text-[10px] uppercase font-bold text-thread tracking-wider">{garment.brand}</div>
+                    <h4 className="text-xs font-serif font-medium text-ink line-clamp-2 mt-0.5">{garment.name}</h4>
+                    <div className="text-xs font-bold text-ink font-mono mt-1">
+                      ${(garment.price_cad || garment.price || 0).toFixed(2)}
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-2 pt-2 border-t border-border">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onToggleOwned(garment.id);
-                      if (onReplanCapsule) onReplanCapsule();
-                    }}
-                    className={`w-full py-1.5 px-2 rounded-fitting text-xs border transition-all ${
-                      isOwned
-                        ? "bg-moss/10 border-moss text-moss font-semibold"
-                        : "bg-surface border-border text-ink-muted hover:text-ink"
-                    }`}
-                  >
-                    {isOwned ? "✓ I Own This" : "I Already Have This"}
-                  </button>
+                <div className="mt-3 pt-2.5 border-t border-border/70 space-y-2">
+                  <label className="flex items-center gap-1.5 text-[11px] text-ink-muted cursor-pointer hover:text-ink">
+                    <input
+                      type="checkbox"
+                      checked={isOwned}
+                      onChange={() => {
+                        onToggleOwned(garment.id);
+                        if (onReplanCapsule) onReplanCapsule();
+                      }}
+                      className="w-3.5 h-3.5 rounded border-border text-accent focus:ring-accent"
+                    />
+                    <span>{isOwned ? "I have this" : "I have this"}</span>
+                  </label>
 
-                  {!isOwned && (
-                    <button
-                      type="button"
-                      onClick={() => onAddToCart(garment)}
-                      className={`w-full py-1.5 px-2 rounded-fitting text-xs font-medium transition-all ${
-                        inCart
-                          ? "bg-verified text-white"
-                          : "bg-surface border border-border hover:bg-accent hover:text-white text-ink"
-                      }`}
+                  <div className="flex items-center justify-between gap-1 pt-1">
+                    <a
+                      href={garment.retailer_url || garment.product_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-thread hover:underline"
                     >
-                      {inCart ? "In Fitting Cart ✓" : "+ Add to Cart"}
-                    </button>
-                  )}
+                      Store ↗
+                    </a>
+                    {!isOwned && (
+                      <button
+                        type="button"
+                        onClick={() => onAddToCart(garment)}
+                        disabled={isInCart}
+                        className={`text-[11px] px-2 py-0.5 rounded font-medium ${
+                          isInCart
+                            ? "bg-verified/15 text-verified"
+                            : "bg-surface border border-border text-ink hover:border-accent"
+                        }`}
+                      >
+                        {isInCart ? "✓" : "+ Cart"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useProfileStorage } from "../lib/useProfileStorage";
 import { SharedProfile } from "../components/SharedProfile";
@@ -15,12 +15,13 @@ type ViewState = "profile" | "result";
 export default function Home() {
   const { profile, isLoaded, updateProfile, toggleOwnedItem } = useProfileStorage();
   const [occasion, setOccasion] = useState<Occasion>("pitch");
-  const [audienceText, setAudienceText] = useState<string>("Pitching Seed Fund in Gastown to local tech VCs");
+  const [audienceText, setAudienceText] = useState<string>("Seed fund, partners are ex-engineers, meeting at their office in Gastown");
   const [flow, setFlow] = useState<"occasion" | "everyday">("occasion");
   const [viewState, setViewState] = useState<ViewState>("profile");
 
   const [recommendationData, setRecommendationData] = useState<RecommendApiResponse["data"] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadingStep, setLoadingStep] = useState<number>(1);
   const [isNudging, setIsNudging] = useState<boolean>(false);
   const [isReplanning, setIsReplanning] = useState<boolean>(false);
 
@@ -28,6 +29,18 @@ export default function Home() {
   const [cartItems, setCartItems] = useState<Garment[]>([]);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
+
+  // Progressive loading text sequence per PRD Section 7.3
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLoading) {
+      setLoadingStep(1);
+      interval = setInterval(() => {
+        setLoadingStep((prev) => (prev === 1 ? 2 : prev));
+      }, 1200);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const fetchRecommendation = async (
     formalityOverride?: number,
@@ -46,6 +59,7 @@ export default function Home() {
         flow,
         formality_target: formalityOverride,
         nudge,
+        owned_item_ids: profile.owned_item_ids,
       };
 
       const res = await fetch("/api/recommend", {
@@ -71,13 +85,13 @@ export default function Home() {
   };
 
   const handleNudge = async (nudgeType: NudgeType) => {
-    const currentFormality = recommendationData?.calibration.formality_target || 7;
+    const currentFormality = recommendationData?.calibration.formality_score || 4;
     let targetFormality = currentFormality;
 
     if (nudgeType === "too_formal") {
-      targetFormality = Math.max(3, currentFormality - 2);
+      targetFormality = Math.max(2, currentFormality - 1);
     } else if (nudgeType === "too_casual") {
-      targetFormality = Math.min(10, currentFormality + 2);
+      targetFormality = Math.min(5, currentFormality + 1);
     } else if (nudgeType === "not_me") {
       targetFormality = currentFormality;
     }
@@ -85,11 +99,13 @@ export default function Home() {
     await fetchRecommendation(targetFormality, nudgeType);
   };
 
-  const handleReplanCapsule = () => {
+  const handleReplanCapsule = async () => {
     setIsReplanning(true);
-    setTimeout(() => {
+    try {
+      await fetchRecommendation();
+    } finally {
       setIsReplanning(false);
-    }, 600);
+    }
   };
 
   // Cart Handlers
@@ -135,9 +151,9 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setViewState("profile")}
-              className="text-left group"
+              className="text-left group cursor-pointer"
             >
-              <span className="text-xs uppercase tracking-widest text-thread font-bold block">
+              <span className="text-[10px] uppercase tracking-widest text-thread font-bold block">
                 The Fitting Room
               </span>
               <span className="text-lg font-serif text-ink font-semibold group-hover:text-accent transition-colors">
@@ -155,37 +171,59 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setViewState("profile")}
-                className="text-xs font-semibold text-ink-muted hover:text-ink transition-colors"
+                className="text-xs font-semibold text-ink-muted hover:text-ink transition-colors cursor-pointer"
               >
                 Edit Profile
               </button>
             )}
 
-            <Link
-              href="/admin"
-              className="text-xs font-medium text-ink-muted hover:text-ink transition-colors"
-              title="Internal Catalog Management"
-            >
-              Admin
-            </Link>
-
-            {/* Cart Drawer Trigger */}
+            {/* Cart Trigger */}
             <button
               type="button"
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 rounded-fitting bg-surface-raised border border-border hover:border-thread/50 text-ink text-xs font-medium flex items-center gap-2 shadow-xs transition-all"
+              className="relative p-2 rounded-fitting text-ink hover:bg-surface-raised border border-border transition-all flex items-center gap-1.5 cursor-pointer"
+              aria-label="Open Cart"
             >
-              <span>Fitting Bag</span>
-              <span className="w-5 h-5 rounded-full bg-accent text-white text-[11px] font-bold flex items-center justify-center">
-                {cartItems.length}
-              </span>
+              <span className="text-xs font-semibold">Fitting Bag</span>
+              {cartItems.length > 0 && (
+                <span className="w-5 h-5 rounded-full bg-accent text-white text-[11px] font-bold flex items-center justify-center">
+                  {cartItems.length}
+                </span>
+              )}
             </button>
+
+            {/* Admin Hub Link */}
+            <Link
+              href="/admin"
+              className="hidden sm:inline-block text-xs font-medium text-thread hover:underline"
+            >
+              Admin Catalog
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Main App Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-8">
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-8 pb-16">
+        {/* Progressive Loading Feedback (PRD Section 7.3) */}
+        {isLoading && (
+          <div className="fixed inset-0 z-50 bg-surface/85 backdrop-blur-xs flex flex-col items-center justify-center space-y-4">
+            <div className="w-8 h-8 border-3 border-accent/20 border-t-accent rounded-full animate-spin" />
+            <div className="text-center space-y-1">
+              <p className="font-serif text-lg text-ink font-medium">
+                {loadingStep === 1
+                  ? "Checking 250 Canadian products..."
+                  : flow === "occasion"
+                  ? "Putting the outfit together..."
+                  : "Building your capsule..."}
+              </p>
+              <p className="text-xs text-ink-muted">
+                Filtering by body silhouette, palette season, and room decorum
+              </p>
+            </div>
+          </div>
+        )}
+
         {viewState === "profile" ? (
           <SharedProfile
             profile={profile}
@@ -207,7 +245,7 @@ export default function Home() {
             ownedItemIds={profile.owned_item_ids || []}
             onAddToCart={handleAddToCart}
             onAddAllToCart={handleAddAllToCart}
-            cartItemIds={cartItems.map((g) => g.id)}
+            cartItemIds={cartItems.map((i) => i.id)}
             onBackToEdit={() => setViewState("profile")}
             isNudging={isNudging}
           />
@@ -217,7 +255,7 @@ export default function Home() {
             onToggleOwned={toggleOwnedItem}
             onAddToCart={handleAddToCart}
             onAddAllToCart={handleAddAllToCart}
-            cartItemIds={cartItems.map((g) => g.id)}
+            cartItemIds={cartItems.map((i) => i.id)}
             onBackToEdit={() => setViewState("profile")}
             onReplanCapsule={handleReplanCapsule}
             isReplanning={isReplanning}
@@ -225,7 +263,7 @@ export default function Home() {
         )}
       </main>
 
-      {/* Shared Cart Sliding Drawer */}
+      {/* Shared Slide-over Cart (De-duplicated) */}
       <SharedCart
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -238,7 +276,7 @@ export default function Home() {
         }}
       />
 
-      {/* Checkout Modal with 1 WTP Question */}
+      {/* Checkout & WTP Survey Modal */}
       <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
@@ -247,13 +285,23 @@ export default function Home() {
       />
 
       {/* Footer */}
-      <footer className="border-t border-border bg-surface/40 py-8 text-center text-xs text-ink-muted space-y-2">
-        <p className="font-serif italic text-sm text-ink">
-          &ldquo;The AI is allowed to have taste, but not facts.&rdquo;
-        </p>
-        <p>
-          Curated across Canadian retailers: Aritzia, RW&CO, Lululemon, Kotn, and Vessi.
-        </p>
+      <footer className="border-t border-border bg-surface-raised/60 py-6 text-center text-xs text-ink-muted">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p>© 2026 Style Advisor · ProductBC Build-a-Thon Demo</p>
+          <div className="flex items-center gap-4 text-ink-muted/80">
+            <span>Aritzia</span>
+            <span>·</span>
+            <span>RW&CO</span>
+            <span>·</span>
+            <span>Lululemon</span>
+            <span>·</span>
+            <span>Kotn</span>
+            <span>·</span>
+            <span>Vessi</span>
+            <span>·</span>
+            <span>Frank And Oak</span>
+          </div>
+        </div>
       </footer>
     </div>
   );

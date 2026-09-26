@@ -1,5 +1,6 @@
 /**
  * Style Advisor - Chrome Extension Popup Logic
+ * Supporting both http://localhost:3000 and https://StyleAdvisor.online
  */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -28,11 +29,68 @@ document.addEventListener("DOMContentLoaded", async () => {
   const inputFabric = document.getElementById("inputFabric");
   const inputImage = document.getElementById("inputImage");
   const endpointUrlInput = document.getElementById("endpointUrl");
+  const btnEnvLocal = document.getElementById("btnEnvLocal");
+  const btnEnvProd = document.getElementById("btnEnvProd");
   const btnIngest = document.getElementById("btnIngest");
   const btnIngestText = document.getElementById("btnIngestText");
   const toastMessage = document.getElementById("toastMessage");
 
   let currentTabUrl = "";
+
+  const LOCAL_ENDPOINT = "http://localhost:3000/api/admin/catalog";
+  const PROD_ENDPOINT = "https://StyleAdvisor.online/api/admin/catalog";
+
+  // Load saved endpoint from storage
+  if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(["style_advisor_endpoint"], (res) => {
+      if (res && res.style_advisor_endpoint) {
+        endpointUrlInput.value = res.style_advisor_endpoint;
+        updateEnvButtons(res.style_advisor_endpoint);
+      }
+      checkApiHealth();
+    });
+  }
+
+  function updateEnvButtons(currentUrl) {
+    if (currentUrl.includes("StyleAdvisor.online") || currentUrl.includes("styleadvisor.online")) {
+      btnEnvProd?.classList.add("active");
+      btnEnvLocal?.classList.remove("active");
+      if (btnEnvProd) btnEnvProd.style.background = "#1F2A44", btnEnvProd.style.color = "#fff";
+      if (btnEnvLocal) btnEnvLocal.style.background = "#f0f0f0", btnEnvLocal.style.color = "#1C1B19";
+    } else {
+      btnEnvLocal?.classList.add("active");
+      btnEnvProd?.classList.remove("active");
+      if (btnEnvLocal) btnEnvLocal.style.background = "#1F2A44", btnEnvLocal.style.color = "#fff";
+      if (btnEnvProd) btnEnvProd.style.background = "#f0f0f0", btnEnvProd.style.color = "#1C1B19";
+    }
+  }
+
+  // Environment Switcher Handlers
+  btnEnvLocal?.addEventListener("click", () => {
+    endpointUrlInput.value = LOCAL_ENDPOINT;
+    updateEnvButtons(LOCAL_ENDPOINT);
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.set({ style_advisor_endpoint: LOCAL_ENDPOINT });
+    }
+    checkApiHealth();
+  });
+
+  btnEnvProd?.addEventListener("click", () => {
+    endpointUrlInput.value = PROD_ENDPOINT;
+    updateEnvButtons(PROD_ENDPOINT);
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.set({ style_advisor_endpoint: PROD_ENDPOINT });
+    }
+    checkApiHealth();
+  });
+
+  endpointUrlInput?.addEventListener("input", () => {
+    updateEnvButtons(endpointUrlInput.value);
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.set({ style_advisor_endpoint: endpointUrlInput.value });
+    }
+    checkApiHealth();
+  });
 
   // Helper: Toast
   const showToast = (msg, isSuccess = true) => {
@@ -64,6 +122,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 1. Check API Health
   const checkApiHealth = async () => {
     const url = endpointUrlInput.value.trim();
+    endpointBadge.className = "status-badge checking";
+    statusText.textContent = "Checking...";
+
     try {
       const res = await fetch(url, { method: "OPTIONS" });
       if (res.ok || res.status === 200 || res.status === 204) {
@@ -100,7 +161,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         productForm.classList.remove("hidden");
 
         if (chrome.runtime.lastError || !response || !response.success) {
-          // Fallback if content script not loaded or generic page
           inputTitle.value = tab.title?.split("|")[0]?.split("-")[0]?.trim() || "";
           inputBrand.value = "Retailer";
           inputPrice.value = 0;
@@ -163,14 +223,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       name: title,
       brand: brand,
       price: price,
+      price_cad: price,
       product_url: currentTabUrl || "https://retailer.ca/product",
+      retailer_url: currentTabUrl || "https://retailer.ca/product",
       image_url: imageUrl,
       slot: slot,
       color: color,
       hex_color: hexColor,
-      fabric_composition: fabric || "Premium Fabric Blend",
+      fabric_composition: fabric || "Premium Canadian Fabric Blend",
       gender_cut: "unisex",
-      budget_tier: price > 200 ? "luxury" : price > 80 ? "mid" : "budget"
+      budget_tier: price > 200 ? "$$$" : price > 80 ? "$$" : "$"
     };
 
     try {
@@ -204,6 +266,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // Initial startup
+  updateEnvButtons(endpointUrlInput.value);
   checkApiHealth();
   extractFromActiveTab();
 });
