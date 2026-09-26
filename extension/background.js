@@ -1,35 +1,53 @@
 /**
  * Style Advisor - Background Service Worker
- * Handles toolbar action click to toggle the Draggable In-Page Widget.
+ * Robust toolbar click handler to toggle Draggable In-Page Ingestor Widget on any webpage.
  */
 
 chrome.action.onClicked.addListener(async (tab) => {
   if (!tab || !tab.id || !tab.url) return;
 
-  // Cannot inject into chrome:// or edge:// internal pages
-  if (tab.url.startsWith("chrome://") || tab.url.startsWith("edge://") || tab.url.startsWith("about:") || tab.url.startsWith("chrome-extension://")) {
+  // Cannot inject into browser internal URLs
+  if (
+    tab.url.startsWith("chrome://") ||
+    tab.url.startsWith("edge://") ||
+    tab.url.startsWith("about:") ||
+    tab.url.startsWith("chrome-extension://") ||
+    tab.url.startsWith("view-source:")
+  ) {
     return;
   }
 
-  try {
-    // Send message to active tab to toggle the widget
-    chrome.tabs.sendMessage(tab.id, { action: "TOGGLE_WIDGET" }, (response) => {
-      // If content script was not ready, inject it and try again
-      if (chrome.runtime.lastError || !response) {
+  const sendToggleMessage = () => {
+    chrome.tabs.sendMessage(tab.id, { action: "TOGGLE_WIDGET" }, (res) => {
+      if (chrome.runtime.lastError || !res || !res.success) {
+        // If content script was missing or not responding, inject and call directly
         chrome.scripting.executeScript(
           {
             target: { tabId: tab.id },
             files: ["content.js"],
           },
           () => {
+            // Small delay to ensure initialization
             setTimeout(() => {
-              chrome.tabs.sendMessage(tab.id, { action: "TOGGLE_WIDGET" });
-            }, 100);
+              chrome.tabs.sendMessage(tab.id, { action: "TOGGLE_WIDGET" }, () => {
+                if (chrome.runtime.lastError) {
+                  // Direct function execution fallback
+                  chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    func: () => {
+                      if (typeof window.__STYLE_ADVISOR_TOGGLE__ === "function") {
+                        window.__STYLE_ADVISOR_TOGGLE__();
+                      }
+                    },
+                  });
+                }
+              });
+            }, 60);
           }
         );
       }
     });
-  } catch (err) {
-    console.error("[Style Advisor Background Error]:", err);
-  }
+  };
+
+  sendToggleMessage();
 });

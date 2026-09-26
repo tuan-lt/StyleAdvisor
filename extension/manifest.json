@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Style Advisor - Catalog Ingestor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Draggable in-page product scraper and ingestor into Style Advisor AI catalog from Canadian and global fashion retailers.",
   "permissions": [
     "activeTab",

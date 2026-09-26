@@ -1,11 +1,14 @@
 /**
  * Style Advisor - In-Page Content Extractor & Draggable Floating Ingestion Widget
- * Version: 1.0.2
+ * Version: 1.0.3
  */
 
 (function () {
-  // Prevent double-injection
+  // If already initialized in this page, just trigger toggle
   if (window.__STYLE_ADVISOR_INJECTED__) {
+    if (typeof window.__STYLE_ADVISOR_TOGGLE__ === "function") {
+      window.__STYLE_ADVISOR_TOGGLE__();
+    }
     return;
   }
   window.__STYLE_ADVISOR_INJECTED__ = true;
@@ -94,7 +97,8 @@
     };
 
     if (!result.title) {
-      result.title = getMeta(["og:title", "twitter:title"]) || document.title.split("|")[0].split("-")[0].trim();
+      const ogTitle = getMeta(["og:title", "twitter:title"]);
+      result.title = ogTitle ? ogTitle.split("|")[0].split("-")[0].trim() : document.title.split("|")[0].split("-")[0].trim();
     }
 
     if (!result.image) {
@@ -117,8 +121,33 @@
     // 3. Retailer Domain Detection & Custom Selectors
     const hostname = window.location.hostname.toLowerCase();
 
+    // Reigning Champ
+    if (hostname.includes("reigningchamp")) {
+      result.brand = "Reigning Champ";
+      const titleEl = document.querySelector('h1.product__title, h1[class*="product-title"], h1.h2, h1');
+      if (titleEl && !result.title) result.title = titleEl.textContent.trim();
+
+      const priceEl = document.querySelector('.price-item--regular, .price-item--sale, span[class*="price-item"], .product__price, span.price');
+      if (priceEl && (!result.price || result.price === 0)) {
+        const match = priceEl.textContent.match(/\$\s*(\d+(?:\.\d{2})?)/);
+        if (match && match[1]) result.price = parseFloat(match[1]);
+      }
+
+      // Fabric extraction from description or specs
+      if (!result.fabric && result.description) {
+        const fabricMatch = result.description.match(/(?:100%\s*[A-Za-z]+|brushed cotton|cotton flannel|midweight terry|heavyweight fleece|pima cotton|twill|fleece|wool)/i);
+        if (fabricMatch) result.fabric = fabricMatch[0].trim();
+      }
+
+      // Color from URL slug or option
+      const selectedColorEl = document.querySelector('input[name="Color"]:checked, input[name="Colour"]:checked, span[class*="selected-value"]');
+      if (selectedColorEl) {
+        result.color = selectedColorEl.value || selectedColorEl.textContent.trim();
+      }
+    }
+
     // Lululemon
-    if (hostname.includes("lululemon")) {
+    else if (hostname.includes("lululemon")) {
       result.brand = "Lululemon";
       const titleEl = document.querySelector('h1[data-testid="product-name"], .pdp-product-name, h1.product-title, h1[class*="product-name"], h1');
       if (titleEl) result.title = titleEl.textContent.trim();
@@ -292,6 +321,7 @@
 
     // Known Canadian Brands Mapping
     const KNOWN_BRANDS = [
+      { key: "reigningchamp", name: "Reigning Champ" },
       { key: "joefresh", name: "Joe Fresh" },
       { key: "lululemon", name: "Lululemon" },
       { key: "aritzia", name: "Aritzia" },
@@ -307,7 +337,6 @@
       { key: "encircled", name: "Encircled" },
       { key: "frankandoak", name: "Frank And Oak" },
       { key: "clubmonaco", name: "Club Monaco" },
-      { key: "reigningchamp", name: "Reigning Champ" },
       { key: "simons", name: "Simons" },
       { key: "vessi", name: "Vessi" },
       { key: "nakedandfamous", name: "Naked & Famous Denim" },
@@ -336,7 +365,7 @@
 
     // Smart Wardrobe Slot Auto-Classification
     const textCorpus = `${result.title} ${result.description} ${window.location.href}`.toLowerCase();
-    if (/(?:pant|pants|jean|jeans|trouser|trousers|short|shorts|skirt|legging|leggings|jogger|joggers|tights|denim|chinos|align pant)/i.test(textCorpus)) {
+    if (/(?:pant|pants|jean|jeans|trouser|trousers|short|shorts|skirt|legging|leggings|jogger|joggers|tights|denim|chinos|sweatpant)/i.test(textCorpus)) {
       result.slot = "bottom";
     } else if (/(?:jacket|coat|blazer|parka|trench|puffer|anorak|overcoat|outerwear|windbreaker|vest|bomber|cardigan|fleece|wunder puff)/i.test(textCorpus)) {
       result.slot = "outerwear";
@@ -359,29 +388,31 @@
   let isWidgetVisible = false;
 
   function createOrToggleWidget() {
-    if (widgetHost) {
+    if (widgetHost && shadowRoot) {
       isWidgetVisible = !isWidgetVisible;
       const modal = shadowRoot.getElementById("sa-widget-container");
       const pill = shadowRoot.getElementById("sa-minimized-pill");
-      if (isWidgetVisible) {
-        modal.style.display = "flex";
-        pill.style.display = "none";
-        refreshExtractedData();
-      } else {
-        modal.style.display = "none";
-        pill.style.display = "none";
+      if (modal && pill) {
+        if (isWidgetVisible) {
+          modal.style.display = "flex";
+          pill.style.display = "none";
+          refreshExtractedData();
+        } else {
+          modal.style.display = "none";
+          pill.style.display = "none";
+        }
       }
       return;
     }
 
-    // Create Host element
+    // Create Host element directly on documentElement to bypass any body CSS transforms/overflows
     widgetHost = document.createElement("div");
     widgetHost.id = "style-advisor-root";
-    widgetHost.style.position = "absolute";
-    widgetHost.style.top = "0";
-    widgetHost.style.left = "0";
-    widgetHost.style.zIndex = "2147483647"; // Max browser z-index
-    document.body.appendChild(widgetHost);
+    widgetHost.style.cssText = "all: initial !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 0 !important; height: 0 !important; z-index: 2147483647 !important; pointer-events: auto !important;";
+    
+    // Attach to document.documentElement (<html>) or body fallback
+    const targetParent = document.documentElement || document.body;
+    targetParent.appendChild(widgetHost);
 
     shadowRoot = widgetHost.attachShadow({ mode: "open" });
 
@@ -400,7 +431,7 @@
           padding: 0;
         }
         #sa-widget-container {
-          position: fixed;
+          position: fixed !important;
           top: 30px;
           right: 30px;
           width: 380px;
@@ -408,9 +439,9 @@
           background: rgba(255, 255, 255, 0.96);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(28, 27, 25, 0.12);
+          border: 1px solid rgba(28, 27, 25, 0.14);
           border-radius: 16px;
-          box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.1);
           display: flex;
           flex-direction: column;
           overflow: hidden;
@@ -418,7 +449,7 @@
           transition: box-shadow 0.2s ease;
         }
         #sa-widget-container.dragging {
-          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.32);
           user-select: none;
         }
         /* Header / Drag Bar */
@@ -626,7 +657,7 @@
           border: 1px solid rgba(0,0,0,0.15);
           border-radius: 6px;
         }
-        /* Environment Settings Accordion */
+        /* Environment Settings Box */
         .sa-config-box {
           background: #F5F4F0;
           border: 1px solid rgba(28, 27, 25, 0.08);
@@ -733,7 +764,7 @@
         }
         /* Minimized floating pill */
         #sa-minimized-pill {
-          position: fixed;
+          position: fixed !important;
           bottom: 24px;
           right: 24px;
           background: #1C1B19;
@@ -760,7 +791,7 @@
       <!-- Minimized Floating Pill -->
       <div id="sa-minimized-pill">
         <span>✨ Style Advisor Ingestor</span>
-        <span style="font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px;">v1.0.2</span>
+        <span style="font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px;">v1.0.3</span>
       </div>
 
       <!-- Main Draggable Modal Container -->
@@ -771,7 +802,7 @@
             <span class="sa-logo-icon">✨</span>
             <div class="sa-title-wrap">
               <span class="sa-title">Style Advisor</span>
-              <span class="sa-badge">Ingestor v1.0.2</span>
+              <span class="sa-badge">Ingestor v1.0.3</span>
             </div>
           </div>
           <div class="sa-controls">
@@ -800,13 +831,13 @@
           <!-- Form Fields -->
           <div class="sa-field-group">
             <label class="sa-label">Product Name / Title *</label>
-            <input type="text" id="sa-input-title" class="sa-input" placeholder="e.g. Wunder Puff Bomber Vest">
+            <input type="text" id="sa-input-title" class="sa-input" placeholder="e.g. Cotton Flannel Highland Shirt">
           </div>
 
           <div class="sa-field-row">
             <div class="sa-col">
               <label class="sa-label">Brand *</label>
-              <input type="text" id="sa-input-brand" class="sa-input" placeholder="e.g. Lululemon">
+              <input type="text" id="sa-input-brand" class="sa-input" placeholder="e.g. Reigning Champ">
             </div>
             <div class="sa-col">
               <label class="sa-label">Price (CAD $) *</label>
@@ -829,14 +860,14 @@
               <label class="sa-label">Color & Swatch</label>
               <div class="sa-color-wrap">
                 <input type="color" id="sa-input-hex" class="sa-color-picker" value="#1C1B19">
-                <input type="text" id="sa-input-color" class="sa-input" placeholder="e.g. Bright Blue">
+                <input type="text" id="sa-input-color" class="sa-input" placeholder="e.g. Arctic Wolf / Oxide">
               </div>
             </div>
           </div>
 
           <div class="sa-field-group">
             <label class="sa-label">Fabric / Materials</label>
-            <input type="text" id="sa-input-fabric" class="sa-input" placeholder="e.g. 100% Cotton, Goose Down">
+            <input type="text" id="sa-input-fabric" class="sa-input" placeholder="e.g. 100% Cotton, Brushed Twill">
           </div>
 
           <div class="sa-field-group">
@@ -1039,7 +1070,6 @@
       startX = e.clientX;
       startY = e.clientY;
 
-      // Unset 'right' so left/top take full control
       container.style.right = "auto";
       container.style.left = `${initialLeft}px`;
       container.style.top = `${initialTop}px`;
@@ -1055,7 +1085,6 @@
       let newLeft = initialLeft + dx;
       let newTop = initialTop + dy;
 
-      // Viewport bounds constraint
       const maxLeft = window.innerWidth - container.offsetWidth - 10;
       const maxTop = window.innerHeight - container.offsetHeight - 10;
 
@@ -1149,6 +1178,9 @@
     refreshExtractedData();
     isWidgetVisible = true;
   }
+
+  // Register global toggle reference
+  window.__STYLE_ADVISOR_TOGGLE__ = createOrToggleWidget;
 
   // Listen for message from background or popup
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
