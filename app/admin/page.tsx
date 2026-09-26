@@ -1715,20 +1715,20 @@ export default function AdminCatalogPage() {
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-6 text-xs">
-              {/* 5-STEP INSTALLATION GUIDE WITH INTEGRATED DOWNLOAD BUTTON IN STEP 1 */}
+              {/* 3 COLUMNS X 2 ROWS STEP-BY-STEP & USER GUIDE GRID */}
               <div className="p-5 bg-surface border border-border rounded-fitting-lg space-y-4">
                 <div className="flex items-center justify-between border-b border-border/80 pb-2.5">
                   <div className="text-[11px] font-bold uppercase tracking-wider text-thread flex items-center gap-1.5">
-                    <span>📖</span> Hướng Dẫn Cài Đặt Tiện Ích Chrome
+                    <span>📖</span> Hướng Dẫn Cài Đặt & Sử Dụng Tiện Ích Chrome
                   </div>
                   <span className="text-[10px] px-2 py-0.5 rounded bg-surface-raised border border-border text-ink-muted font-medium">
                     Google Chrome / Brave / Edge
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {/* Step 1: Tải & Giải Nén with Integrated Download Button */}
-                  <div className="p-3.5 bg-gradient-to-br from-accent/10 via-surface-raised to-surface border border-accent/30 rounded-fitting flex flex-col justify-between space-y-3">
+                  <div className="p-4 bg-gradient-to-br from-accent/10 via-surface-raised to-surface border border-accent/30 rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
                         <div className="w-6 h-6 rounded-full bg-accent text-white font-bold flex items-center justify-center text-xs shadow-xs">
@@ -1763,7 +1763,7 @@ export default function AdminCatalogPage() {
                   </div>
 
                   {/* Step 2: Mở chrome://extensions */}
-                  <div className="p-3.5 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
+                  <div className="p-4 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
                       <div className="w-6 h-6 rounded-full bg-thread/15 text-thread font-bold flex items-center justify-center text-xs">
                         2
@@ -1789,7 +1789,7 @@ export default function AdminCatalogPage() {
                   </div>
 
                   {/* Step 3: Bật Developer Mode */}
-                  <div className="p-3.5 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
+                  <div className="p-4 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
                       <div className="w-6 h-6 rounded-full bg-thread/15 text-thread font-bold flex items-center justify-center text-xs">
                         3
@@ -1802,7 +1802,7 @@ export default function AdminCatalogPage() {
                   </div>
 
                   {/* Step 4: Load Unpacked */}
-                  <div className="p-3.5 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
+                  <div className="p-4 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
                       <div className="w-6 h-6 rounded-full bg-thread/15 text-thread font-bold flex items-center justify-center text-xs">
                         4
@@ -1814,15 +1814,31 @@ export default function AdminCatalogPage() {
                     </div>
                   </div>
 
-                  {/* Step 5: Ghim & Cào Đồ */}
-                  <div className="p-3.5 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
+                  {/* Step 5: Ghim Tiện Ích */}
+                  <div className="p-4 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
-                      <div className="w-6 h-6 rounded-full bg-verified/20 text-verified font-bold flex items-center justify-center text-xs">
+                      <div className="w-6 h-6 rounded-full bg-thread/15 text-thread font-bold flex items-center justify-center text-xs">
                         5
                       </div>
-                      <div className="font-semibold text-ink text-xs">5. Ghim & Cào Đồ</div>
+                      <div className="font-semibold text-ink text-xs">5. Ghim Tiện Ích</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Ghim icon Style Advisor lên thanh tiện ích. Mở trang web thời trang bất kỳ (Aritzia, Zara,...), bấm icon và bấm <strong>&quot;🚀 Ingest into Catalog&quot;</strong>!
+                        Nhấp vào biểu tượng mảnh ghép (Extensions) ở góc trên bên phải Chrome $\rightarrow$ Chọn <strong>Ghim (Pin)</strong> Style Advisor lên thanh công cụ.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 6: HƯỚNG DẪN SỬ DỤNG */}
+                  <div className="p-4 bg-gradient-to-br from-verified/10 via-surface-raised to-surface border border-verified/30 rounded-fitting flex flex-col justify-between space-y-3">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <div className="w-6 h-6 rounded-full bg-verified text-white font-bold flex items-center justify-center text-xs shadow-xs">
+                          6
+                        </div>
+                        <span className="text-[9px] uppercase font-bold text-verified tracking-wider">Cào dữ liệu</span>
+                      </div>
+                      <div className="font-semibold text-ink text-xs">6. Hướng Dẫn Sử Dụng</div>
+                      <p className="text-[11px] text-ink-muted leading-relaxed">
+                        Mở bất kỳ website thời trang nào (Aritzia, Zara, Lululemon,...), bấm vào biểu tượng Style Advisor trên thanh công cụ và nhấn <strong>&quot;🚀 Ingest into Catalog&quot;</strong>!
                       </p>
                     </div>
                   </div>
