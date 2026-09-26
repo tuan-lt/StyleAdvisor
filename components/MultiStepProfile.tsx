@@ -351,22 +351,22 @@ export function MultiStepProfile({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 items-stretch">
             {/* FLOW A CARD */}
             <div
               onClick={() => {
                 onFlowChange("occasion");
                 handleNext();
               }}
-              className={`group rounded-fitting-lg border overflow-hidden cursor-pointer transition-all duration-300 shadow-fitting-card hover:shadow-fitting-raised ${
+              className={`group rounded-fitting-lg border overflow-hidden cursor-pointer transition-all duration-300 shadow-fitting-card hover:shadow-fitting-raised flex flex-col h-full ${
                 flow === "occasion"
                   ? "border-accent ring-2 ring-accent/30 bg-surface-raised"
                   : "border-border bg-surface-raised hover:border-thread/50"
               }`}
             >
-              <div className="aspect-16/10 relative overflow-hidden bg-surface">
+              <div className="aspect-[16/10] w-full relative overflow-hidden bg-surface shrink-0">
                 <img
-                  src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1000&q=80"
+                  src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1000&h=625&q=80"
                   alt="High-Stakes Occasion"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -374,14 +374,16 @@ export function MultiStepProfile({
                   FLOW A
                 </div>
               </div>
-              <div className="p-6 space-y-2">
-                <h3 className="text-xl font-serif font-medium text-ink group-hover:text-accent transition-colors">
-                  High-Stakes Occasion (FLOW A)
-                </h3>
-                <p className="text-xs text-ink-muted leading-relaxed">
-                  Pitching seed funds in Gastown, high-profile interviews, family dinners, court hearings or memorials.
-                  Delivers <strong>exactly 1 complete head-to-toe outfit</strong> calibrated for room decorum in under 1 minute.
-                </p>
+              <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-serif font-medium text-ink group-hover:text-accent transition-colors">
+                    High-Stakes Occasion (FLOW A)
+                  </h3>
+                  <p className="text-xs text-ink-muted leading-relaxed">
+                    Pitching seed funds in Gastown, high-profile interviews, family dinners, court hearings or memorials.
+                    Delivers <strong>exactly 1 complete head-to-toe outfit</strong> calibrated for room decorum in under 1 minute.
+                  </p>
+                </div>
                 <div className="pt-2 flex items-center text-xs font-bold text-thread group-hover:underline">
                   Start High-Stakes Flow →
                 </div>
@@ -394,15 +396,15 @@ export function MultiStepProfile({
                 onFlowChange("everyday");
                 handleNext();
               }}
-              className={`group rounded-fitting-lg border overflow-hidden cursor-pointer transition-all duration-300 shadow-fitting-card hover:shadow-fitting-raised ${
+              className={`group rounded-fitting-lg border overflow-hidden cursor-pointer transition-all duration-300 shadow-fitting-card hover:shadow-fitting-raised flex flex-col h-full ${
                 flow === "everyday"
                   ? "border-accent ring-2 ring-accent/30 bg-surface-raised"
                   : "border-border bg-surface-raised hover:border-thread/50"
               }`}
             >
-              <div className="aspect-16/10 relative overflow-hidden bg-surface">
+              <div className="aspect-[16/10] w-full relative overflow-hidden bg-surface shrink-0">
                 <img
-                  src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1000&q=80"
+                  src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1000&h=625&q=80"
                   alt="Everyday Capsule Wardrobe"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -410,13 +412,15 @@ export function MultiStepProfile({
                   FLOW B
                 </div>
               </div>
-              <div className="p-6 space-y-2">
-                <h3 className="text-xl font-serif font-medium text-ink group-hover:text-thread transition-colors">
-                  Everyday Capsule Wardrobe (FLOW B)
-                </h3>
-                <p className="text-xs text-ink-muted leading-relaxed">
-                  Tired of decision fatigue? Assemble a cohesive <strong>15-piece modular wardrobe</strong> with 3 worked combinations and a highlighted <strong>Starter Set of 5</strong>.
-                </p>
+              <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-serif font-medium text-ink group-hover:text-thread transition-colors">
+                    Everyday Capsule Wardrobe (FLOW B)
+                  </h3>
+                  <p className="text-xs text-ink-muted leading-relaxed">
+                    Tired of decision fatigue? Assemble a cohesive <strong>15-piece modular wardrobe</strong> with 3 worked combinations and a highlighted <strong>Starter Set of 5</strong>.
+                  </p>
+                </div>
                 <div className="pt-2 flex items-center text-xs font-bold text-thread group-hover:underline">
                   Build 15-Item Capsule →
                 </div>
@@ -453,7 +457,7 @@ export function MultiStepProfile({
                       : "border-border hover:border-thread/50 bg-surface/20"
                   }`}
                 >
-                  <div className="aspect-4/3 relative overflow-hidden bg-surface">
+                  <div className="aspect-[4/3] relative overflow-hidden bg-surface">
                     <img src={g.image} alt={g.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <div className="p-4 space-y-1">
@@ -516,7 +520,7 @@ export function MultiStepProfile({
                   }`}
                 >
                   <div>
-                    <div className="aspect-3/4 relative overflow-hidden bg-surface">
+                    <div className="aspect-[3/4] relative overflow-hidden bg-surface">
                       <img src={b.image} alt={b.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                     <div className="p-3 space-y-1">
@@ -581,7 +585,7 @@ export function MultiStepProfile({
                   }`}
                 >
                   <div>
-                    <div className="aspect-4/3 relative overflow-hidden bg-surface">
+                    <div className="aspect-[4/3] relative overflow-hidden bg-surface">
                       <img src={p.image} alt={p.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                     <div className="p-4 space-y-2">
@@ -662,7 +666,7 @@ export function MultiStepProfile({
                   }`}
                 >
                   <div>
-                    <div className="aspect-16/10 relative overflow-hidden bg-surface">
+                    <div className="aspect-[16/10] relative overflow-hidden bg-surface">
                       <img src={st.image} alt={st.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                     <div className="p-3.5 space-y-1">
@@ -845,7 +849,7 @@ export function MultiStepProfile({
                       }`}
                     >
                       <div>
-                        <div className="aspect-16/10 relative overflow-hidden bg-surface">
+                        <div className="aspect-[16/10] relative overflow-hidden bg-surface">
                           <img src={occ.image} alt={occ.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         </div>
                         <div className="p-3 space-y-0.5">
