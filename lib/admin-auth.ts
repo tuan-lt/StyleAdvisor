@@ -5,11 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
  * Fallback to development key if not configured in dev environment.
  */
 export function getExpectedAdminApiKey(): string {
-  return (
-    process.env.ADMIN_INGEST_API_KEY ||
-    process.env.ADMIN_API_KEY ||
-    "sa_dev_secret_key_2026"
-  );
+  const envKey = (process.env.ADMIN_INGEST_API_KEY || process.env.ADMIN_API_KEY || "").trim();
+  return envKey || "sa_dev_secret_key_2026";
 }
 
 /**

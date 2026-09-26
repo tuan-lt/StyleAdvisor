@@ -10,6 +10,8 @@
     "verify-links": "node scripts/verify-links.js"
   },
   "dependencies": {
+    "@types/jszip": "^3.4.0",
+    "jszip": "^3.10.2",
     "lucide-react": "^0.453.0",
     "next": "14.2.15",
     "react": "^18.3.1",
