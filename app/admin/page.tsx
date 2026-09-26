@@ -71,6 +71,7 @@ export default function AdminCatalogPage() {
   const [isDownloadingExtension, setIsDownloadingExtension] = useState<boolean>(false);
   const [copiedExtensionUrl, setCopiedExtensionUrl] = useState<boolean>(false);
   const [copiedApiKey, setCopiedApiKey] = useState<boolean>(false);
+  const [copiedBookmarkletCode, setCopiedBookmarkletCode] = useState<boolean>(false);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -117,6 +118,13 @@ export default function AdminCatalogPage() {
       setToast(null);
     }, 4000);
   };
+
+  // 1-Click Bookmarklet Code Generator (Zero-Install Web Scraper)
+  const bookmarkletCode = useMemo(() => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+    const key = adminApiKey || (typeof window !== "undefined" ? localStorage.getItem("admin_ingest_api_key") || "" : "");
+    return `javascript:(function(){var k="${key}";var ep="${origin}/api/admin/catalog";var d=document;var t=d.querySelector('meta[property="og:title"]')?.content||d.querySelector('h1')?.innerText?.trim()||d.title;var b=d.querySelector('meta[property="og:site_name"]')?.content||d.querySelector('meta[name="author"]')?.content||location.hostname.replace('www.','').split('.')[0].toUpperCase();var img=d.querySelector('meta[property="og:image"]')?.content||d.querySelector('img[src*="product"],img[src*="media"],.product-image img')?.src||'';var pText=d.querySelector('meta[property="product:price:amount"]')?.content||d.querySelector('meta[property="og:price:amount"]')?.content||'';if(!pText){var pel=d.querySelector('[class*="price"],[id*="price"],.price');if(pel)pText=pel.innerText;}var p=parseFloat(pText.replace(/[^0-9.]/g,'')||'0')||99;var s=prompt('🚀 Style Advisor Ingestion\\n\\nProduct: '+t+'\\nBrand: '+b+'\\nPrice: $'+p+' CAD\\n\\nNhập Slot (top/bottom/outerwear/shoes/accessory):','top');if(!s)return;var slot=s.toLowerCase().trim()||'top';fetch(ep,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k,'x-api-key':k},body:JSON.stringify({name:t,brand:b,price:p,price_cad:p,product_url:location.href,image_url:img,slot:slot,color:'Classic',gender_cut:'unisex'})}).then(r=>r.json()).then(res=>{if(res.success){alert('✨ THÀNH CÔNG! Đã cào sản phẩm "'+t+'" vào kho Style Advisor!');}else{alert('⚠️ Lỗi: '+(res.message||'Không thể ingest'));}}).catch(e=>alert('⚠️ Network Error: '+e.message));})();`;
+  }, [adminApiKey]);
 
   // Download Extension ZIP Bundle
   const handleDownloadExtensionZip = async () => {
@@ -1760,26 +1768,123 @@ export default function AdminCatalogPage() {
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-6 text-xs">
-              {/* 1. AUTOMATED DOWNLOAD & 1-CLICK INSTALL */}
-              <div className="p-5 bg-gradient-to-br from-accent/10 via-surface to-thread/5 border border-accent/30 rounded-fitting-lg space-y-4 shadow-xs">
+              {/* METHOD 1: 1-CLICK BOOKMARKLET (DRAG & DROP / COPY CODE - ZERO INSTALL) */}
+              <div className="p-5 bg-gradient-to-br from-amber-500/10 via-surface to-accent/10 border-2 border-amber-500/30 rounded-fitting-lg space-y-4 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
-                      <span>⚡</span> 1. Tải Gói Extension Tự Động (Ready-to-Load)
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
+                      <span>⭐</span> Phương Pháp 1: Cài Đặt 1-Click Bằng Dấu Trang (Bookmarklet)
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-sans font-bold">
+                        Khuyên Dùng • 0 Cần Cài File
+                      </span>
                     </div>
                     <p className="text-xs text-ink font-medium mt-0.5">
-                      Gói cài đặt tiện ích Chrome đã được đóng gói sẵn sàng nạp trực tiếp vào trình duyệt.
+                      Kéo nút bên dưới thả lên thanh Dấu trang (Bookmark Bar) hoặc sao chép đoạn code để dùng ngay trên 100% trang web thời trang.
                     </p>
                   </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(bookmarkletCode);
+                        setCopiedBookmarkletCode(true);
+                        showToast("✓ Đã sao chép đoạn mã Bookmarklet vào clipboard!", "success");
+                        setTimeout(() => setCopiedBookmarkletCode(false), 2500);
+                      }}
+                      className="px-3 py-2 rounded-fitting bg-surface border border-border hover:border-amber-500 text-ink font-semibold text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+                      title="Sao chép đoạn mã JavaScript để dán vào Bookmark URL hoặc Console F12"
+                    >
+                      <span>📋</span>
+                      <span>{copiedBookmarkletCode ? "✓ Đã Chép Code" : "Sao Chép Code"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Draggable Bookmarklet Button */}
+                <div className="p-4 bg-surface-raised border border-border rounded-fitting flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-ink-muted block">
+                      Nút Kéo Thả (Drag & Drop to Bookmark Bar)
+                    </span>
+                    <p className="text-[11px] text-ink-muted">
+                      Nhấp giữ chuột vào nút màu vàng và kéo thả lên thanh Bookmark trên trình duyệt của bạn:
+                    </p>
+                  </div>
+
+                  <a
+                    href={bookmarkletCode}
+                    onClick={(e) => {
+                      if (!e.defaultPrevented) {
+                        e.preventDefault();
+                        showToast("💡 Hãy KÉO nút này thả lên thanh Bookmark (Dấu trang) của trình duyệt!", "success");
+                      }
+                    }}
+                    draggable="true"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-fitting bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold text-xs shadow-fitting cursor-grab active:cursor-grabbing select-none transition-all shrink-0"
+                    title="Kéo nút này vào thanh Bookmark (Dấu trang) của trình duyệt Chrome"
+                  >
+                    <span>✨</span>
+                    <span>Ingest to Style Advisor</span>
+                    <span className="text-[10px] opacity-75 font-normal">(Kéo tôi)</span>
+                  </a>
+                </div>
+
+                {/* 3 Quick Steps for Bookmarklet */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1 text-[11px]">
+                  <div className="p-2.5 bg-surface border border-border/80 rounded-fitting space-y-1">
+                    <div className="font-semibold text-ink flex items-center gap-1.5">
+                      <span className="w-4 h-4 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-[10px] font-bold">1</span>
+                      Bật Thanh Bookmark
+                    </div>
+                    <p className="text-ink-muted text-[10px] leading-relaxed">
+                      Nhấn <kbd className="px-1 py-0.5 bg-surface-raised border border-border rounded text-[9px] font-mono">Ctrl+Shift+B</kbd> (Windows) hoặc <kbd className="px-1 py-0.5 bg-surface-raised border border-border rounded text-[9px] font-mono">Cmd+Shift+B</kbd> (Mac) để hiện thanh Bookmark.
+                    </p>
+                  </div>
+
+                  <div className="p-2.5 bg-surface border border-border/80 rounded-fitting space-y-1">
+                    <div className="font-semibold text-ink flex items-center gap-1.5">
+                      <span className="w-4 h-4 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-[10px] font-bold">2</span>
+                      Kéo Nút / Dán Code
+                    </div>
+                    <p className="text-ink-muted text-[10px] leading-relaxed">
+                      Kéo nút màu vàng ở trên thả vào thanh Bookmark (hoặc bấm <strong>Sao Chép Code</strong>, tạo bookmark mới và dán vào ô URL).
+                    </p>
+                  </div>
+
+                  <div className="p-2.5 bg-surface border border-border/80 rounded-fitting space-y-1">
+                    <div className="font-semibold text-ink flex items-center gap-1.5">
+                      <span className="w-4 h-4 rounded-full bg-verified/20 text-verified flex items-center justify-center text-[10px] font-bold">3</span>
+                      Cào Đồ 1-Click
+                    </div>
+                    <p className="text-ink-muted text-[10px] leading-relaxed">
+                      Khi đang xem trang sản phẩm (Aritzia, Zara,...), bấm vào Dấu trang đó $\rightarrow$ sản phẩm tự động gửi về Style Advisor!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* METHOD 2: UNPACKED CHROME EXTENSION (ZIP FILE & LOAD UNPACKED) */}
+              <div className="p-5 bg-surface border border-border rounded-fitting-lg space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
+                  <div>
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-thread flex items-center gap-1.5">
+                      <span>🧩</span> Phương Pháp 2: Cài Đặt Tiện Ích Đầy Đủ (Chrome Extension Unpacked)
+                    </div>
+                    <p className="text-xs text-ink-muted mt-0.5">
+                      Dành cho người dùng muốn cài Extension có cửa sổ Popup riêng trên thanh công cụ Chrome.
+                    </p>
+                  </div>
+
                   <button
                     type="button"
                     onClick={handleDownloadExtensionZip}
                     disabled={isDownloadingExtension}
-                    className="px-4 py-2.5 rounded-fitting bg-accent hover:bg-accent/90 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-fitting transition-all shrink-0 disabled:opacity-50"
+                    className="px-3.5 py-2 rounded-fitting bg-surface-raised border border-border hover:border-accent text-ink font-semibold text-xs flex items-center justify-center gap-2 shadow-xs transition-all shrink-0 disabled:opacity-50"
                   >
                     {isDownloadingExtension ? (
                       <>
-                        <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span className="w-3.5 h-3.5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                         <span>Đang đóng gói...</span>
                       </>
                     ) : (
@@ -1791,129 +1896,54 @@ export default function AdminCatalogPage() {
                   </button>
                 </div>
 
-                {/* Quick Info Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-[11px]">
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting space-y-1">
-                    <span className="text-ink-muted block text-[10px] uppercase font-bold tracking-wider">
-                      Secret Key Xác Thực (ADMIN_INGEST_API_KEY)
-                    </span>
-                    <div className="flex items-center justify-between gap-2">
-                      <code className="font-mono text-ink font-semibold truncate select-all">
-                        {adminApiKey || "sa_dev_secret_key_2026"}
-                      </code>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(adminApiKey || "sa_dev_secret_key_2026");
-                          setCopiedApiKey(true);
-                          showToast("Copied API Key to clipboard!", "success");
-                          setTimeout(() => setCopiedApiKey(false), 2000);
-                        }}
-                        className="px-2 py-0.5 rounded bg-surface border border-border hover:border-accent text-ink text-[10px] font-semibold transition-colors shrink-0"
-                      >
-                        {copiedApiKey ? "✓ Đã chép" : "Sao chép"}
-                      </button>
-                    </div>
+                {/* 5 Steps Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-2.5">
+                  <div className="p-2.5 bg-surface-raised border border-border rounded-fitting space-y-1">
+                    <div className="w-5 h-5 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-[10px]">1</div>
+                    <div className="font-semibold text-ink text-[11px]">Tải & Giải Nén</div>
+                    <p className="text-[10px] text-ink-muted leading-relaxed">
+                      Tải file zip ở trên và giải nén (hoặc dùng thư mục <code className="font-mono text-thread">extension/</code> trong source).
+                    </p>
                   </div>
 
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting space-y-1">
-                    <span className="text-ink-muted block text-[10px] uppercase font-bold tracking-wider">
-                      Đường Dẫn Trình Quản Lý Chrome
-                    </span>
-                    <div className="flex items-center justify-between gap-2">
-                      <code className="font-mono text-ink font-semibold">chrome://extensions</code>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText("chrome://extensions");
-                          setCopiedExtensionUrl(true);
-                          showToast("Copied chrome://extensions to clipboard!", "success");
-                          setTimeout(() => setCopiedExtensionUrl(false), 2000);
-                        }}
-                        className="px-2 py-0.5 rounded bg-surface border border-border hover:border-accent text-ink text-[10px] font-semibold transition-colors shrink-0"
-                      >
-                        {copiedExtensionUrl ? "✓ Đã chép" : "Sao chép URL"}
-                      </button>
-                    </div>
+                  <div className="p-2.5 bg-surface-raised border border-border rounded-fitting space-y-1">
+                    <div className="w-5 h-5 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-[10px]">2</div>
+                    <div className="font-semibold text-ink text-[11px]">chrome://extensions</div>
+                    <p className="text-[10px] text-ink-muted leading-relaxed">
+                      Mở tab mới trên Chrome, gõ <code className="font-mono text-thread">chrome://extensions</code> và nhấn Enter.
+                    </p>
+                  </div>
+
+                  <div className="p-2.5 bg-surface-raised border border-border rounded-fitting space-y-1">
+                    <div className="w-5 h-5 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-[10px]">3</div>
+                    <div className="font-semibold text-ink text-[11px]">Bật Developer Mode</div>
+                    <p className="text-[10px] text-ink-muted leading-relaxed">
+                      Gạt công tắc <strong>Developer mode</strong> ở góc trên bên phải màn hình sang <strong>BẬT</strong>.
+                    </p>
+                  </div>
+
+                  <div className="p-2.5 bg-surface-raised border border-border rounded-fitting space-y-1">
+                    <div className="w-5 h-5 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-[10px]">4</div>
+                    <div className="font-semibold text-ink text-[11px]">Load Unpacked</div>
+                    <p className="text-[10px] text-ink-muted leading-relaxed">
+                      Nhấn nút <strong>&quot;Tải tiện ích đã giải nén&quot; (Load unpacked)</strong> $\rightarrow$ chọn thư mục <code className="font-mono text-thread">extension</code>.
+                    </p>
+                  </div>
+
+                  <div className="p-2.5 bg-surface-raised border border-border rounded-fitting space-y-1">
+                    <div className="w-5 h-5 rounded-full bg-verified/20 text-verified font-bold flex items-center justify-center text-[10px]">5</div>
+                    <div className="font-semibold text-ink text-[11px]">Ghim & Cào Đồ</div>
+                    <p className="text-[10px] text-ink-muted leading-relaxed">
+                      Ghim icon Style Advisor lên thanh tiện ích, mở trang sản phẩm và bấm <strong>🚀 Ingest</strong>.
+                    </p>
                   </div>
                 </div>
-              </div>
 
-              {/* 2. STEP-BY-STEP MANUAL INSTALLATION GUIDE */}
-              <div className="p-5 bg-surface border border-border rounded-fitting-lg space-y-4">
-                <div className="flex items-center justify-between border-b border-border/80 pb-2.5">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-thread flex items-center gap-1.5">
-                    <span>📖</span> 2. Hướng Dẫn Thao Tác Cài Đặt Thủ Công
-                  </div>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-surface-raised border border-border text-ink-muted font-medium">
-                    Google Chrome / Brave / Edge
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                  {/* Step 1 */}
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-2">
-                    <div className="space-y-1.5">
-                      <div className="w-6 h-6 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-xs">
-                        1
-                      </div>
-                      <div className="font-semibold text-ink text-xs">Tải & Giải Nén</div>
-                      <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Bấm nút <strong>Tải Extension (.ZIP)</strong> ở trên, sau đó giải nén ra một thư mục trên máy tính (hoặc dùng thư mục <code className="font-mono text-thread">extension/</code>).
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Step 2 */}
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-2">
-                    <div className="space-y-1.5">
-                      <div className="w-6 h-6 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-xs">
-                        2
-                      </div>
-                      <div className="font-semibold text-ink text-xs">Mở chrome://extensions</div>
-                      <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Mở tab mới trên Chrome, gõ <code className="font-mono text-thread">chrome://extensions</code> vào thanh địa chỉ và nhấn <strong>Enter</strong>.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Step 3 */}
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-2">
-                    <div className="space-y-1.5">
-                      <div className="w-6 h-6 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-xs">
-                        3
-                      </div>
-                      <div className="font-semibold text-ink text-xs">Bật Developer Mode</div>
-                      <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Gạt công tắc <strong>&quot;Chế độ dành cho nhà phát triển&quot; (Developer mode)</strong> ở góc trên bên phải màn hình sang trạng thái <strong>BẬT (ON)</strong>.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Step 4 */}
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-2">
-                    <div className="space-y-1.5">
-                      <div className="w-6 h-6 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-xs">
-                        4
-                      </div>
-                      <div className="font-semibold text-ink text-xs">Load Unpacked</div>
-                      <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Nhấn nút <strong>&quot;Tải tiện ích đã giải nén&quot; (Load unpacked)</strong> ở góc trái $\rightarrow$ chọn thư mục <code className="font-mono text-thread">extension</code> vừa giải nén.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Step 5 */}
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-2">
-                    <div className="space-y-1.5">
-                      <div className="w-6 h-6 rounded-full bg-verified/20 text-verified font-bold flex items-center justify-center text-xs">
-                        5
-                      </div>
-                      <div className="font-semibold text-ink text-xs">Ghim & Cào Đồ</div>
-                      <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Ghim icon Style Advisor lên thanh tiện ích. Mở trang web thời trang bất kỳ, bấm icon và bấm <strong>&quot;🚀 Ingest into Catalog&quot;</strong>!
-                      </p>
-                    </div>
+                {/* Chrome Policy Explanation Note */}
+                <div className="p-3 bg-surface border border-border/80 rounded-fitting text-[11px] text-ink-muted leading-relaxed flex items-start gap-2">
+                  <span className="text-base">💡</span>
+                  <div>
+                    <strong className="text-ink">Lưu ý về chính sách của Google Chrome:</strong> Trình duyệt Chrome không cho phép bất kỳ trang web nào tự động chèn tiện ích mở rộng (extension) vào máy mà không thông qua <em>Chrome Web Store</em>. Vì vậy, <strong>Phương pháp 1 (Bookmarklet)</strong> là cách nhanh nhất và tiện lợi nhất để cào đồ 0-cài-đặt.
                   </div>
                 </div>
               </div>
