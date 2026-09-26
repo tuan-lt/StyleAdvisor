@@ -63,11 +63,9 @@ export default function AdminCatalogPage() {
     latencyMs?: number;
     isChecking?: boolean;
   }>({ isChecking: false });
-  const [isAutoSyncEnabled, setIsAutoSyncEnabled] = useState<boolean>(true);
   const [newlyIngestedIds, setNewlyIngestedIds] = useState<string[]>([]);
   const [isDownloadingExtension, setIsDownloadingExtension] = useState<boolean>(false);
   const [copiedExtensionUrl, setCopiedExtensionUrl] = useState<boolean>(false);
-  const [copiedApiKey, setCopiedApiKey] = useState<boolean>(false);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -349,14 +347,14 @@ export default function AdminCatalogPage() {
     }
   }, [isAuthenticated, adminApiKey]);
 
-  // Background Auto-Sync stream for Chrome Extension ingestion
+  // Background Auto-Sync stream for Chrome Extension ingestion (Default 4s live auto-refresh)
   useEffect(() => {
-    if (!isAutoSyncEnabled || !isAuthenticated) return;
+    if (!isAuthenticated) return;
     const interval = setInterval(() => {
       fetchCatalog(true);
     }, 4000);
     return () => clearInterval(interval);
-  }, [isAutoSyncEnabled]);
+  }, [isAuthenticated, adminApiKey]);
 
   // Ping single URL
   const pingGarmentUrl = async (id: string, url: string) => {
@@ -764,12 +762,10 @@ export default function AdminCatalogPage() {
             <div>
               <h1 className="text-base font-serif font-semibold text-ink leading-tight flex items-center gap-2">
                 Catalog Management
-                {isAutoSyncEnabled && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-verified/10 text-verified text-[10px] font-sans font-semibold tracking-wide border border-verified/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-verified animate-ping" />
-                    Live Ingest Stream
-                  </span>
-                )}
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-verified/10 text-verified text-[10px] font-sans font-semibold tracking-wide border border-verified/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-verified animate-ping" />
+                  Live Ingest Stream (4s)
+                </span>
               </h1>
               <p className="text-[11px] text-ink-muted hidden sm:block">
                 Zero-Hallucination Inventory • Chrome Extension Ingest Ready
@@ -1842,64 +1838,6 @@ export default function AdminCatalogPage() {
                       </p>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* API KEY QUICK INFO & AUTO-SYNC CONTROLS */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {/* Secret Key Card */}
-                <div className="p-4 bg-surface border border-border rounded-fitting-lg space-y-2">
-                  <span className="text-ink-muted block text-[10px] uppercase font-bold tracking-wider">
-                    Secret Key Xác Thực (ADMIN_INGEST_API_KEY)
-                  </span>
-                  <div className="flex items-center justify-between gap-2 bg-surface-raised p-2 rounded-fitting border border-border">
-                    <code className="font-mono text-ink font-semibold truncate select-all text-[11px]">
-                      {adminApiKey || "sa_dev_secret_key_2026"}
-                    </code>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(adminApiKey || "sa_dev_secret_key_2026");
-                        setCopiedApiKey(true);
-                        showToast("Copied API Key to clipboard!", "success");
-                        setTimeout(() => setCopiedApiKey(false), 2000);
-                      }}
-                      className="px-2.5 py-1 rounded bg-surface border border-border hover:border-accent text-ink text-[10px] font-semibold transition-colors shrink-0"
-                    >
-                      {copiedApiKey ? "✓ Đã chép" : "Sao chép Key"}
-                    </button>
-                  </div>
-                  <p className="text-[10px] text-ink-muted">
-                    Nhập key này vào mục Cài đặt của Chrome Extension để xác thực quyền nạp sản phẩm.
-                  </p>
-                </div>
-
-                {/* Auto-Sync Stream Setting */}
-                <div className="p-4 bg-surface border border-border rounded-fitting-lg flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold text-ink flex items-center gap-2">
-                      <span>Tự Động Đồng Bộ Dữ Liệu (Auto-Sync)</span>
-                      {isAutoSyncEnabled ? (
-                        <span className="px-2 py-0.5 rounded-full bg-verified/15 text-verified text-[10px] font-bold">Bật (4s poll)</span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded-full bg-surface-raised border border-border text-ink-muted text-[10px]">Tắt</span>
-                      )}
-                    </div>
-                    <p className="text-[10px] text-ink-muted mt-1 leading-relaxed">
-                      Tự động tải các trang phục vừa được cào từ Chrome Extension vào danh mục ngay lập tức.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsAutoSyncEnabled(!isAutoSyncEnabled)}
-                    className={`px-3 py-1.5 rounded-fitting font-medium text-xs border transition-all shrink-0 ml-3 ${
-                      isAutoSyncEnabled
-                        ? "bg-verified text-white border-verified shadow-xs"
-                        : "bg-surface border-border text-ink-muted hover:text-ink"
-                    }`}
-                  >
-                    {isAutoSyncEnabled ? "Đang Bật" : "Đã Tắt"}
-                  </button>
                 </div>
               </div>
             </div>
