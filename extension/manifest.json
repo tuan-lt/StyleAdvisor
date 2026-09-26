@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Style Advisor - Catalog Ingestor",
-  "version": "1.0.1",
-  "description": "One-click product scraper and ingestor into Style Advisor AI catalog from Canadian and global fashion retailers.",
+  "version": "1.0.2",
+  "description": "Draggable in-page product scraper and ingestor into Style Advisor AI catalog from Canadian and global fashion retailers.",
   "permissions": [
     "activeTab",
     "scripting",
@@ -11,9 +11,11 @@
   "host_permissions": [
     "<all_urls>"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "Ingest to Style Advisor"
+    "default_title": "Style Advisor Ingestor (Click to Toggle Widget)"
   },
   "content_scripts": [
     {
