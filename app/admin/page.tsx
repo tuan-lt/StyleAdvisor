@@ -46,6 +46,14 @@ export default function AdminCatalogPage() {
   const [urlHealthMap, setUrlHealthMap] = useState<Record<string, UrlHealth>>({});
   const [isBatchChecking, setIsBatchChecking] = useState<boolean>(false);
 
+  // Authentication State
+  const [adminApiKey, setAdminApiKey] = useState<string>("");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthChecking, setIsAuthChecking] = useState<boolean>(true);
+  const [enteredKey, setEnteredKey] = useState<string>("");
+  const [showKeyText, setShowKeyText] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
   // Extension Ingestion Hub State
   const [isExtensionModalOpen, setIsExtensionModalOpen] = useState<boolean>(false);
   const [extensionHealth, setExtensionHealth] = useState<{
@@ -107,12 +115,136 @@ export default function AdminCatalogPage() {
     }, 4000);
   };
 
+  // Auth fetch wrapper
+  const authFetch = async (input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> => {
+    const headers = new Headers(init.headers || {});
+    const key = adminApiKey || (typeof window !== "undefined" ? localStorage.getItem("admin_ingest_api_key") || "" : "");
+    if (key) {
+      headers.set("Authorization", `Bearer ${key}`);
+      headers.set("x-api-key", key);
+    }
+    const res = await fetch(input, { ...init, headers });
+    if (res.status === 401) {
+      setIsAuthenticated(false);
+      showToast("Unauthorized: Please provide a valid ADMIN_INGEST_API_KEY.", "error");
+    }
+    return res;
+  };
+
+  // Verify API Key
+  const verifyKeyOnServer = async (keyToTest: string): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/admin/auth/verify", {
+        headers: {
+          Authorization: `Bearer ${keyToTest}`,
+          "x-api-key": keyToTest,
+        },
+      });
+      const json = await res.json();
+      return !!(res.ok && json.success && json.authenticated);
+    } catch {
+      return false;
+    }
+  };
+
+  // Initialize and check credentials on mount
+  useEffect(() => {
+    const initializeAuth = async () => {
+      setIsAuthChecking(true);
+
+      let keyCandidate = "";
+
+      // 1. Check URL parameters (?key=... or ?apiKey=...)
+      if (typeof window !== "undefined") {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlKey = urlParams.get("key") || urlParams.get("apiKey") || urlParams.get("ADMIN_INGEST_API_KEY");
+        if (urlKey) {
+          keyCandidate = urlKey;
+        } else {
+          // 2. Check localStorage
+          const storedKey = localStorage.getItem("admin_ingest_api_key");
+          if (storedKey) {
+            keyCandidate = storedKey;
+          }
+        }
+      }
+
+      // 3. Fallback dev key if empty in development mode
+      if (!keyCandidate && process.env.NODE_ENV !== "production") {
+        keyCandidate = "sa_dev_secret_key_2026";
+      }
+
+      if (keyCandidate) {
+        const isValid = await verifyKeyOnServer(keyCandidate);
+        if (isValid) {
+          setAdminApiKey(keyCandidate);
+          setIsAuthenticated(true);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("admin_ingest_api_key", keyCandidate);
+            // Clean URL query params without reloading
+            if (window.location.search.includes("key")) {
+              window.history.replaceState({}, document.title, window.location.pathname);
+            }
+          }
+        } else {
+          setIsAuthenticated(false);
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("admin_ingest_api_key");
+          }
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
+
+      setIsAuthChecking(false);
+    };
+
+    initializeAuth();
+  }, []);
+
+  // Handle Manual Login Submission
+  const handleManualLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const key = enteredKey.trim();
+    if (!key) {
+      setAuthError("Please enter an ADMIN_INGEST_API_KEY.");
+      return;
+    }
+
+    setAuthError(null);
+    setIsAuthChecking(true);
+
+    const isValid = await verifyKeyOnServer(key);
+    if (isValid) {
+      setAdminApiKey(key);
+      setIsAuthenticated(true);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("admin_ingest_api_key", key);
+      }
+      showToast("✨ Authenticated successfully via Bearer API Key!", "success");
+    } else {
+      setAuthError("Invalid API Key. Please check your ADMIN_INGEST_API_KEY environment variable.");
+    }
+    setIsAuthChecking(false);
+  };
+
+  // Handle Session Logout / Lock
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("admin_ingest_api_key");
+    }
+    setAdminApiKey("");
+    setIsAuthenticated(false);
+    setEnteredKey("");
+    showToast("🔒 Admin Hub locked.", "success");
+  };
+
   // Check Extension Ingest Endpoint CORS Health
   const checkExtensionEndpointHealth = async () => {
     setExtensionHealth({ isChecking: true });
     const start = Date.now();
     try {
-      const res = await fetch("/api/admin/catalog", { method: "OPTIONS" });
+      const res = await authFetch("/api/admin/catalog", { method: "OPTIONS" });
       const latencyMs = Date.now() - start;
       const allowOrigin = res.headers.get("access-control-allow-origin") || "*";
       const allowMethods = res.headers.get("access-control-allow-methods") || "GET, POST, OPTIONS";
@@ -149,7 +281,11 @@ export default function AdminCatalogPage() {
   const fetchCatalog = async (silent = false) => {
     if (!silent) setIsLoading(true);
     try {
-      const res = await fetch("/api/admin/catalog");
+      const res = await authFetch("/api/admin/catalog");
+      if (res.status === 401) {
+        setIsAuthenticated(false);
+        return;
+      }
       const json = await res.json();
       if (json.success && Array.isArray(json.data)) {
         setGarments((prevGarments) => {
@@ -175,13 +311,15 @@ export default function AdminCatalogPage() {
   };
 
   useEffect(() => {
-    fetchCatalog();
-    checkExtensionEndpointHealth();
-  }, []);
+    if (isAuthenticated) {
+      fetchCatalog();
+      checkExtensionEndpointHealth();
+    }
+  }, [isAuthenticated, adminApiKey]);
 
   // Background Auto-Sync stream for Chrome Extension ingestion
   useEffect(() => {
-    if (!isAutoSyncEnabled) return;
+    if (!isAutoSyncEnabled || !isAuthenticated) return;
     const interval = setInterval(() => {
       fetchCatalog(true);
     }, 4000);
@@ -196,7 +334,7 @@ export default function AdminCatalogPage() {
     }));
 
     try {
-      const res = await fetch("/api/admin/verify-url", {
+      const res = await authFetch("/api/admin/verify-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
@@ -257,7 +395,7 @@ export default function AdminCatalogPage() {
 
     setTestUrlHealth({ isChecking: true });
     try {
-      const res = await fetch("/api/admin/verify-url", {
+      const res = await authFetch("/api/admin/verify-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
@@ -290,7 +428,7 @@ export default function AdminCatalogPage() {
 
     setIsExtracting(true);
     try {
-      const res = await fetch("/api/admin/extract-product", {
+      const res = await authFetch("/api/admin/extract-product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: targetUrl }),
@@ -337,7 +475,7 @@ export default function AdminCatalogPage() {
 
     setIsIngestingJson(true);
     try {
-      const res = await fetch("/api/admin/catalog", {
+      const res = await authFetch("/api/admin/catalog", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -403,7 +541,7 @@ export default function AdminCatalogPage() {
     }
 
     try {
-      const res = await fetch(`/api/admin/catalog?id=${encodeURIComponent(garment.id)}`, {
+      const res = await authFetch(`/api/admin/catalog?id=${encodeURIComponent(garment.id)}`, {
         method: "DELETE",
       });
       const json = await res.json();
@@ -424,7 +562,7 @@ export default function AdminCatalogPage() {
     setIsSaving(true);
 
     try {
-      const res = await fetch("/api/admin/catalog", {
+      const res = await authFetch("/api/admin/catalog", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -496,6 +634,115 @@ export default function AdminCatalogPage() {
       avgFormality,
     };
   }, [garments, uniqueBrands, urlHealthMap]);
+
+  if (isAuthChecking && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-6 text-ink">
+        <div className="w-10 h-10 border-2 border-thread/30 border-t-accent rounded-full animate-spin mb-4" />
+        <p className="text-xs font-medium text-ink-muted uppercase tracking-widest">Verifying Admin Access...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-4 selection:bg-thread/20">
+        {/* Toast Notification */}
+        {toast && (
+          <div
+            className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-fitting shadow-fitting-raised text-xs font-medium flex items-center gap-2.5 transition-all animate-bounce ${
+              toast.type === "success" ? "bg-verified text-white" : "bg-red-600 text-white"
+            }`}
+          >
+            <span>{toast.type === "success" ? "✓" : "⚠️"}</span>
+            <span>{toast.message}</span>
+          </div>
+        )}
+
+        <div className="w-full max-w-md bg-surface-raised border border-border rounded-fitting shadow-fitting-raised p-6 sm:p-8 space-y-6">
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-thread/10 border border-thread/20 text-thread text-xl mb-1">
+              🔒
+            </div>
+            <h1 className="text-xl font-serif font-semibold text-ink">Style Advisor Admin Hub</h1>
+            <p className="text-xs text-ink-muted">
+              Enter your <code className="px-1.5 py-0.5 rounded bg-surface border border-border font-mono text-[11px] text-thread">ADMIN_INGEST_API_KEY</code> to access catalog curation & Chrome Extension ingest tools.
+            </p>
+          </div>
+
+          {authError && (
+            <div className="p-3 rounded-fitting bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+              <span>⚠️</span>
+              <span>{authError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleManualLogin} className="space-y-4">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-thread mb-1.5">
+                Admin API Key
+              </label>
+              <div className="relative">
+                <input
+                  type={showKeyText ? "text" : "password"}
+                  value={enteredKey}
+                  onChange={(e) => setEnteredKey(e.target.value)}
+                  placeholder="Enter secret key..."
+                  required
+                  className="w-full px-3.5 py-2.5 bg-surface border border-border rounded-fitting text-xs text-ink placeholder:text-ink-muted/50 focus:outline-none focus:border-thread font-mono pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowKeyText(!showKeyText)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-ink-muted hover:text-ink transition-colors p-1"
+                  title={showKeyText ? "Hide Key" : "Show Key"}
+                >
+                  {showKeyText ? "🙈" : "👁️"}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isAuthChecking}
+              className="w-full py-2.5 rounded-fitting bg-accent hover:bg-accent/90 text-white text-xs font-semibold tracking-wide flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50"
+            >
+              <span>⚡</span>
+              <span>{isAuthChecking ? "Authenticating..." : "Unlock Admin Hub"}</span>
+            </button>
+          </form>
+
+          {/* Quick Autofill in Development */}
+          <div className="pt-2 border-t border-border/60 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => {
+                setEnteredKey("sa_dev_secret_key_2026");
+                handleManualLogin();
+              }}
+              className="text-[11px] text-thread hover:text-thread/80 font-medium transition-colors"
+            >
+              ⚡ Quick Fill Dev Key
+            </button>
+            <Link
+              href="/"
+              className="text-[11px] text-ink-muted hover:text-ink transition-colors flex items-center gap-1"
+            >
+              <span>←</span> Fitting Room
+            </Link>
+          </div>
+
+          {/* Extension Helper Tip */}
+          <div className="p-3 bg-surface border border-border/60 rounded-fitting text-[11px] text-ink-muted leading-relaxed">
+            <div className="font-semibold text-ink flex items-center gap-1.5 mb-0.5">
+              <span>🧩</span> 1-Click Extension Access
+            </div>
+            When using the <strong>Chrome Extension</strong>, click the <em>&quot;⚡ Local Admin&quot;</em> or <em>&quot;⚡ Live Admin&quot;</em> links to log in automatically without typing your key.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-surface text-ink pb-20 selection:bg-thread/20">
@@ -574,6 +821,17 @@ export default function AdminCatalogPage() {
             >
               <span>+</span>
               <span className="hidden sm:inline">Add Garment</span>
+            </button>
+
+            {/* Lock / Logout Button */}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="px-2.5 py-1.5 rounded-fitting border border-border bg-surface-raised hover:border-red-500/40 text-ink-muted hover:text-red-400 text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs"
+              title="Lock Admin Session"
+            >
+              <span>🔒</span>
+              <span className="hidden sm:inline">Lock</span>
             </button>
           </div>
         </div>

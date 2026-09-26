@@ -9,6 +9,7 @@ import {
   BodyType,
   SeasonOfWear,
 } from "../../../../types/catalog";
+import { validateAdminAuth, unauthorizedResponse } from "../../../../lib/admin-auth";
 
 const FULL_BROWSER_HEADERS: Record<string, string> = {
   "User-Agent":
@@ -586,6 +587,11 @@ function extractAccurateImage(
 }
 
 export async function POST(req: NextRequest) {
+  const auth = validateAdminAuth(req);
+  if (!auth.authorized) {
+    return unauthorizedResponse("Unauthorized: Valid ADMIN_INGEST_API_KEY is required to extract products.");
+  }
+
   try {
     const body = await req.json();
     const { url } = body;

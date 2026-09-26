@@ -15,4 +15,5 @@ services:
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ADMIN_INGEST_API_KEY=${ADMIN_INGEST_API_KEY:-sa_dev_secret_key_2026}
     restart: unless-stopped

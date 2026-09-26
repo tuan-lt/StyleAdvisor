@@ -129,9 +129,16 @@
         <label for="endpointUrl">Target API:</label>
         <input type="text" id="endpointUrl" value="http://localhost:3000/api/admin/catalog">
       </div>
-      <div class="footer-links" style="margin-top: 6px; display: flex; justify-content: space-between;">
-        <a id="adminLinkLocal" href="http://localhost:3000/admin" target="_blank" class="admin-link">Local Admin ↗</a>
-        <a id="adminLinkProd" href="https://StyleAdvisor.online/admin" target="_blank" class="admin-link">Live Admin ↗</a>
+      <div class="endpoint-config" style="margin-top: 6px;">
+        <label for="adminApiKey">Admin API Key (Bearer):</label>
+        <div style="display: flex; gap: 4px;">
+          <input type="password" id="adminApiKey" placeholder="Enter ADMIN_INGEST_API_KEY..." style="flex: 1;" value="sa_dev_secret_key_2026">
+          <button type="button" id="btnToggleKeyVisibility" title="Toggle Visibility" style="padding: 0 8px; font-size: 11px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer;">👁️</button>
+        </div>
+      </div>
+      <div class="footer-links" style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <a id="adminLinkLocal" href="http://localhost:3000/admin?key=sa_dev_secret_key_2026" target="_blank" class="admin-link" style="font-weight: 600; text-decoration: none;">⚡ Local Admin ↗</a>
+        <a id="adminLinkProd" href="https://StyleAdvisor.online/admin?key=sa_dev_secret_key_2026" target="_blank" class="admin-link" style="font-weight: 600; text-decoration: none;">⚡ Live Admin ↗</a>
       </div>
     </footer>
 

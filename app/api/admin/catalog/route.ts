@@ -11,6 +11,7 @@ import {
   BodyType,
   SeasonOfWear,
 } from "../../../../types/catalog";
+import { validateAdminAuth, unauthorizedResponse } from "../../../../lib/admin-auth";
 
 const CATALOG_PATH = path.join(process.cwd(), "data", "catalog.json");
 
@@ -18,7 +19,7 @@ const CATALOG_PATH = path.join(process.cwd(), "data", "catalog.json");
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-Requested-With, Accept",
 };
 
 /**
@@ -111,7 +112,12 @@ function normalizeBudgetTier(price: number, tier?: string): BudgetTier {
  * GET /api/admin/catalog
  * Returns full list of garments with CORS headers
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = validateAdminAuth(req);
+  if (!auth.authorized) {
+    return unauthorizedResponse("Unauthorized: Valid ADMIN_INGEST_API_KEY is required to access the catalog.");
+  }
+
   try {
     const garments = await readCatalog();
     return corsJson({
@@ -132,6 +138,11 @@ export async function GET() {
  * Creates a new garment or updates an existing one (Direct Ingest from Chrome Extension & Admin UI)
  */
 export async function POST(req: NextRequest) {
+  const auth = validateAdminAuth(req);
+  if (!auth.authorized) {
+    return unauthorizedResponse("Unauthorized: Valid ADMIN_INGEST_API_KEY is required to save or ingest garments.");
+  }
+
   try {
     const body = (await req.json()) as any;
 
@@ -261,6 +272,11 @@ export async function POST(req: NextRequest) {
  * Removes a garment by ID with CORS headers
  */
 export async function DELETE(req: NextRequest) {
+  const auth = validateAdminAuth(req);
+  if (!auth.authorized) {
+    return unauthorizedResponse("Unauthorized: Valid ADMIN_INGEST_API_KEY is required to delete garments.");
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     let id = searchParams.get("id") || searchParams.get("garment_id");

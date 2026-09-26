@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validateAdminAuth, unauthorizedResponse } from "../../../../lib/admin-auth";
 
 const FULL_BROWSER_HEADERS: Record<string, string> = {
   "User-Agent":
@@ -21,6 +22,11 @@ const FULL_BROWSER_HEADERS: Record<string, string> = {
 const TIMEOUT_MS = 6000;
 
 export async function POST(req: NextRequest) {
+  const auth = validateAdminAuth(req);
+  if (!auth.authorized) {
+    return unauthorizedResponse("Unauthorized: Valid ADMIN_INGEST_API_KEY is required to verify URLs.");
+  }
+
   try {
     const body = await req.json();
     const { url } = body;

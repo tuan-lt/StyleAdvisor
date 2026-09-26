@@ -29,6 +29,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const inputFabric = document.getElementById("inputFabric");
   const inputImage = document.getElementById("inputImage");
   const endpointUrlInput = document.getElementById("endpointUrl");
+  const adminApiKeyInput = document.getElementById("adminApiKey");
+  const btnToggleKeyVisibility = document.getElementById("btnToggleKeyVisibility");
+  const adminLinkLocal = document.getElementById("adminLinkLocal");
+  const adminLinkProd = document.getElementById("adminLinkProd");
   const btnEnvLocal = document.getElementById("btnEnvLocal");
   const btnEnvProd = document.getElementById("btnEnvProd");
   const btnIngest = document.getElementById("btnIngest");
@@ -39,16 +43,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const LOCAL_ENDPOINT = "http://localhost:3000/api/admin/catalog";
   const PROD_ENDPOINT = "https://StyleAdvisor.online/api/admin/catalog";
+  const DEFAULT_DEV_KEY = "sa_dev_secret_key_2026";
 
-  // Load saved endpoint from storage
+  const updateAdminLinks = (apiKey) => {
+    const key = apiKey || adminApiKeyInput?.value?.trim() || DEFAULT_DEV_KEY;
+    if (adminLinkLocal) {
+      adminLinkLocal.href = `http://localhost:3000/admin?key=${encodeURIComponent(key)}`;
+    }
+    if (adminLinkProd) {
+      adminLinkProd.href = `https://StyleAdvisor.online/admin?key=${encodeURIComponent(key)}`;
+    }
+  };
+
+  // Load saved endpoint and API key from storage
   if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get(["style_advisor_endpoint"], (res) => {
+    chrome.storage.local.get(["style_advisor_endpoint", "style_advisor_api_key"], (res) => {
       if (res && res.style_advisor_endpoint) {
         endpointUrlInput.value = res.style_advisor_endpoint;
         updateEnvButtons(res.style_advisor_endpoint);
       }
+      if (res && res.style_advisor_api_key) {
+        if (adminApiKeyInput) adminApiKeyInput.value = res.style_advisor_api_key;
+        updateAdminLinks(res.style_advisor_api_key);
+      } else {
+        updateAdminLinks(DEFAULT_DEV_KEY);
+      }
       checkApiHealth();
     });
+  } else {
+    updateAdminLinks(DEFAULT_DEV_KEY);
   }
 
   function updateEnvButtons(currentUrl) {
@@ -64,6 +87,27 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (btnEnvProd) btnEnvProd.style.background = "#f0f0f0", btnEnvProd.style.color = "#1C1B19";
     }
   }
+
+  // Toggle API Key visibility
+  btnToggleKeyVisibility?.addEventListener("click", () => {
+    if (adminApiKeyInput.type === "password") {
+      adminApiKeyInput.type = "text";
+      btnToggleKeyVisibility.textContent = "🙈";
+    } else {
+      adminApiKeyInput.type = "password";
+      btnToggleKeyVisibility.textContent = "👁️";
+    }
+  });
+
+  // API Key Change Handler
+  adminApiKeyInput?.addEventListener("input", () => {
+    const key = adminApiKeyInput.value.trim();
+    updateAdminLinks(key);
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.set({ style_advisor_api_key: key });
+    }
+    checkApiHealth();
+  });
 
   // Environment Switcher Handlers
   btnEnvLocal?.addEventListener("click", () => {
@@ -122,15 +166,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 1. Check API Health
   const checkApiHealth = async () => {
     const url = endpointUrlInput.value.trim();
+    const apiKey = adminApiKeyInput?.value?.trim() || "";
     endpointBadge.className = "status-badge checking";
     statusText.textContent = "Checking...";
 
     try {
-      const res = await fetch(url, { method: "OPTIONS" });
+      const headers = {};
+      if (apiKey) {
+        headers["Authorization"] = `Bearer ${apiKey}`;
+        headers["x-api-key"] = apiKey;
+      }
+
+      const res = await fetch(url, {
+        method: "OPTIONS",
+        headers
+      });
+
       if (res.ok || res.status === 200 || res.status === 204) {
         endpointBadge.className = "status-badge online";
-        statusText.textContent = "Online";
+        statusText.textContent = "Ready";
         return true;
+      } else if (res.status === 401) {
+        endpointBadge.className = "status-badge offline";
+        statusText.textContent = "401 Invalid Key";
+        return false;
       } else {
         endpointBadge.className = "status-badge offline";
         statusText.textContent = `HTTP ${res.status}`;
@@ -210,6 +269,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const color = inputColor.value.trim() || "Classic";
     const hexColor = inputHex.value;
     const targetEndpoint = endpointUrlInput.value.trim();
+    const apiKey = adminApiKeyInput?.value?.trim() || "";
 
     if (!title) {
       showToast("Please enter a product title / name.", false);
@@ -236,11 +296,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     try {
+      const headers = {
+        "Content-Type": "application/json"
+      };
+      if (apiKey) {
+        headers["Authorization"] = `Bearer ${apiKey}`;
+        headers["x-api-key"] = apiKey;
+      }
+
       const res = await fetch(targetEndpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers,
         body: JSON.stringify(payload)
       });
 
