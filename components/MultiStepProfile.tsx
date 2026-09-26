@@ -133,43 +133,43 @@ export function MultiStepProfile({
       id: "rectangle",
       label: "Rectangle",
       tag: "H-Frame",
-      sub: "Balanced shoulders & hips with straight column lines; ideal for layered depth & tailoring",
-      image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&h=1067&q=80",
+      sub: "Balanced shoulders & hips with straight column lines; ideal for layered depth & clean tailoring",
+      image: "/images/body-shapes/rectangle.png",
     },
     {
       id: "bottom_triangle",
       label: "Teardrop / Pear",
       tag: "A-Frame",
       sub: "Broader hips & thighs than shoulders; balanced with structured tops & A-line/wide-leg bottoms",
-      image: "https://images.unsplash.com/photo-1551803091-e20673f15770?auto=format&fit=crop&w=800&h=1067&q=80",
+      image: "/images/body-shapes/pear.png",
     },
     {
       id: "oval",
       label: "Oval / Apple",
       tag: "O-Frame",
       sub: "Fuller midsection & rounded torso; elevated by open unstructured layers & vertical drape",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&h=1067&q=80",
+      image: "/images/body-shapes/oval.png",
     },
     {
       id: "top_triangle",
       label: "Inverted Triangle",
       tag: "V-Frame",
       sub: "Broad athletic shoulders & chest tapering to hips; balanced by relaxed & pleated bottoms",
-      image: "https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&h=1067&q=80",
+      image: "/images/body-shapes/inverted_triangle.png",
     },
     {
       id: "double_triangle",
       label: "Hourglass",
       tag: "X-Frame",
       sub: "Balanced bust/shoulders & hips with defined waist; highlighted by fitted tailored cuts",
-      image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&h=1067&q=80",
+      image: "/images/body-shapes/hourglass.png",
     },
     {
       id: "standard",
       label: "Standard Balanced",
       tag: "Balanced",
       sub: "Evenly distributed natural proportions; versatile across all classic Canadian tailoring",
-      image: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=800&h=1067&q=80",
+      image: "/images/body-shapes/standard.png",
     },
   ];
 
@@ -526,9 +526,9 @@ export function MultiStepProfile({
                   }`}
                 >
                   <div>
-                    <div className="aspect-[3/4] relative overflow-hidden bg-surface">
-                      <img src={b.image} alt={b.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <div className="absolute top-2 left-2 bg-surface-raised/90 backdrop-blur-xs text-ink text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-border shadow-xs">
+                    <div className="aspect-[3/4] relative overflow-hidden bg-white/90 p-2 flex items-center justify-center border-b border-border/50">
+                      <img src={b.image} alt={b.label} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute top-2 left-2 bg-surface-raised/95 backdrop-blur-xs text-ink text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-border shadow-xs">
                         {b.tag}
                       </div>
                     </div>
