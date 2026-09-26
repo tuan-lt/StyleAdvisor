@@ -353,6 +353,29 @@ function getBrandHeuristicPrice(brand: string, slot: GarmentSlot, name: string):
 }
 
 /**
+ * Robust price parser handling both decimal dot (93.12) and French-Canadian decimal comma (93,12)
+ */
+function parseCleanPrice(raw: any): number {
+  if (typeof raw === "number") return raw;
+  if (!raw) return 0;
+  let s = String(raw).trim();
+  s = s.replace(/[^0-9.,]/g, "");
+  if (/,\d{2}$/.test(s)) {
+    s = s.replace(/\./g, "").replace(/,(\d{2})$/, ".$1");
+  } else if (/\.\d{2}$/.test(s)) {
+    s = s.replace(/,/g, "");
+  } else {
+    s = s.replace(/,/g, "");
+  }
+  const match = s.match(/(\d+(?:\.\d+)?)/);
+  if (match && match[1]) {
+    const val = parseFloat(match[1]);
+    if (!isNaN(val) && val > 0 && val < 50000) return val;
+  }
+  return 0;
+}
+
+/**
  * Comprehensive Price Extractor
  */
 function extractAccuratePrice(
@@ -374,16 +397,16 @@ function extractAccuratePrice(
       const p = nextDataObj.props?.pageProps;
       const store = p?.product?.shopifyProducts?.[0]?.productReferenceV2?.store;
       if (store?.priceRange?.minVariantPrice) {
-        const num = parseFloat(store.priceRange.minVariantPrice);
-        if (!isNaN(num) && num > 0) return num;
+        const num = parseCleanPrice(store.priceRange.minVariantPrice);
+        if (num > 0) return num;
       }
       if (p?.product?.price) {
-        const num = parseFloat(p.product.price);
-        if (!isNaN(num) && num > 0) return num;
+        const num = parseCleanPrice(p.product.price);
+        if (num > 0) return num;
       }
       if (p?.product?.variants?.[0]?.price) {
-        const num = parseFloat(p.product.variants[0].price);
-        if (!isNaN(num) && num > 0) return num;
+        const num = parseCleanPrice(p.product.variants[0].price);
+        if (num > 0) return num;
       }
 
       // Check initialProducts for collection/storefront pageProps
@@ -396,8 +419,8 @@ function extractAccuratePrice(
             (item.title && name && item.title.toLowerCase() === name.toLowerCase())
         );
         if (matched?.price) {
-          const num = parseFloat(matched.price);
-          if (!isNaN(num) && num > 0) return num;
+          const num = parseCleanPrice(matched.price);
+          if (num > 0) return num;
         }
       }
     } catch {}
@@ -419,12 +442,12 @@ function extractAccuratePrice(
         if (productObj?.offers) {
           const offer = Array.isArray(productObj.offers) ? productObj.offers[0] : productObj.offers;
           if (offer?.price) {
-            const num = parseFloat(offer.price);
-            if (!isNaN(num) && num > 0) return num;
+            const num = parseCleanPrice(offer.price);
+            if (num > 0) return num;
           }
           if (offer?.lowPrice) {
-            const num = parseFloat(offer.lowPrice);
-            if (!isNaN(num) && num > 0) return num;
+            const num = parseCleanPrice(offer.lowPrice);
+            if (num > 0) return num;
           }
         }
       } catch {}
@@ -436,8 +459,8 @@ function extractAccuratePrice(
     html.match(/<meta[^>]+(?:property|name)=["'](?:product:price:amount|og:price:amount)["'][^>]+content=["']([^"']+)["']/i) ||
     html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["'](?:product:price:amount|og:price:amount)["']/i);
   if (priceMeta) {
-    const num = parseFloat(priceMeta[1].replace(/[^0-9.]/g, ""));
-    if (!isNaN(num) && num > 0) return num;
+    const num = parseCleanPrice(priceMeta[1]);
+    if (num > 0) return num;
   }
 
   // 4. Regex CAD Price matches within cleaned product HTML (Filter out free shipping and gift card noise)

@@ -1,6 +1,6 @@
 /**
  * Style Advisor - In-Page Content Extractor & Draggable Floating Ingestion Widget
- * Version: 1.0.3
+ * Version: 1.0.4
  */
 
 (function () {
@@ -12,6 +12,38 @@
     return;
   }
   window.__STYLE_ADVISOR_INJECTED__ = true;
+
+  // -------------------------------------------------------------
+  // HELPER: UNIVERSAL CLEAN PRICE PARSER
+  // Handles: "93,12", "90,93", "$93.12", "93,12 $ CAD", "1,299.00", "1.299,50"
+  // -------------------------------------------------------------
+  function parseCleanPrice(raw) {
+    if (typeof raw === "number") return raw;
+    if (!raw) return 0;
+    let s = String(raw).trim();
+
+    // Remove any currency words/letters but keep digits, dots, commas
+    s = s.replace(/[^0-9.,]/g, "");
+
+    // Check if comma is used as decimal mark (e.g. "93,12" or "1.299,50" or "90,93")
+    if (/,\d{2}$/.test(s)) {
+      // Remove any dot thousands separators, then replace decimal comma with dot
+      s = s.replace(/\./g, "").replace(/,(\d{2})$/, ".$1");
+    } else if (/\.\d{2}$/.test(s)) {
+      // Standard decimal dot e.g. "1,299.50" -> remove comma thousands
+      s = s.replace(/,/g, "");
+    } else {
+      // No 2-digit decimal suffix -> strip commas
+      s = s.replace(/,/g, "");
+    }
+
+    const match = s.match(/(\d+(?:\.\d+)?)/);
+    if (match && match[1]) {
+      const val = parseFloat(match[1]);
+      if (!isNaN(val) && val > 0 && val < 50000) return val;
+    }
+    return 0;
+  }
 
   // -------------------------------------------------------------
   // 1. DATA EXTRACTION ENGINE
@@ -52,9 +84,9 @@
             }
             if (item.offers) {
               const offer = Array.isArray(item.offers) ? item.offers[0] : item.offers;
-              if (offer.price) result.price = parseFloat(String(offer.price).replace(/[^0-9.]/g, ""));
-              else if (offer.lowPrice) result.price = parseFloat(String(offer.lowPrice).replace(/[^0-9.]/g, ""));
-              else if (offer.highPrice) result.price = parseFloat(String(offer.highPrice).replace(/[^0-9.]/g, ""));
+              if (offer.price) result.price = parseCleanPrice(offer.price);
+              else if (offer.lowPrice) result.price = parseCleanPrice(offer.lowPrice);
+              else if (offer.highPrice) result.price = parseCleanPrice(offer.highPrice);
               if (offer.priceCurrency) result.currency = offer.priceCurrency;
             }
             if (item.material) result.fabric = item.material;
@@ -77,8 +109,8 @@
           if (!result.price || result.price === 0) {
             const rawPrice = product.price || product.priceRange?.min || product.listPrice || product.salePrice || product.price?.salePrice || product.price?.regularPrice;
             if (rawPrice) {
-              const p = parseFloat(String(rawPrice).replace(/[^0-9.]/g, ""));
-              if (p > 0 && p < 10000) result.price = p;
+              const p = parseCleanPrice(rawPrice);
+              if (p > 0) result.price = p;
             }
           }
         }
@@ -113,33 +145,51 @@
       result.description = getMeta(["og:description", "description", "twitter:description"]);
     }
 
-    if (!result.price) {
+    if (!result.price || result.price === 0) {
       const metaPrice = getMeta(["product:price:amount", "og:price:amount", "price"]);
-      if (metaPrice) result.price = parseFloat(metaPrice.replace(/[^0-9.]/g, ""));
+      if (metaPrice) {
+        result.price = parseCleanPrice(metaPrice);
+      }
     }
 
     // 3. Retailer Domain Detection & Custom Selectors
     const hostname = window.location.hostname.toLowerCase();
 
+    // RW&CO
+    if (hostname.includes("rw-co") || hostname.includes("rwco")) {
+      result.brand = "RW&CO";
+      const titleEl = document.querySelector("h1.product-name, h1.product__title, h1[class*='product-title'], h1");
+      if (titleEl && !result.title) result.title = titleEl.textContent.trim();
+
+      const priceEl = document.querySelector(".price-item--sale, .price-item--regular, .sales .value, span[class*='price-item'], .product__price, span.price");
+      if (priceEl && (!result.price || result.price === 0)) {
+        result.price = parseCleanPrice(priceEl.textContent);
+      }
+
+      // Fabric details
+      const detailsEl = document.querySelector('.product-details, [class*="materials"], [class*="care-content"], [data-testid="details"]');
+      if (detailsEl) {
+        const match = detailsEl.textContent.match(/(?:wool blend|stretch wool|100%\s*[A-Za-z]+|polyester|rayon|spandex|cotton)/i);
+        if (match) result.fabric = match[0].trim();
+      }
+    }
+
     // Reigning Champ
-    if (hostname.includes("reigningchamp")) {
+    else if (hostname.includes("reigningchamp")) {
       result.brand = "Reigning Champ";
       const titleEl = document.querySelector('h1.product__title, h1[class*="product-title"], h1.h2, h1');
       if (titleEl && !result.title) result.title = titleEl.textContent.trim();
 
       const priceEl = document.querySelector('.price-item--regular, .price-item--sale, span[class*="price-item"], .product__price, span.price');
       if (priceEl && (!result.price || result.price === 0)) {
-        const match = priceEl.textContent.match(/\$\s*(\d+(?:\.\d{2})?)/);
-        if (match && match[1]) result.price = parseFloat(match[1]);
+        result.price = parseCleanPrice(priceEl.textContent);
       }
 
-      // Fabric extraction from description or specs
       if (!result.fabric && result.description) {
         const fabricMatch = result.description.match(/(?:100%\s*[A-Za-z]+|brushed cotton|cotton flannel|midweight terry|heavyweight fleece|pima cotton|twill|fleece|wool)/i);
         if (fabricMatch) result.fabric = fabricMatch[0].trim();
       }
 
-      // Color from URL slug or option
       const selectedColorEl = document.querySelector('input[name="Color"]:checked, input[name="Colour"]:checked, span[class*="selected-value"]');
       if (selectedColorEl) {
         result.color = selectedColorEl.value || selectedColorEl.textContent.trim();
@@ -174,13 +224,10 @@
       for (const sel of luluPriceSelectors) {
         const el = document.querySelector(sel);
         if (el && el.textContent) {
-          const match = el.textContent.match(/\$\s*(\d+(?:\.\d{2})?)/);
-          if (match && match[1]) {
-            const val = parseFloat(match[1]);
-            if (val > 0 && val < 5000) {
-              result.price = val;
-              break;
-            }
+          const val = parseCleanPrice(el.textContent);
+          if (val > 0) {
+            result.price = val;
+            break;
           }
         }
       }
@@ -210,9 +257,8 @@
       if (titleEl) result.title = titleEl.textContent.trim();
 
       const priceEl = document.querySelector(".price-sales, .product-price, span[itemprop='price']");
-      if (priceEl && !result.price) {
-        const p = priceEl.textContent.replace(/[^0-9.]/g, "");
-        if (p) result.price = parseFloat(p);
+      if (priceEl && (!result.price || result.price === 0)) {
+        result.price = parseCleanPrice(priceEl.textContent);
       }
 
       const imgEl = document.querySelector(".product-image img, .pdp-image img");
@@ -226,22 +272,8 @@
       if (titleEl) result.title = titleEl.textContent.trim();
 
       const priceEl = document.querySelector(".price-item--regular, .product__price");
-      if (priceEl && !result.price) {
-        const p = priceEl.textContent.replace(/[^0-9.]/g, "");
-        if (p) result.price = parseFloat(p);
-      }
-    }
-
-    // RW&CO
-    else if (hostname.includes("rw-co")) {
-      result.brand = result.brand || "RW&CO";
-      const titleEl = document.querySelector("h1.product-name");
-      if (titleEl) result.title = titleEl.textContent.trim();
-
-      const priceEl = document.querySelector(".sales .value");
-      if (priceEl && !result.price) {
-        const p = priceEl.textContent.replace(/[^0-9.]/g, "");
-        if (p) result.price = parseFloat(p);
+      if (priceEl && (!result.price || result.price === 0)) {
+        result.price = parseCleanPrice(priceEl.textContent);
       }
     }
 
@@ -254,14 +286,8 @@
       const salePriceEl = document.querySelector('span[class*="ProductPrice_salePrice"], .ProductPrice_salePrice, span[class*="salePrice"]');
       const regularPriceEl = document.querySelector('span[class*="ProductPrice_regularPrice"], .ProductPrice_regularPrice, span[class*="ProductPrice"], div[class*="ProductPrice"]');
       const priceEl = salePriceEl || regularPriceEl;
-      if (priceEl) {
-        const match = priceEl.textContent.match(/\$\s*(\d+(?:\.\d{2})?)/);
-        if (match && match[1]) {
-          result.price = parseFloat(match[1]);
-        } else {
-          const p = priceEl.textContent.replace(/[^0-9.]/g, "");
-          if (p) result.price = parseFloat(p);
-        }
+      if (priceEl && (!result.price || result.price === 0)) {
+        result.price = parseCleanPrice(priceEl.textContent);
       }
 
       const colorEl = document.querySelector('p[class*="ProductDetails_label"] span, [data-testid*="label-"] span');
@@ -305,14 +331,10 @@
         const elements = document.querySelectorAll(sel);
         for (const el of elements) {
           if (!el || !el.textContent) continue;
-          const text = el.textContent.trim();
-          const match = text.match(/\$\s*(\d+(?:\.\d{2})?)/);
-          if (match && match[1]) {
-            const val = parseFloat(match[1]);
-            if (val > 0 && val < 10000) {
-              result.price = val;
-              break;
-            }
+          const val = parseCleanPrice(el.textContent);
+          if (val > 0) {
+            result.price = val;
+            break;
           }
         }
         if (result.price > 0) break;
@@ -321,6 +343,8 @@
 
     // Known Canadian Brands Mapping
     const KNOWN_BRANDS = [
+      { key: "rw-co", name: "RW&CO" },
+      { key: "rwco", name: "RW&CO" },
       { key: "reigningchamp", name: "Reigning Champ" },
       { key: "joefresh", name: "Joe Fresh" },
       { key: "lululemon", name: "Lululemon" },
@@ -342,8 +366,6 @@
       { key: "nakedandfamous", name: "Naked & Famous Denim" },
       { key: "lole", name: "Lolë" },
       { key: "commongoods", name: "Common Goods" },
-      { key: "rw-co", name: "RW&CO" },
-      { key: "rwco", name: "RW&CO" },
       { key: "sorel", name: "Sorel" },
       { key: "baffin", name: "Baffin" },
       { key: "kamik", name: "Kamik" },
@@ -791,7 +813,7 @@
       <!-- Minimized Floating Pill -->
       <div id="sa-minimized-pill">
         <span>✨ Style Advisor Ingestor</span>
-        <span style="font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px;">v1.0.3</span>
+        <span style="font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px;">v1.0.4</span>
       </div>
 
       <!-- Main Draggable Modal Container -->
@@ -802,7 +824,7 @@
             <span class="sa-logo-icon">✨</span>
             <div class="sa-title-wrap">
               <span class="sa-title">Style Advisor</span>
-              <span class="sa-badge">Ingestor v1.0.3</span>
+              <span class="sa-badge">Ingestor v1.0.4</span>
             </div>
           </div>
           <div class="sa-controls">
@@ -831,13 +853,13 @@
           <!-- Form Fields -->
           <div class="sa-field-group">
             <label class="sa-label">Product Name / Title *</label>
-            <input type="text" id="sa-input-title" class="sa-input" placeholder="e.g. Cotton Flannel Highland Shirt">
+            <input type="text" id="sa-input-title" class="sa-input" placeholder="e.g. Slim-Fit Wool-Blend Pant">
           </div>
 
           <div class="sa-field-row">
             <div class="sa-col">
               <label class="sa-label">Brand *</label>
-              <input type="text" id="sa-input-brand" class="sa-input" placeholder="e.g. Reigning Champ">
+              <input type="text" id="sa-input-brand" class="sa-input" placeholder="e.g. RW&CO">
             </div>
             <div class="sa-col">
               <label class="sa-label">Price (CAD $) *</label>
@@ -860,14 +882,14 @@
               <label class="sa-label">Color & Swatch</label>
               <div class="sa-color-wrap">
                 <input type="color" id="sa-input-hex" class="sa-color-picker" value="#1C1B19">
-                <input type="text" id="sa-input-color" class="sa-input" placeholder="e.g. Arctic Wolf / Oxide">
+                <input type="text" id="sa-input-color" class="sa-input" placeholder="e.g. Prince of Wales Grey">
               </div>
             </div>
           </div>
 
           <div class="sa-field-group">
             <label class="sa-label">Fabric / Materials</label>
-            <input type="text" id="sa-input-fabric" class="sa-input" placeholder="e.g. 100% Cotton, Brushed Twill">
+            <input type="text" id="sa-input-fabric" class="sa-input" placeholder="e.g. Wool Blend, Stretch Twill">
           </div>
 
           <div class="sa-field-group">
