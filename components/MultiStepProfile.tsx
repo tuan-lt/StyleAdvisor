@@ -512,31 +512,29 @@ export function MultiStepProfile({
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
             {bodyTypeOptions.map((b) => {
               const isSelected = profile.body_type === b.id;
               return (
                 <div
                   key={b.id}
                   onClick={() => onUpdate({ body_type: b.id as BodyType })}
-                  className={`group rounded-fitting border overflow-hidden cursor-pointer transition-all flex flex-col justify-between ${
+                  className={`group rounded-fitting-lg border overflow-hidden cursor-pointer transition-all duration-300 shadow-fitting-card hover:shadow-fitting-raised flex flex-col justify-between ${
                     isSelected
-                      ? "border-accent ring-2 ring-accent/30 bg-surface/50"
-                      : "border-border hover:border-thread/50 bg-surface/20"
+                      ? "border-accent ring-2 ring-accent/30 bg-surface-raised"
+                      : "border-border hover:border-thread/50 bg-surface-raised"
                   }`}
                 >
                   <div>
-                    <div className="aspect-[3/4] relative overflow-hidden bg-white/90 p-2 flex items-center justify-center border-b border-border/50">
+                    <div className="aspect-[4/5] relative overflow-hidden bg-white/95 p-3 flex items-center justify-center border-b border-border">
                       <img src={b.image} alt={b.label} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
-                      <div className="absolute top-2 left-2 bg-surface-raised/95 backdrop-blur-xs text-ink text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-border shadow-xs">
+                      <div className="absolute top-3 left-3 bg-surface-raised/95 backdrop-blur-xs text-ink text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded border border-border shadow-xs">
                         {b.tag}
                       </div>
                     </div>
-                    <div className="p-3 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-ink">{b.label}</h4>
-                      </div>
-                      <p className="text-[11px] text-ink-muted leading-snug">{b.sub}</p>
+                    <div className="p-4 space-y-1.5">
+                      <h4 className="text-sm font-bold text-ink group-hover:text-accent transition-colors">{b.label}</h4>
+                      <p className="text-xs text-ink-muted leading-relaxed">{b.sub}</p>
                     </div>
                   </div>
                 </div>
