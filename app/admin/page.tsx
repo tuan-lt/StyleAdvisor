@@ -415,6 +415,23 @@ export default function AdminCatalogPage() {
     showToast("Link verification complete!", "success");
   };
 
+  // Export Catalog to JSON Backup
+  const handleExportCatalogJSON = () => {
+    if (!garments || garments.length === 0) {
+      showToast("Catalog is empty.", "error");
+      return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(garments, null, 2));
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.setAttribute("href", dataStr);
+    const dateStr = new Date().toISOString().split("T")[0];
+    downloadAnchor.setAttribute("download", `style-advisor-catalog-backup-${dateStr}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToast(`📥 Exported ${garments.length} catalog items to JSON backup.`, "success");
+  };
+
   // Test URL in Modal
   const handleTestModalUrl = async (urlToTest?: string) => {
     const url = (urlToTest || formData.product_url)?.trim();
@@ -774,6 +791,18 @@ export default function AdminCatalogPage() {
           </div>
 
           <div className="flex items-center gap-2.5">
+            {/* Export Backup JSON Button */}
+            <button
+              type="button"
+              onClick={handleExportCatalogJSON}
+              disabled={garments.length === 0}
+              className="px-3 py-1.5 rounded-fitting border border-border bg-surface-raised hover:border-thread text-ink text-xs font-medium flex items-center gap-1.5 transition-all disabled:opacity-50 shadow-xs"
+              title="Download full catalog backup as JSON file"
+            >
+              <span>📥</span>
+              <span className="hidden sm:inline">Export JSON</span>
+            </button>
+
             {/* Verify All Links Button */}
             <button
               type="button"
