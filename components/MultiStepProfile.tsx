@@ -132,32 +132,37 @@ export function MultiStepProfile({
     {
       id: "rectangle",
       label: "Rectangle",
-      sub: "Balanced shoulders, chest & hips with clean lines",
-      image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80",
+      tag: "H-Frame",
+      sub: "Balanced shoulders, chest & hips with clean vertical column lines",
+      image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&h=1067&q=80",
     },
     {
       id: "bottom_triangle",
       label: "Bottom Triangle",
-      sub: "Broader hips and thighs; favors wide-leg trousers",
-      image: "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=800&q=80",
+      tag: "A-Frame",
+      sub: "Broader hips & thighs tapering outward; favored by wide-leg trousers",
+      image: "https://images.unsplash.com/photo-1551803091-e20673f15770?auto=format&fit=crop&w=800&h=1067&q=80",
     },
     {
       id: "oval",
       label: "Oval Frame",
-      sub: "Softer midsection; elevated by open unstructured layers",
-      image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80",
+      tag: "O-Frame",
+      sub: "Softer midsection; elevated by open unstructured layers & vertical drape",
+      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&h=1067&q=80",
     },
     {
       id: "top_triangle",
       label: "Top Triangle",
-      sub: "Broad athletic shoulders tapering toward waist",
-      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80",
+      tag: "V-Frame",
+      sub: "Broad athletic shoulders & chest tapering sharply down to a narrow waist",
+      image: "https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&h=1067&q=80",
     },
     {
       id: "double_triangle",
       label: "Double Triangle",
-      sub: "Defined waist proportion with balanced curves",
-      image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80",
+      tag: "X-Frame",
+      sub: "Defined nipped waist proportion with balanced curves",
+      image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&h=1067&q=80",
     },
   ];
 
@@ -516,9 +521,14 @@ export function MultiStepProfile({
                   <div>
                     <div className="aspect-[3/4] relative overflow-hidden bg-surface">
                       <img src={b.image} alt={b.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute top-2 left-2 bg-surface-raised/90 backdrop-blur-xs text-ink text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-border shadow-xs">
+                        {b.tag}
+                      </div>
                     </div>
                     <div className="p-3 space-y-1">
-                      <h4 className="text-xs font-bold text-ink">{b.label}</h4>
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-bold text-ink">{b.label}</h4>
+                      </div>
                       <p className="text-[11px] text-ink-muted leading-snug">{b.sub}</p>
                     </div>
                   </div>
