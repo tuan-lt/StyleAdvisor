@@ -1715,7 +1715,7 @@ export default function AdminCatalogPage() {
               <div className="p-5 bg-surface border border-border rounded-fitting-lg space-y-4">
                 <div className="flex items-center justify-between border-b border-border/80 pb-2.5">
                   <div className="text-[11px] font-bold uppercase tracking-wider text-thread flex items-center gap-1.5">
-                    <span>📖</span> Hướng Dẫn Cài Đặt & Sử Dụng Tiện Ích Chrome
+                    <span>📖</span> Chrome Extension Installation & Quick Start Guide
                   </div>
                   <span className="text-[10px] px-2 py-0.5 rounded bg-surface-raised border border-border text-ink-muted font-medium">
                     Google Chrome / Brave / Edge
@@ -1723,18 +1723,18 @@ export default function AdminCatalogPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {/* Step 1: Tải & Giải Nén with Integrated Download Button */}
+                  {/* Step 1: Download & Unpack with Integrated Download Button */}
                   <div className="p-4 bg-gradient-to-br from-accent/10 via-surface-raised to-surface border border-accent/30 rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
                         <div className="w-6 h-6 rounded-full bg-accent text-white font-bold flex items-center justify-center text-xs shadow-xs">
                           1
                         </div>
-                        <span className="text-[9px] uppercase font-bold text-accent tracking-wider">Khởi đầu</span>
+                        <span className="text-[9px] uppercase font-bold text-accent tracking-wider">Step 1</span>
                       </div>
-                      <div className="font-semibold text-ink text-xs">1. Tải & Giải Nén</div>
+                      <div className="font-semibold text-ink text-xs">1. Download & Extract</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Tải file zip mã nguồn tiện ích và giải nén thành thư mục trên máy tính.
+                        Download the extension source code package and extract it to a local folder.
                       </p>
                     </div>
 
@@ -1747,26 +1747,26 @@ export default function AdminCatalogPage() {
                       {isDownloadingExtension ? (
                         <>
                           <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Đang tải...</span>
+                          <span>Downloading...</span>
                         </>
                       ) : (
                         <>
                           <span>📥</span>
-                          <span>Tải Extension (.ZIP)</span>
+                          <span>Download Extension (.ZIP)</span>
                         </>
                       )}
                     </button>
                   </div>
 
-                  {/* Step 2: Mở chrome://extensions */}
+                  {/* Step 2: Open chrome://extensions */}
                   <div className="p-4 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
                       <div className="w-6 h-6 rounded-full bg-thread/15 text-thread font-bold flex items-center justify-center text-xs">
                         2
                       </div>
-                      <div className="font-semibold text-ink text-xs">2. Mở chrome://extensions</div>
+                      <div className="font-semibold text-ink text-xs">2. Open chrome://extensions</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Mở tab mới trên Chrome, gõ <code className="font-mono text-thread">chrome://extensions</code> vào thanh địa chỉ và nhấn <strong>Enter</strong>.
+                        Open a new Chrome tab, type <code className="font-mono text-thread">chrome://extensions</code> in the address bar, and press <strong>Enter</strong>.
                       </p>
                     </div>
 
@@ -1780,19 +1780,19 @@ export default function AdminCatalogPage() {
                       }}
                       className="w-full py-1.5 rounded-fitting bg-surface border border-border hover:border-accent text-ink text-[11px] font-semibold transition-colors flex items-center justify-center gap-1 mt-1"
                     >
-                      {copiedExtensionUrl ? "✓ Đã chép" : "Sao chép URL"}
+                      {copiedExtensionUrl ? "✓ Copied" : "Copy URL"}
                     </button>
                   </div>
 
-                  {/* Step 3: Bật Developer Mode */}
+                  {/* Step 3: Enable Developer Mode */}
                   <div className="p-4 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
                       <div className="w-6 h-6 rounded-full bg-thread/15 text-thread font-bold flex items-center justify-center text-xs">
                         3
                       </div>
-                      <div className="font-semibold text-ink text-xs">3. Bật Developer Mode</div>
+                      <div className="font-semibold text-ink text-xs">3. Enable Developer Mode</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Gạt công tắc <strong>&quot;Chế độ dành cho nhà phát triển&quot; (Developer mode)</strong> ở góc trên bên phải màn hình sang trạng thái <strong>BẬT (ON)</strong>.
+                        Toggle the <strong>&quot;Developer mode&quot;</strong> switch at the top-right corner of the Extensions page to <strong>ON</strong>.
                       </p>
                     </div>
                   </div>
@@ -1805,36 +1805,36 @@ export default function AdminCatalogPage() {
                       </div>
                       <div className="font-semibold text-ink text-xs">4. Load Unpacked</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Nhấn nút <strong>&quot;Tải tiện ích đã giải nén&quot; (Load unpacked)</strong> ở góc trái $\rightarrow$ chọn thư mục <code className="font-mono text-thread">extension</code> vừa giải nén.
+                        Click <strong>&quot;Load unpacked&quot;</strong> on the top-left $\rightarrow$ choose the extracted <code className="font-mono text-thread">extension</code> folder.
                       </p>
                     </div>
                   </div>
 
-                  {/* Step 5: Ghim Tiện Ích */}
+                  {/* Step 5: Pin Extension */}
                   <div className="p-4 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
                       <div className="w-6 h-6 rounded-full bg-thread/15 text-thread font-bold flex items-center justify-center text-xs">
                         5
                       </div>
-                      <div className="font-semibold text-ink text-xs">5. Ghim Tiện Ích</div>
+                      <div className="font-semibold text-ink text-xs">5. Pin Extension</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Nhấp vào biểu tượng mảnh ghép (Extensions) ở góc trên bên phải Chrome $\rightarrow$ Chọn <strong>Ghim (Pin)</strong> Style Advisor lên thanh công cụ.
+                        Click the Extensions puzzle icon in Chrome&apos;s top bar $\rightarrow$ select <strong>Pin</strong> to keep Style Advisor readily accessible.
                       </p>
                     </div>
                   </div>
 
-                  {/* Step 6: HƯỚNG DẪN SỬ DỤNG */}
+                  {/* Step 6: HOW TO USE */}
                   <div className="p-4 bg-gradient-to-br from-verified/10 via-surface-raised to-surface border border-verified/30 rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
                         <div className="w-6 h-6 rounded-full bg-verified text-white font-bold flex items-center justify-center text-xs shadow-xs">
                           6
                         </div>
-                        <span className="text-[9px] uppercase font-bold text-verified tracking-wider">Cào dữ liệu</span>
+                        <span className="text-[9px] uppercase font-bold text-verified tracking-wider">Scrape & Ingest</span>
                       </div>
-                      <div className="font-semibold text-ink text-xs">6. Hướng Dẫn Sử Dụng</div>
+                      <div className="font-semibold text-ink text-xs">6. How to Use</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Mở bất kỳ website thời trang nào (Aritzia, Zara, Lululemon,...), bấm vào biểu tượng Style Advisor trên thanh công cụ và nhấn <strong>&quot;🚀 Ingest into Catalog&quot;</strong>!
+                        Visit any supported fashion product page (Zara, Aritzia, Lululemon, etc.), open Style Advisor in the toolbar, and click <strong>&quot;🚀 Ingest into Catalog&quot;</strong>!
                       </p>
                     </div>
                   </div>
