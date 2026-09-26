@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useProfileStorage } from "../lib/useProfileStorage";
 import { SharedProfile } from "../components/SharedProfile";
+import { MultiStepProfile } from "../components/MultiStepProfile";
 import { OccasionResult } from "../components/OccasionResult";
 import { CapsuleResult } from "../components/CapsuleResult";
 import { SharedCart } from "../components/SharedCart";
@@ -18,6 +19,7 @@ export default function Home() {
   const [audienceText, setAudienceText] = useState<string>("Seed fund, partners are ex-engineers, meeting at their office in Gastown");
   const [flow, setFlow] = useState<"occasion" | "everyday">("occasion");
   const [viewState, setViewState] = useState<ViewState>("profile");
+  const [profileMode, setProfileMode] = useState<"wizard" | "single">("wizard");
 
   const [recommendationData, setRecommendationData] = useState<RecommendApiResponse["data"] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -166,14 +168,41 @@ export default function Home() {
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {viewState === "profile" && (
+              <div className="hidden sm:flex items-center bg-surface-raised border border-border rounded-fitting p-0.5 text-[11px] font-medium">
+                <button
+                  type="button"
+                  onClick={() => setProfileMode("wizard")}
+                  className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${
+                    profileMode === "wizard"
+                      ? "bg-accent text-white font-semibold shadow-xs"
+                      : "text-ink-muted hover:text-ink"
+                  }`}
+                >
+                  Step Wizard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProfileMode("single")}
+                  className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${
+                    profileMode === "single"
+                      ? "bg-accent text-white font-semibold shadow-xs"
+                      : "text-ink-muted hover:text-ink"
+                  }`}
+                >
+                  Single Sheet
+                </button>
+              </div>
+            )}
+
             {viewState === "result" && (
               <button
                 type="button"
                 onClick={() => setViewState("profile")}
                 className="text-xs font-semibold text-ink-muted hover:text-ink transition-colors cursor-pointer"
               >
-                Edit Profile
+                ← Edit Profile
               </button>
             )}
 
@@ -225,18 +254,33 @@ export default function Home() {
         )}
 
         {viewState === "profile" ? (
-          <SharedProfile
-            profile={profile}
-            onUpdate={updateProfile}
-            occasion={occasion}
-            onOccasionChange={setOccasion}
-            audienceText={audienceText}
-            onAudienceChange={setAudienceText}
-            flow={flow}
-            onFlowChange={setFlow}
-            onSubmit={() => fetchRecommendation()}
-            isLoading={isLoading}
-          />
+          profileMode === "wizard" ? (
+            <MultiStepProfile
+              profile={profile}
+              onUpdate={updateProfile}
+              occasion={occasion}
+              onOccasionChange={setOccasion}
+              audienceText={audienceText}
+              onAudienceChange={setAudienceText}
+              flow={flow}
+              onFlowChange={setFlow}
+              onSubmit={() => fetchRecommendation()}
+              isLoading={isLoading}
+            />
+          ) : (
+            <SharedProfile
+              profile={profile}
+              onUpdate={updateProfile}
+              occasion={occasion}
+              onOccasionChange={setOccasion}
+              audienceText={audienceText}
+              onAudienceChange={setAudienceText}
+              flow={flow}
+              onFlowChange={setFlow}
+              onSubmit={() => fetchRecommendation()}
+              isLoading={isLoading}
+            />
+          )
         ) : flow === "occasion" && recommendationData ? (
           <OccasionResult
             data={recommendationData}

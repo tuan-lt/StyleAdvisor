@@ -1313,13 +1313,14 @@ export default function AdminCatalogPage() {
                     <label className="block font-medium text-ink mb-1">Fabric Composition</label>
                     <input
                       type="text"
-                      value={formData.fabric?.composition || ""}
-                      onChange={(e) =>
+                      value={typeof formData.fabric === "object" && formData.fabric ? formData.fabric.composition || "" : typeof formData.fabric === "string" ? formData.fabric : ""}
+                      onChange={(e) => {
+                        const currentCare = typeof formData.fabric === "object" && formData.fabric ? formData.fabric.care : "";
                         setFormData({
                           ...formData,
-                          fabric: { ...formData.fabric, composition: e.target.value, care: formData.fabric?.care || "" },
-                        })
-                      }
+                          fabric: { composition: e.target.value, care: currentCare || "" },
+                        });
+                      }}
                       placeholder="e.g. 100% Egyptian Cotton"
                       className="w-full p-2 bg-surface border border-border rounded-fitting text-ink focus:outline-none focus:border-accent"
                     />
@@ -1329,13 +1330,14 @@ export default function AdminCatalogPage() {
                     <label className="block font-medium text-ink mb-1">Care Instructions</label>
                     <input
                       type="text"
-                      value={formData.fabric?.care || ""}
-                      onChange={(e) =>
+                      value={typeof formData.fabric === "object" && formData.fabric ? formData.fabric.care || "" : ""}
+                      onChange={(e) => {
+                        const currentComp = typeof formData.fabric === "object" && formData.fabric ? formData.fabric.composition : typeof formData.fabric === "string" ? formData.fabric : "";
                         setFormData({
                           ...formData,
-                          fabric: { ...formData.fabric, care: e.target.value, composition: formData.fabric?.composition || "" },
-                        })
-                      }
+                          fabric: { composition: currentComp || "", care: e.target.value },
+                        });
+                      }}
                       placeholder="e.g. Dry clean only. Steam refresh recommended."
                       className="w-full p-2 bg-surface border border-border rounded-fitting text-ink focus:outline-none focus:border-accent"
                     />
@@ -1346,18 +1348,19 @@ export default function AdminCatalogPage() {
                     <input
                       type="number"
                       min={0}
-                      value={formData.return_policy?.window_days || 30}
-                      onChange={(e) =>
+                      value={typeof formData.return_policy === "object" && formData.return_policy ? formData.return_policy.window_days ?? 30 : 30}
+                      onChange={(e) => {
+                        const currentNote = typeof formData.return_policy === "object" && formData.return_policy ? formData.return_policy.policy_note : typeof formData.return_policy === "string" ? formData.return_policy : "";
+                        const currentFree = typeof formData.return_policy === "object" && formData.return_policy ? formData.return_policy.free_returns : false;
                         setFormData({
                           ...formData,
                           return_policy: {
-                            ...formData.return_policy,
                             window_days: Number(e.target.value),
-                            free_returns: formData.return_policy?.free_returns || false,
-                            policy_note: formData.return_policy?.policy_note || "",
+                            policy_note: currentNote || "",
+                            free_returns: !!currentFree,
                           },
-                        })
-                      }
+                        });
+                      }}
                       className="w-full p-2 bg-surface border border-border rounded-fitting text-ink focus:outline-none focus:border-accent"
                     />
                   </div>
@@ -1366,18 +1369,19 @@ export default function AdminCatalogPage() {
                     <label className="block font-medium text-ink mb-1">Return Policy Note</label>
                     <input
                       type="text"
-                      value={formData.return_policy?.policy_note || ""}
-                      onChange={(e) =>
+                      value={typeof formData.return_policy === "object" && formData.return_policy ? formData.return_policy.policy_note || "" : typeof formData.return_policy === "string" ? formData.return_policy : ""}
+                      onChange={(e) => {
+                        const currentDays = typeof formData.return_policy === "object" && formData.return_policy ? formData.return_policy.window_days : 30;
+                        const currentFree = typeof formData.return_policy === "object" && formData.return_policy ? formData.return_policy.free_returns : false;
                         setFormData({
                           ...formData,
                           return_policy: {
-                            ...formData.return_policy,
                             policy_note: e.target.value,
-                            window_days: formData.return_policy?.window_days || 30,
-                            free_returns: formData.return_policy?.free_returns || false,
+                            window_days: Number(currentDays) || 30,
+                            free_returns: !!currentFree,
                           },
-                        })
-                      }
+                        });
+                      }}
                       placeholder="e.g. Free returns in-store or online within 30 days."
                       className="w-full p-2 bg-surface border border-border rounded-fitting text-ink focus:outline-none focus:border-accent"
                     />
