@@ -333,13 +333,14 @@ export function SharedProfile({
               Not sure
             </button>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {[
-              { id: "rectangle", label: "Rectangle", sub: "Balanced silhouette" },
-              { id: "bottom_triangle", label: "Bottom Triangle", sub: "Broader hips & thighs" },
-              { id: "oval", label: "Oval", sub: "Softer midsection" },
-              { id: "top_triangle", label: "Top Triangle", sub: "Broad shoulders" },
-              { id: "double_triangle", label: "Double Triangle", sub: "Defined waist curve" },
+              { id: "rectangle", label: "Rectangle", sub: "Straight column lines" },
+              { id: "bottom_triangle", label: "Teardrop / Pear", sub: "Broader hips & thighs" },
+              { id: "oval", label: "Oval / Apple", sub: "Softer rounded midsection" },
+              { id: "top_triangle", label: "Inverted Triangle", sub: "Broad athletic shoulders" },
+              { id: "double_triangle", label: "Hourglass", sub: "Defined nipped waist" },
+              { id: "standard", label: "Standard Balanced", sub: "Evenly distributed" },
             ].map((b) => (
               <button
                 key={b.id}

@@ -69,7 +69,8 @@ export type BodyType =
   | 'inverted-triangle'
   | 'hourglass'
   | 'pear'
-  | 'apple';
+  | 'apple'
+  | 'standard';
 
 export type PaletteSeason =
   | 'winter'

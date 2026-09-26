@@ -133,36 +133,43 @@ export function MultiStepProfile({
       id: "rectangle",
       label: "Rectangle",
       tag: "H-Frame",
-      sub: "Balanced shoulders, chest & hips with clean vertical column lines",
+      sub: "Balanced shoulders & hips with straight column lines; ideal for layered depth & tailoring",
       image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&h=1067&q=80",
     },
     {
       id: "bottom_triangle",
-      label: "Bottom Triangle",
+      label: "Teardrop / Pear",
       tag: "A-Frame",
-      sub: "Broader hips & thighs tapering outward; favored by wide-leg trousers",
+      sub: "Broader hips & thighs than shoulders; balanced with structured tops & A-line/wide-leg bottoms",
       image: "https://images.unsplash.com/photo-1551803091-e20673f15770?auto=format&fit=crop&w=800&h=1067&q=80",
     },
     {
       id: "oval",
-      label: "Oval Frame",
+      label: "Oval / Apple",
       tag: "O-Frame",
-      sub: "Softer midsection; elevated by open unstructured layers & vertical drape",
+      sub: "Fuller midsection & rounded torso; elevated by open unstructured layers & vertical drape",
       image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&h=1067&q=80",
     },
     {
       id: "top_triangle",
-      label: "Top Triangle",
+      label: "Inverted Triangle",
       tag: "V-Frame",
-      sub: "Broad athletic shoulders & chest tapering sharply down to a narrow waist",
+      sub: "Broad athletic shoulders & chest tapering to hips; balanced by relaxed & pleated bottoms",
       image: "https://images.unsplash.com/photo-1617127365659-c47fa864d8bc?auto=format&fit=crop&w=800&h=1067&q=80",
     },
     {
       id: "double_triangle",
-      label: "Double Triangle",
+      label: "Hourglass",
       tag: "X-Frame",
-      sub: "Defined nipped waist proportion with balanced curves",
+      sub: "Balanced bust/shoulders & hips with defined waist; highlighted by fitted tailored cuts",
       image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&h=1067&q=80",
+    },
+    {
+      id: "standard",
+      label: "Standard Balanced",
+      tag: "Balanced",
+      sub: "Evenly distributed natural proportions; versatile across all classic Canadian tailoring",
+      image: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=800&h=1067&q=80",
     },
   ];
 
@@ -505,7 +512,7 @@ export function MultiStepProfile({
             </button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
             {bodyTypeOptions.map((b) => {
               const isSelected = profile.body_type === b.id;
               return (
