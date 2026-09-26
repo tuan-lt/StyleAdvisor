@@ -370,14 +370,11 @@ export function MultiStepProfile({
                   alt="High-Stakes Occasion"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-accent text-white text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded shadow-xs">
-                  FLOW A
-                </div>
               </div>
               <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-xl font-serif font-medium text-ink group-hover:text-accent transition-colors">
-                    High-Stakes Occasion (FLOW A)
+                    High-Stakes Occasion
                   </h3>
                   <p className="text-xs text-ink-muted leading-relaxed">
                     Pitching seed funds in Gastown, high-profile interviews, family dinners, court hearings or memorials.
@@ -408,14 +405,11 @@ export function MultiStepProfile({
                   alt="Everyday Capsule Wardrobe"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-3 left-3 bg-thread text-white text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded shadow-xs">
-                  FLOW B
-                </div>
               </div>
               <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-xl font-serif font-medium text-ink group-hover:text-thread transition-colors">
-                    Everyday Capsule Wardrobe (FLOW B)
+                    Everyday Capsule Wardrobe
                   </h3>
                   <p className="text-xs text-ink-muted leading-relaxed">
                     Tired of decision fatigue? Assemble a cohesive <strong>15-piece modular wardrobe</strong> with 3 worked combinations and a highlighted <strong>Starter Set of 5</strong>.

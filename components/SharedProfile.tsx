@@ -157,7 +157,6 @@ export function SharedProfile({
               : "text-ink hover:bg-surface/80"
           }`}
         >
-          <div className="text-xs uppercase tracking-wider opacity-75 font-semibold">Flow A</div>
           <div className="text-base font-serif font-medium">High-Stakes Occasion</div>
           <div className="text-xs opacity-80 mt-0.5">Exactly 1 complete outfit calibrated for room stakes</div>
         </button>
@@ -170,7 +169,6 @@ export function SharedProfile({
               : "text-ink hover:bg-surface/80"
           }`}
         >
-          <div className="text-xs uppercase tracking-wider opacity-75 font-semibold">Flow B</div>
           <div className="text-base font-serif font-medium">Everyday Capsule Wardrobe</div>
           <div className="text-xs opacity-80 mt-0.5">Coordinated 15-piece matrix & 3 worked outfits</div>
         </button>
