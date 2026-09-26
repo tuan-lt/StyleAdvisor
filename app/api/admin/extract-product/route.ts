@@ -64,6 +64,7 @@ function detectBrand(url: string, siteName?: string): string {
   try {
     const host = new URL(url).hostname.toLowerCase();
     if (host.includes("aritzia")) return "Aritzia";
+    if (host.includes("joefresh")) return "Joe Fresh";
     if (host.includes("rw-co") || host.includes("rwco")) return "RW&CO";
     if (host.includes("lululemon")) return "Lululemon";
     if (host.includes("canadagoose")) return "Canada Goose";
@@ -458,12 +459,19 @@ function extractAccuratePrice(
       if (!isNaN(num) && num >= 20 && num <= 3000 && num !== 100) return num;
     }
 
+    // Check for salePrice / regularPrice modular classes (e.g. Joe Fresh, Loblaw)
+    const modularPriceMatch = cleanHtml.match(/(?:salePrice|regularPrice|ProductPrice)[^>]*>\s*\$?(\d{1,4}(?:\.\d{2})?)/i);
+    if (modularPriceMatch) {
+      const num = parseFloat(modularPriceMatch[1]);
+      if (!isNaN(num) && num >= 5 && num <= 3000) return num;
+    }
+
     const priceMatch = cleanHtml.match(
-      /(?:itemprop=["']price["']|class=["'][^"']*price[^"']*["'])[^>]*>\s*\$?(\d{2,4}(?:\.\d{2})?)/i
+      /(?:itemprop=["']price["']|class=["'][^"']*price[^"']*["'])[^>]*>\s*\$?(\d{1,4}(?:\.\d{2})?)/i
     );
     if (priceMatch) {
       const num = parseFloat(priceMatch[1]);
-      if (!isNaN(num) && num >= 20 && num <= 3000) return num;
+      if (!isNaN(num) && num >= 5 && num <= 3000) return num;
     }
   }
 
@@ -566,6 +574,9 @@ function extractAccurateImage(
         img.includes("products/") ||
         img.includes("media.rw-co") ||
         img.includes("images.lululemon") ||
+        img.includes("digital.loblaws.ca") ||
+        img.includes("assetful.loblaw.ca") ||
+        img.includes("joefresh") ||
         img.includes("cdn.sanity.io"))
   );
 

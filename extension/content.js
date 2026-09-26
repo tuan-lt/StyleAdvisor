@@ -153,8 +153,86 @@ function extractProductDataFromDOM() {
     }
   }
 
+  // Joe Fresh
+  else if (hostname.includes("joefresh")) {
+    result.brand = "Joe Fresh";
+    const titleEl = document.querySelector('h1[class*="ProductDetails_heading"], h1.ProductDetails_heading, h1[data-testid="product-title"], h1');
+    if (titleEl) result.title = titleEl.textContent.trim();
+
+    // Look for sale price first, then regular price
+    const salePriceEl = document.querySelector('span[class*="ProductPrice_salePrice"], .ProductPrice_salePrice, span[class*="salePrice"]');
+    const regularPriceEl = document.querySelector('span[class*="ProductPrice_regularPrice"], .ProductPrice_regularPrice, span[class*="ProductPrice"], div[class*="ProductPrice"]');
+    const priceEl = salePriceEl || regularPriceEl;
+    if (priceEl) {
+      const match = priceEl.textContent.match(/\$\s*(\d+(?:\.\d{2})?)/);
+      if (match && match[1]) {
+        result.price = parseFloat(match[1]);
+      } else {
+        const p = priceEl.textContent.replace(/[^0-9.]/g, "");
+        if (p) result.price = parseFloat(p);
+      }
+    }
+
+    // Color / Swatch
+    const colorEl = document.querySelector('p[class*="ProductDetails_label"] span, [data-testid*="label-"] span');
+    if (colorEl && colorEl.textContent.trim()) {
+      result.color = colorEl.textContent.trim();
+    }
+
+    // Fabric details
+    const detailsEl = document.querySelector('ul[data-testid="details"], div[class*="AccordionContainer_accordionContent"]');
+    if (detailsEl) {
+      const text = detailsEl.textContent;
+      const match = text.match(/(?:\d+%\s*[A-Za-z]+)+/i);
+      if (match) result.fabric = match[0].trim();
+    }
+  }
+
+  // Universal DOM Price Scanner (Scans common e-commerce classes & data attributes)
+  if (!result.price || result.price === 0) {
+    const candidateSelectors = [
+      '[class*="salePrice"]',
+      '[class*="sale-price"]',
+      '[class*="special-price"]',
+      '[class*="current-price"]',
+      '[class*="regularPrice"]',
+      '[class*="regular-price"]',
+      '[class*="product-price"]',
+      '[class*="ProductPrice"]',
+      '[class*="price-sales"]',
+      '[data-testid*="price"]',
+      '[data-testid*="Price"]',
+      '[itemprop="price"]',
+      '.price--sale',
+      '.price--current',
+      '.price-item--regular',
+      '.price-item--sale',
+      '.price',
+      '.current-price',
+      '.product__price'
+    ];
+
+    for (const sel of candidateSelectors) {
+      const elements = document.querySelectorAll(sel);
+      for (const el of elements) {
+        if (!el || !el.textContent) continue;
+        const text = el.textContent.trim();
+        const match = text.match(/\$\s*(\d+(?:\.\d{2})?)/);
+        if (match && match[1]) {
+          const val = parseFloat(match[1]);
+          if (val > 0 && val < 10000) {
+            result.price = val;
+            break;
+          }
+        }
+      }
+      if (result.price > 0) break;
+    }
+  }
+
   // Known Canadian Brands Mapping
   const KNOWN_BRANDS = [
+    { key: "joefresh", name: "Joe Fresh" },
     { key: "lululemon", name: "Lululemon" },
     { key: "aritzia", name: "Aritzia" },
     { key: "canadagoose", name: "Canada Goose" },
