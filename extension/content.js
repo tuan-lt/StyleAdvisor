@@ -39,7 +39,9 @@ function extractProductDataFromDOM() {
           }
           if (item.offers) {
             const offer = Array.isArray(item.offers) ? item.offers[0] : item.offers;
-            if (offer.price) result.price = Number(offer.price);
+            if (offer.price) result.price = parseFloat(String(offer.price).replace(/[^0-9.]/g, ""));
+            else if (offer.lowPrice) result.price = parseFloat(String(offer.lowPrice).replace(/[^0-9.]/g, ""));
+            else if (offer.highPrice) result.price = parseFloat(String(offer.highPrice).replace(/[^0-9.]/g, ""));
             if (offer.priceCurrency) result.currency = offer.priceCurrency;
           }
           if (item.material) result.fabric = item.material;
@@ -49,6 +51,27 @@ function extractProductDataFromDOM() {
     } catch (e) {
       // Ignore JSON parse errors in invalid scripts
     }
+  }
+
+  // 1b. Try extracting from __NEXT_DATA__
+  const nextDataScript = document.getElementById("__NEXT_DATA__");
+  if (nextDataScript) {
+    try {
+      const nextData = JSON.parse(nextDataScript.textContent || "{}");
+      const pageProps = nextData.props?.pageProps;
+      const product = pageProps?.product || pageProps?.initialData?.product || pageProps?.pdpData?.product;
+      if (product) {
+        if (!result.title && product.name) result.title = product.name;
+        if (!result.brand && product.brand) result.brand = typeof product.brand === "object" ? product.brand.name : product.brand;
+        if (!result.price || result.price === 0) {
+          const rawPrice = product.price || product.priceRange?.min || product.listPrice || product.salePrice || product.price?.salePrice || product.price?.regularPrice;
+          if (rawPrice) {
+            const p = parseFloat(String(rawPrice).replace(/[^0-9.]/g, ""));
+            if (p > 0 && p < 10000) result.price = p;
+          }
+        }
+      }
+    } catch (e) {}
   }
 
   // 2. OpenGraph & Meta Tag Fallbacks
@@ -88,25 +111,59 @@ function extractProductDataFromDOM() {
 
   // Lululemon
   if (hostname.includes("lululemon")) {
-    result.brand = result.brand || "Lululemon";
-    const titleEl = document.querySelector('h1[data-testid="product-name"], .pdp-product-name, h1.product-title');
+    result.brand = "Lululemon";
+    const titleEl = document.querySelector('h1[data-testid="product-name"], .pdp-product-name, h1.product-title, h1[class*="product-name"], h1');
     if (titleEl) result.title = titleEl.textContent.trim();
 
-    const priceEl = document.querySelector('span[data-testid="product-price"], .price-1, .price, .product-price');
-    if (priceEl && !result.price) {
-      const p = priceEl.textContent.replace(/[^0-9.]/g, "");
-      if (p) result.price = parseFloat(p);
+    // Lululemon price candidates
+    const luluPriceSelectors = [
+      'span[data-testid="price"]',
+      'span[data-testid="product-price"]',
+      'div[data-testid="product-price"]',
+      'span[class*="price-1"]',
+      'span[class*="price-2"]',
+      '.price-1',
+      '.price-2',
+      'span[class*="purchase-attributes__price"]',
+      'div[class*="price_"]',
+      'span[class*="price_"]',
+      'span[class*="ProductPrice"]',
+      '.pdp-price',
+      '.product-price',
+      'span.price',
+      'span.money',
+      '[aria-label*="price" i]'
+    ];
+
+    for (const sel of luluPriceSelectors) {
+      const el = document.querySelector(sel);
+      if (el && el.textContent) {
+        const match = el.textContent.match(/\$\s*(\d+(?:\.\d{2})?)/);
+        if (match && match[1]) {
+          const val = parseFloat(match[1]);
+          if (val > 0 && val < 5000) {
+            result.price = val;
+            break;
+          }
+        }
+      }
     }
 
-    const imgEl = document.querySelector('img[data-testid="product-image"], .carousel-item img, .pdp-images img');
+    // Color Swatch
+    const colorEl = document.querySelector('[data-testid="color-name"], [class*="color-name"], [class*="colorName"], [class*="colorTitle"], [data-testid="swatch-name"]');
+    if (colorEl && colorEl.textContent.trim()) {
+      result.color = colorEl.textContent.trim();
+    }
+
+    const imgEl = document.querySelector('img[data-testid="product-image"], .carousel-item img, .pdp-images img, img[class*="pdp-image"], img[class*="carousel"]');
     if (imgEl && (!result.image || result.image.startsWith("data:"))) {
       result.image = imgEl.src;
     }
 
-    const fabricEl = document.querySelector('[data-testid="materials-care"], .why-we-made-this, .product-details');
+    const fabricEl = document.querySelector('[data-testid="materials-care"], .why-we-made-this, .product-details, [class*="materials-care"], [class*="fabric"]');
     if (fabricEl) {
       const text = fabricEl.textContent;
-      const match = text.match(/(?:Material|Body|Fabric|Composition)[^.]*(?:\d+%\s*[A-Za-z]+)+/i);
+      const match = text.match(/(?:Material|Body|Fabric|Composition|Fill|Lining)[^.]*(?:\d+%\s*[A-Za-z]+)+/i);
       if (match) result.fabric = match[0].trim();
     }
   }
