@@ -1,5 +1,143 @@
 [
   {
+    "id": "ca_rw-co_tailored-fit-striped_1107",
+    "name": "Tailored-Fit Striped Brown Wool Suit Pant",
+    "brand": "RW&CO",
+    "slot": "bottom",
+    "price": 179,
+    "currency": "CAD",
+    "product_url": "https://www.rw-co.com/products/tailored-brown-pinstripe-wool-blend-pant-497318",
+    "image_url": "http://www.rw-co.com/cdn/shop/files/0780fa0b81f2ffdc07002659824bcb54fd2d4bd1_497318_913_B.jpg?v=1785762211",
+    "gender_cut": "unisex",
+    "budget_tier": "mid",
+    "occasions": [
+      "work",
+      "smart-casual",
+      "casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "winter"
+    ],
+    "body_types": [
+      "average",
+      "athletic"
+    ],
+    "season_of_wear": [
+      "all-season",
+      "fall"
+    ],
+    "formality_score": 7,
+    "color": "Classic",
+    "hex_color": "#1c1b19",
+    "fabric": {
+      "composition": "Premium Canadian Fabric Blend",
+      "care": "Machine wash cold. Hang dry.",
+      "sustainable": false
+    },
+    "return_policy": {
+      "window_days": 30,
+      "free_returns": true,
+      "policy_note": "Free returns and exchanges within 30 days at RW&CO."
+    },
+    "description": "Crafted by RW&CO for refined wardrobe versatility in Canadian climates.",
+    "styling_notes": "Pairs seamlessly with tailored foundation pieces.",
+    "in_stock": true,
+    "verified_date": "2026-09-26"
+  },
+  {
+    "id": "ca_rw-co_slim-fit-prince-of-w_1772",
+    "name": "Slim-Fit Prince-of-Wales Pant",
+    "brand": "RW&CO",
+    "slot": "bottom",
+    "price": 90.93,
+    "currency": "CAD",
+    "product_url": "https://www.rw-co.com/products/slim-fit-wool-blend-prince-of-wales-pant-496955",
+    "image_url": "http://www.rw-co.com/cdn/shop/files/d73e4e13b9daa20a75012b0b525899f4792ee8a2_496955_278_B.jpg?v=1784552666",
+    "gender_cut": "unisex",
+    "budget_tier": "mid",
+    "occasions": [
+      "work",
+      "smart-casual",
+      "casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "winter"
+    ],
+    "body_types": [
+      "average",
+      "athletic"
+    ],
+    "season_of_wear": [
+      "all-season",
+      "fall"
+    ],
+    "formality_score": 7,
+    "color": "Classic",
+    "hex_color": "#1c1b19",
+    "fabric": {
+      "composition": "Premium Canadian Fabric Blend",
+      "care": "Machine wash cold. Hang dry.",
+      "sustainable": false
+    },
+    "return_policy": {
+      "window_days": 30,
+      "free_returns": true,
+      "policy_note": "Free returns and exchanges within 30 days at RW&CO."
+    },
+    "description": "Crafted by RW&CO for refined wardrobe versatility in Canadian climates.",
+    "styling_notes": "Pairs seamlessly with tailored foundation pieces.",
+    "in_stock": true,
+    "verified_date": "2026-09-26"
+  },
+  {
+    "id": "ca_rw-co_3-4-sleeve-boat-neck_2217",
+    "name": "3/4-Sleeve Boat-Neck Top",
+    "brand": "RW&CO",
+    "slot": "top",
+    "price": 32.13,
+    "currency": "CAD",
+    "product_url": "https://www.rw-co.com/products/knit-pullover-boat-neck-3-4-sleeve-496723",
+    "image_url": "http://www.rw-co.com/cdn/shop/files/740ddcb9862ad731867ef4e2050fd1ab47a7aa59_496723_1_B.jpg?v=1776734210",
+    "gender_cut": "unisex",
+    "budget_tier": "budget",
+    "occasions": [
+      "work",
+      "smart-casual",
+      "casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "winter"
+    ],
+    "body_types": [
+      "average",
+      "athletic"
+    ],
+    "season_of_wear": [
+      "all-season",
+      "fall"
+    ],
+    "formality_score": 6,
+    "color": "Classic",
+    "hex_color": "#1c1b19",
+    "fabric": {
+      "composition": "Premium Canadian Fabric Blend",
+      "care": "Machine wash cold. Hang dry.",
+      "sustainable": false
+    },
+    "return_policy": {
+      "window_days": 30,
+      "free_returns": true,
+      "policy_note": "Free returns and exchanges within 30 days at RW&CO."
+    },
+    "description": "Crafted by RW&CO for refined wardrobe versatility in Canadian climates.",
+    "styling_notes": "Pairs seamlessly with tailored foundation pieces.",
+    "in_stock": true,
+    "verified_date": "2026-09-26"
+  },
+  {
     "id": "ca_reigning-champ_cotton-flannel-highl_5097",
     "name": "Cotton Flannel Highland Shirt",
     "brand": "Reigning Champ",
@@ -918,123 +1056,6 @@
     "styling_notes": "Pairs seamlessly with tailored foundation pieces.",
     "in_stock": true,
     "verified_date": "2026-09-26"
-  },
-  {
-    "id": "ca_kotn_011",
-    "garment_id": "ca_kotn_011",
-    "name": "Egyptian Cotton Essential Crewneck",
-    "brand": "Kotn",
-    "slot": "top",
-    "price": 48,
-    "price_cad": 48,
-    "currency": "CAD",
-    "product_url": "https://kotn.com/products/mens-essential-crew?variant=white",
-    "image_url": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80",
-    "gender_cut": [
-      "male",
-      "neutral"
-    ],
-    "budget_tier": "$",
-    "formality_level": 2,
-    "formality_score": 4,
-    "occasions": [
-      "pitch",
-      "interview",
-      "date",
-      "casual",
-      "work",
-      "court",
-      "funeral",
-      "family"
-    ],
-    "body_types": [
-      "rectangle",
-      "oval",
-      "top_triangle",
-      "bottom_triangle"
-    ],
-    "palette_seasons": [
-      "winter",
-      "summer",
-      "autumn",
-      "spring"
-    ],
-    "styles": [
-      "casual",
-      "classic",
-      "nerdy",
-      "sporty"
-    ],
-    "season_of_wear": [
-      "all_season",
-      "spring_summer",
-      "fall_winter"
-    ],
-    "fabric": "100% Long-Staple Egyptian Cotton",
-    "size_range": "XS - XXL",
-    "return_policy": "30-day return in-store and online",
-    "description": "Clean minimalist base layer crafted from ultra-soft certified Egyptian cotton in Toronto/Montreal.",
-    "styling_notes": "Wear tucked into dark chinos beneath an unstructured blazer for an approachable founder pitch.",
-    "in_stock": true,
-    "verified_date": "2026-10-10"
-  },
-  {
-    "id": "ca_rwco_089",
-    "garment_id": "ca_rwco_089",
-    "name": "Tailored Slim-Fit Stretch Chino",
-    "brand": "RW&CO",
-    "slot": "bottom",
-    "price": 89.9,
-    "price_cad": 89.9,
-    "currency": "CAD",
-    "product_url": "https://www.rw-co.com/en/tailored-slim-chino/461829.html",
-    "image_url": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=800&q=80",
-    "gender_cut": [
-      "male",
-      "neutral"
-    ],
-    "budget_tier": "$",
-    "formality_level": 3,
-    "formality_score": 7,
-    "occasions": [
-      "pitch",
-      "interview",
-      "family",
-      "date",
-      "court",
-      "work",
-      "funeral"
-    ],
-    "body_types": [
-      "rectangle",
-      "oval",
-      "top_triangle",
-      "bottom_triangle"
-    ],
-    "palette_seasons": [
-      "winter",
-      "autumn",
-      "summer",
-      "spring"
-    ],
-    "styles": [
-      "classic",
-      "casual",
-      "nerdy",
-      "trendy"
-    ],
-    "season_of_wear": [
-      "all_season",
-      "spring_summer",
-      "fall_winter"
-    ],
-    "fabric": "97% Cotton, 3% Spandex Comfort Twill",
-    "size_range": "28W - 38W",
-    "return_policy": "30-day return in-store and online",
-    "description": "Clean-front tailored trouser with active stretch, bridging dress slacks and casual chinos.",
-    "styling_notes": "The core anchor bottom for founder pitches: projects sharp structure without looking like a banker suit.",
-    "in_stock": true,
-    "verified_date": "2026-10-10"
   },
   {
     "id": "ca_art_042",
