@@ -65,9 +65,6 @@ export default function AdminCatalogPage() {
   }>({ isChecking: false });
   const [isAutoSyncEnabled, setIsAutoSyncEnabled] = useState<boolean>(true);
   const [newlyIngestedIds, setNewlyIngestedIds] = useState<string[]>([]);
-  const [manualJsonInput, setManualJsonInput] = useState<string>("");
-  const [isIngestingJson, setIsIngestingJson] = useState<boolean>(false);
-  const [copiedEndpoint, setCopiedEndpoint] = useState<boolean>(false);
   const [isDownloadingExtension, setIsDownloadingExtension] = useState<boolean>(false);
   const [copiedExtensionUrl, setCopiedExtensionUrl] = useState<boolean>(false);
   const [copiedApiKey, setCopiedApiKey] = useState<boolean>(false);
@@ -490,48 +487,6 @@ export default function AdminCatalogPage() {
       showToast("Network error while extracting product details.", "error");
     } finally {
       setIsExtracting(false);
-    }
-  };
-
-  // Manual Test Ingestion from Extension Modal
-  const handleManualExtensionIngest = async () => {
-    if (!manualJsonInput.trim()) {
-      showToast("Please paste a JSON garment payload to test.", "error");
-      return;
-    }
-
-    let parsedPayload: any;
-    try {
-      parsedPayload = JSON.parse(manualJsonInput);
-    } catch (err: any) {
-      showToast(`Invalid JSON syntax: ${err.message}`, "error");
-      return;
-    }
-
-    setIsIngestingJson(true);
-    try {
-      const res = await authFetch("/api/admin/catalog", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Origin: "chrome-extension://test-ingest",
-        },
-        body: JSON.stringify(parsedPayload),
-      });
-      const json = await res.json();
-
-      if (json.success && json.garment) {
-        showToast(`✓ Ingested "${json.garment.name}" via Extension API!`, "success");
-        setNewlyIngestedIds((prev) => [...prev, json.garment.id]);
-        setManualJsonInput("");
-        fetchCatalog();
-      } else {
-        showToast(json.message || "Failed to ingest item.", "error");
-      }
-    } catch (err: any) {
-      showToast(`Network error: ${err.message}`, "error");
-    } finally {
-      setIsIngestingJson(false);
     }
   };
 
@@ -1760,90 +1715,11 @@ export default function AdminCatalogPage() {
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-6 text-xs">
-              {/* 1. AUTOMATED EXTENSION DOWNLOAD & CONFIGURATION */}
-              <div className="p-5 bg-gradient-to-br from-accent/10 via-surface to-thread/5 border border-accent/30 rounded-fitting-lg space-y-4 shadow-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
-                      <span>⚡</span> 1. Tải Gói Extension Sẵn Sàng Cài Đặt (Ready-to-Load)
-                    </div>
-                    <p className="text-xs text-ink font-medium mt-0.5">
-                      Gói mã nguồn tiện ích Chrome đã được đóng gói sẵn sàng nạp trực tiếp vào trình duyệt.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleDownloadExtensionZip}
-                    disabled={isDownloadingExtension}
-                    className="px-4 py-2.5 rounded-fitting bg-accent hover:bg-accent/90 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-fitting transition-all shrink-0 disabled:opacity-50"
-                  >
-                    {isDownloadingExtension ? (
-                      <>
-                        <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Đang đóng gói...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>📥</span>
-                        <span>Tải Extension (.ZIP)</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Quick Info Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-[11px]">
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting space-y-1">
-                    <span className="text-ink-muted block text-[10px] uppercase font-bold tracking-wider">
-                      Secret Key Xác Thực (ADMIN_INGEST_API_KEY)
-                    </span>
-                    <div className="flex items-center justify-between gap-2">
-                      <code className="font-mono text-ink font-semibold truncate select-all">
-                        {adminApiKey || "sa_dev_secret_key_2026"}
-                      </code>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(adminApiKey || "sa_dev_secret_key_2026");
-                          setCopiedApiKey(true);
-                          showToast("Copied API Key to clipboard!", "success");
-                          setTimeout(() => setCopiedApiKey(false), 2000);
-                        }}
-                        className="px-2 py-0.5 rounded bg-surface border border-border hover:border-accent text-ink text-[10px] font-semibold transition-colors shrink-0"
-                      >
-                        {copiedApiKey ? "✓ Đã chép" : "Sao chép"}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting space-y-1">
-                    <span className="text-ink-muted block text-[10px] uppercase font-bold tracking-wider">
-                      Đường Dẫn Trình Quản Lý Chrome
-                    </span>
-                    <div className="flex items-center justify-between gap-2">
-                      <code className="font-mono text-ink font-semibold">chrome://extensions</code>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText("chrome://extensions");
-                          setCopiedExtensionUrl(true);
-                          showToast("Copied chrome://extensions to clipboard!", "success");
-                          setTimeout(() => setCopiedExtensionUrl(false), 2000);
-                        }}
-                        className="px-2 py-0.5 rounded bg-surface border border-border hover:border-accent text-ink text-[10px] font-semibold transition-colors shrink-0"
-                      >
-                        {copiedExtensionUrl ? "✓ Đã chép" : "Sao chép URL"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 2. STEP-BY-STEP MANUAL INSTALLATION GUIDE */}
+              {/* 5-STEP INSTALLATION GUIDE WITH INTEGRATED DOWNLOAD BUTTON IN STEP 1 */}
               <div className="p-5 bg-surface border border-border rounded-fitting-lg space-y-4">
                 <div className="flex items-center justify-between border-b border-border/80 pb-2.5">
                   <div className="text-[11px] font-bold uppercase tracking-wider text-thread flex items-center gap-1.5">
-                    <span>📖</span> 2. Hướng Dẫn Thao Tác Cài Đặt Thủ Công
+                    <span>📖</span> Hướng Dẫn Cài Đặt Tiện Ích Chrome
                   </div>
                   <span className="text-[10px] px-2 py-0.5 rounded bg-surface-raised border border-border text-ink-muted font-medium">
                     Google Chrome / Brave / Edge
@@ -1851,257 +1727,162 @@ export default function AdminCatalogPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                  {/* Step 1 */}
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-2">
+                  {/* Step 1: Tải & Giải Nén with Integrated Download Button */}
+                  <div className="p-3.5 bg-gradient-to-br from-accent/10 via-surface-raised to-surface border border-accent/30 rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
-                      <div className="w-6 h-6 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-xs">
-                        1
+                      <div className="flex items-center justify-between">
+                        <div className="w-6 h-6 rounded-full bg-accent text-white font-bold flex items-center justify-center text-xs shadow-xs">
+                          1
+                        </div>
+                        <span className="text-[9px] uppercase font-bold text-accent tracking-wider">Khởi đầu</span>
                       </div>
-                      <div className="font-semibold text-ink text-xs">Tải & Giải Nén</div>
+                      <div className="font-semibold text-ink text-xs">1. Tải & Giải Nén</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Bấm nút <strong>Tải Extension (.ZIP)</strong> ở trên, sau đó giải nén ra một thư mục trên máy tính (hoặc dùng thư mục <code className="font-mono text-thread">extension/</code>).
+                        Tải file zip mã nguồn tiện ích và giải nén thành thư mục trên máy tính.
                       </p>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={handleDownloadExtensionZip}
+                      disabled={isDownloadingExtension}
+                      className="w-full py-2 rounded-fitting bg-accent hover:bg-accent/90 text-white font-semibold text-[11px] flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50 mt-1"
+                    >
+                      {isDownloadingExtension ? (
+                        <>
+                          <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Đang tải...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>📥</span>
+                          <span>Tải Extension (.ZIP)</span>
+                        </>
+                      )}
+                    </button>
                   </div>
 
-                  {/* Step 2 */}
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-2">
+                  {/* Step 2: Mở chrome://extensions */}
+                  <div className="p-3.5 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
-                      <div className="w-6 h-6 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-xs">
+                      <div className="w-6 h-6 rounded-full bg-thread/15 text-thread font-bold flex items-center justify-center text-xs">
                         2
                       </div>
-                      <div className="font-semibold text-ink text-xs">Mở chrome://extensions</div>
+                      <div className="font-semibold text-ink text-xs">2. Mở chrome://extensions</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
                         Mở tab mới trên Chrome, gõ <code className="font-mono text-thread">chrome://extensions</code> vào thanh địa chỉ và nhấn <strong>Enter</strong>.
                       </p>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText("chrome://extensions");
+                        setCopiedExtensionUrl(true);
+                        showToast("Copied chrome://extensions to clipboard!", "success");
+                        setTimeout(() => setCopiedExtensionUrl(false), 2000);
+                      }}
+                      className="w-full py-1.5 rounded-fitting bg-surface border border-border hover:border-accent text-ink text-[11px] font-semibold transition-colors flex items-center justify-center gap-1 mt-1"
+                    >
+                      {copiedExtensionUrl ? "✓ Đã chép" : "Sao chép URL"}
+                    </button>
                   </div>
 
-                  {/* Step 3 */}
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-2">
+                  {/* Step 3: Bật Developer Mode */}
+                  <div className="p-3.5 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
-                      <div className="w-6 h-6 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-xs">
+                      <div className="w-6 h-6 rounded-full bg-thread/15 text-thread font-bold flex items-center justify-center text-xs">
                         3
                       </div>
-                      <div className="font-semibold text-ink text-xs">Bật Developer Mode</div>
+                      <div className="font-semibold text-ink text-xs">3. Bật Developer Mode</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
                         Gạt công tắc <strong>&quot;Chế độ dành cho nhà phát triển&quot; (Developer mode)</strong> ở góc trên bên phải màn hình sang trạng thái <strong>BẬT (ON)</strong>.
                       </p>
                     </div>
                   </div>
 
-                  {/* Step 4 */}
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-2">
+                  {/* Step 4: Load Unpacked */}
+                  <div className="p-3.5 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
-                      <div className="w-6 h-6 rounded-full bg-accent/15 text-accent font-bold flex items-center justify-center text-xs">
+                      <div className="w-6 h-6 rounded-full bg-thread/15 text-thread font-bold flex items-center justify-center text-xs">
                         4
                       </div>
-                      <div className="font-semibold text-ink text-xs">Load Unpacked</div>
+                      <div className="font-semibold text-ink text-xs">4. Load Unpacked</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
                         Nhấn nút <strong>&quot;Tải tiện ích đã giải nén&quot; (Load unpacked)</strong> ở góc trái $\rightarrow$ chọn thư mục <code className="font-mono text-thread">extension</code> vừa giải nén.
                       </p>
                     </div>
                   </div>
 
-                  {/* Step 5 */}
-                  <div className="p-3 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-2">
+                  {/* Step 5: Ghim & Cào Đồ */}
+                  <div className="p-3.5 bg-surface-raised border border-border rounded-fitting flex flex-col justify-between space-y-3">
                     <div className="space-y-1.5">
                       <div className="w-6 h-6 rounded-full bg-verified/20 text-verified font-bold flex items-center justify-center text-xs">
                         5
                       </div>
-                      <div className="font-semibold text-ink text-xs">Ghim & Cào Đồ</div>
+                      <div className="font-semibold text-ink text-xs">5. Ghim & Cào Đồ</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Ghim icon Style Advisor lên thanh tiện ích. Mở trang web thời trang bất kỳ, bấm icon và bấm <strong>&quot;🚀 Ingest into Catalog&quot;</strong>!
+                        Ghim icon Style Advisor lên thanh tiện ích. Mở trang web thời trang bất kỳ (Aritzia, Zara,...), bấm icon và bấm <strong>&quot;🚀 Ingest into Catalog&quot;</strong>!
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* 3. Ingestion Endpoint & CORS Health */}
-              <div className="p-4 bg-surface border border-border rounded-fitting-lg space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-thread">
-                    3. Trạng Thái API Endpoint & Kết Nối CORS
-                  </div>
-                  <button
-                    type="button"
-                    onClick={checkExtensionEndpointHealth}
-                    disabled={extensionHealth.isChecking}
-                    className="self-start sm:self-auto text-[11px] text-accent hover:underline flex items-center gap-1 font-medium disabled:opacity-50"
-                  >
-                    <span className={extensionHealth.isChecking ? "animate-spin" : ""}>🔄</span>
-                    {extensionHealth.isChecking ? "Đang kiểm tra..." : "Kiểm tra lại kết nối"}
-                  </button>
-                </div>
-
-                {/* Target URL Box */}
-                <div className="flex items-center gap-2 bg-surface-raised p-2 rounded-fitting border border-border font-mono text-[11px]">
-                  <span className="text-thread font-bold uppercase text-[9px] bg-thread/10 px-1.5 py-0.5 rounded">
-                    POST
+              {/* API KEY QUICK INFO & AUTO-SYNC CONTROLS */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {/* Secret Key Card */}
+                <div className="p-4 bg-surface border border-border rounded-fitting-lg space-y-2">
+                  <span className="text-ink-muted block text-[10px] uppercase font-bold tracking-wider">
+                    Secret Key Xác Thực (ADMIN_INGEST_API_KEY)
                   </span>
-                  <span className="flex-1 text-ink select-all truncate">
-                    {typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"}
-                    /api/admin/catalog
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const url = `${
-                        typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"
-                      }/api/admin/catalog`;
-                      navigator.clipboard.writeText(url);
-                      setCopiedEndpoint(true);
-                      showToast("Copied endpoint URL to clipboard!", "success");
-                      setTimeout(() => setCopiedEndpoint(false), 2000);
-                    }}
-                    className="px-2.5 py-1 rounded bg-surface border border-border hover:border-accent text-ink hover:text-accent font-sans text-[11px] font-semibold transition-colors shrink-0"
-                  >
-                    {copiedEndpoint ? "✓ Đã chép" : "Sao chép"}
-                  </button>
-                </div>
-
-                {/* Live Status Badge */}
-                <div className="flex flex-wrap items-center gap-3 pt-1">
-                  <div
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-fitting text-xs font-semibold ${
-                      extensionHealth.ok
-                        ? "bg-verified/15 text-verified border border-verified/30"
-                        : "bg-red-50 text-red-700 border border-red-200"
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full ${extensionHealth.ok ? "bg-verified animate-ping" : "bg-red-500"}`} />
-                    <span>{extensionHealth.ok ? "Endpoint Sẵn Sàng Nhận Dữ Liệu Từ Extension" : "Endpoint Offline"}</span>
-                    {extensionHealth.latencyMs !== undefined && (
-                      <span className="font-normal opacity-80 text-[10px]">({extensionHealth.latencyMs}ms)</span>
-                    )}
+                  <div className="flex items-center justify-between gap-2 bg-surface-raised p-2 rounded-fitting border border-border">
+                    <code className="font-mono text-ink font-semibold truncate select-all text-[11px]">
+                      {adminApiKey || "sa_dev_secret_key_2026"}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(adminApiKey || "sa_dev_secret_key_2026");
+                        setCopiedApiKey(true);
+                        showToast("Copied API Key to clipboard!", "success");
+                        setTimeout(() => setCopiedApiKey(false), 2000);
+                      }}
+                      className="px-2.5 py-1 rounded bg-surface border border-border hover:border-accent text-ink text-[10px] font-semibold transition-colors shrink-0"
+                    >
+                      {copiedApiKey ? "✓ Đã chép" : "Sao chép Key"}
+                    </button>
                   </div>
-
-                  <span className="text-[11px] text-ink-muted">
-                    Origins: <code className="font-mono text-thread">*</code> • Bảo mật: <code className="font-mono text-thread">Bearer Token Active</code>
-                  </span>
-                </div>
-              </div>
-
-              {/* 4. Live Auto-Sync Stream Setting */}
-              <div className="p-4 bg-surface border border-border rounded-fitting-lg flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-ink flex items-center gap-2">
-                    <span>Luồng Tự Động Đồng Bộ Dữ Liệu (Auto-Sync Stream)</span>
-                    {isAutoSyncEnabled ? (
-                      <span className="px-2 py-0.5 rounded-full bg-verified/15 text-verified text-[10px] font-bold">Hoạt động (4s poll)</span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full bg-surface-raised border border-border text-ink-muted text-[10px]">Tạm dừng</span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-ink-muted mt-0.5">
-                    Tự động kéo trang phục vừa được cào từ Chrome Extension vào bảng danh mục Admin ngay khi người dùng bấm Ingest.
+                  <p className="text-[10px] text-ink-muted">
+                    Nhập key này vào mục Cài đặt của Chrome Extension để xác thực quyền nạp sản phẩm.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsAutoSyncEnabled(!isAutoSyncEnabled)}
-                  className={`px-3 py-1.5 rounded-fitting font-medium text-xs border transition-all ${
-                    isAutoSyncEnabled
-                      ? "bg-verified text-white border-verified shadow-xs"
-                      : "bg-surface border-border text-ink-muted hover:text-ink"
-                  }`}
-                >
-                  {isAutoSyncEnabled ? "Đang Bật" : "Đã Tắt"}
-                </button>
-              </div>
 
-              {/* 5. Interactive Ingestion Tester */}
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-thread">
-                    5. Trình Giả Lập Đẩy Dữ Liệu (Interactive Ingest Tester)
+                {/* Auto-Sync Stream Setting */}
+                <div className="p-4 bg-surface border border-border rounded-fitting-lg flex items-center justify-between">
+                  <div>
+                    <div className="font-semibold text-ink flex items-center gap-2">
+                      <span>Tự Động Đồng Bộ Dữ Liệu (Auto-Sync)</span>
+                      {isAutoSyncEnabled ? (
+                        <span className="px-2 py-0.5 rounded-full bg-verified/15 text-verified text-[10px] font-bold">Bật (4s poll)</span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full bg-surface-raised border border-border text-ink-muted text-[10px]">Tắt</span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-ink-muted mt-1 leading-relaxed">
+                      Tự động tải các trang phục vừa được cào từ Chrome Extension vào danh mục ngay lập tức.
+                    </p>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] text-ink-muted">Mẫu nhanh:</span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setManualJsonInput(
-                          JSON.stringify(
-                            {
-                              title: "The Effortless Pant™ Crepe",
-                              vendor: "Aritzia",
-                              price: 148,
-                              url: "https://www.aritzia.com/en/product/the-effortless-pant/72574.html",
-                              image:
-                                "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=800&q=80",
-                              slot: "bottom",
-                              fabric_composition: "100% Japanese Crepe Polyester",
-                              color: "Birch White",
-                              hex_color: "#F2EFE9",
-                            },
-                            null,
-                            2
-                          )
-                        )
-                      }
-                      className="px-2 py-0.5 rounded bg-surface border border-border hover:border-accent text-ink text-[10px] transition-colors"
-                    >
-                      Aritzia Pant
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setManualJsonInput(
-                          JSON.stringify(
-                            {
-                              title: "Double-Knit High-Rise Pant",
-                              vendor: "Lululemon",
-                              price: 158,
-                              url: "https://shop.lululemon.com/en-ca/p/double-knit-high-rise-pant/kpaqmttv5x",
-                              image: "",
-                              slot: "bottom",
-                              fabric_composition: "60% Cotton, 35% Polyester, 5% Elastane",
-                              color: "Black",
-                              hex_color: "#111111",
-                            },
-                            null,
-                            2
-                          )
-                        )
-                      }
-                      className="px-2 py-0.5 rounded bg-surface border border-border hover:border-accent text-ink text-[10px] transition-colors"
-                    >
-                      Lululemon Knit
-                    </button>
-                  </div>
-                </div>
-
-                <textarea
-                  rows={5}
-                  value={manualJsonInput}
-                  onChange={(e) => setManualJsonInput(e.target.value)}
-                  placeholder={`{\n  "title": "Double-Knit High-Rise Pant",\n  "vendor": "Lululemon",\n  "price": 158,\n  "url": "https://shop.lululemon.com/...",\n  "image": ""\n}`}
-                  className="w-full p-3 bg-surface border border-border rounded-fitting text-ink font-mono text-[11px] focus:outline-none focus:border-accent leading-relaxed"
-                />
-
-                <div className="flex items-center justify-between pt-1">
-                  <span className="text-[11px] text-ink-muted">
-                    Giả lập gửi payload từ Chrome Extension đến Backend.
-                  </span>
                   <button
                     type="button"
-                    onClick={handleManualExtensionIngest}
-                    disabled={isIngestingJson || !manualJsonInput.trim()}
-                    className="px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded-fitting text-xs font-semibold flex items-center gap-2 shadow-xs transition-all disabled:opacity-50"
+                    onClick={() => setIsAutoSyncEnabled(!isAutoSyncEnabled)}
+                    className={`px-3 py-1.5 rounded-fitting font-medium text-xs border transition-all shrink-0 ml-3 ${
+                      isAutoSyncEnabled
+                        ? "bg-verified text-white border-verified shadow-xs"
+                        : "bg-surface border-border text-ink-muted hover:text-ink"
+                    }`}
                   >
-                    {isIngestingJson ? (
-                      <>
-                        <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Đang gửi Ingest...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>🚀</span>
-                        <span>Gửi Thử Nghiệm Ingest</span>
-                      </>
-                    )}
+                    {isAutoSyncEnabled ? "Đang Bật" : "Đã Tắt"}
                   </button>
                 </div>
               </div>
