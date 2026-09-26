@@ -1805,7 +1805,7 @@ export default function AdminCatalogPage() {
                       </div>
                       <div className="font-semibold text-ink text-xs">4. Load Unpacked</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Click <strong>&quot;Load unpacked&quot;</strong> on the top-left $\rightarrow$ choose the extracted <code className="font-mono text-thread">extension</code> folder.
+                        Click <strong>&quot;Load unpacked&quot;</strong> on the top-left → choose the extracted <code className="font-mono text-thread">extension</code> folder.
                       </p>
                     </div>
                   </div>
@@ -1818,7 +1818,7 @@ export default function AdminCatalogPage() {
                       </div>
                       <div className="font-semibold text-ink text-xs">5. Pin Extension</div>
                       <p className="text-[11px] text-ink-muted leading-relaxed">
-                        Click the Extensions puzzle icon in Chrome&apos;s top bar $\rightarrow$ select <strong>Pin</strong> to keep Style Advisor readily accessible.
+                        Click the Extensions puzzle icon in Chrome&apos;s top bar → select <strong>Pin</strong> to keep Style Advisor readily accessible.
                       </p>
                     </div>
                   </div>
