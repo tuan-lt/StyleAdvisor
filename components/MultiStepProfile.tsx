@@ -122,7 +122,7 @@ export function MultiStepProfile({
       id: "Neutral",
       cut: "neutral" as GenderCut,
       icon: "🌿",
-      label: "Gender-Neutral",
+      label: "Neutral",
       desc: "Clean minimal lines, relaxed boxy fits, and versatile everyday cuts",
     },
     {
@@ -139,37 +139,61 @@ export function MultiStepProfile({
       id: "classic",
       label: "Classic & Sharp",
       desc: "Timeless tailoring, crisp shirts, clean lines, and polished shoes",
-      image: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=800&q=80",
+      images: {
+        male: "/images/styles/menswear_classic.jpg",
+        female: "/images/styles/womenswear_classic.jpg",
+        neutral: "/images/styles/neutral_classic.jpg",
+      },
     },
     {
       id: "casual",
       label: "Easygoing & Relaxed",
       desc: "Comfy chinos, soft cotton layers, simple sneakers, and clean everyday vibes",
-      image: "https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=800&q=80",
+      images: {
+        male: "/images/styles/menswear_casual.jpg",
+        female: "/images/styles/womenswear_casual.jpg",
+        neutral: "/images/styles/neutral_casual.jpg",
+      },
     },
     {
       id: "trendy",
       label: "Modern & Streetwise",
       desc: "Boxy cuts, relaxed pleats, contemporary streetwear textures, and fresh silhouettes",
-      image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80",
+      images: {
+        male: "/images/styles/menswear_trendy.jpg",
+        female: "/images/styles/womenswear_trendy.jpg",
+        neutral: "/images/styles/neutral_trendy.jpg",
+      },
     },
     {
       id: "sporty",
       label: "Active & Commuter",
       desc: "Stretch performance fabrics, sleek water-repellent layers, and athletic comfort",
-      image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80",
+      images: {
+        male: "/images/styles/menswear_sporty.jpg",
+        female: "/images/styles/womenswear_sporty.jpg",
+        neutral: "/images/styles/neutral_sporty.jpg",
+      },
     },
     {
       id: "nerdy",
       label: "Smart & Minimalist",
       desc: "Thoughtful basics, fine turtlenecks, tasteful knitwear, and founder-chic simplicity",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
+      images: {
+        male: "/images/styles/menswear_nerdy.jpg",
+        female: "/images/styles/womenswear_nerdy.jpg",
+        neutral: "/images/styles/neutral_nerdy.jpg",
+      },
     },
     {
       id: "fabulous",
       label: "Elevated & Luxurious",
       desc: "Fine wool-cashmere blends, subtle textures, and understated quiet luxury",
-      image: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=800&q=80",
+      images: {
+        male: "/images/styles/menswear_fabulous.jpg",
+        female: "/images/styles/womenswear_fabulous.jpg",
+        neutral: "/images/styles/neutral_fabulous.jpg",
+      },
     },
   ];
 
@@ -262,37 +286,37 @@ export function MultiStepProfile({
       id: "pitch" as Occasion,
       label: "Pitching or Big Meeting",
       context: "Meeting partners, pitching clients or presenting — look credible without feeling overdressed",
-      image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80",
+      image: "/images/occasions/pitch.jpg",
     },
     {
       id: "interview" as Occasion,
       label: "Job Interview",
       context: "Confident, sharp, and put-together so you make a great first impression",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
+      image: "/images/occasions/interview.jpg",
     },
     {
       id: "family" as Occasion,
-      label: "Meeting the Family / In-Laws",
+      label: "Meeting the Family",
       context: "Warm, respectful, and comfortably stylish for family gatherings",
-      image: "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=80",
+      image: "/images/occasions/family.jpg",
     },
     {
       id: "date" as Occasion,
       label: "Date Night or Dinner Out",
       context: "Effortlessly charming and comfortable for an evening dinner or drinks",
-      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
+      image: "/images/occasions/date.jpg",
     },
     {
       id: "court" as Occasion,
       label: "Formal / Official Event",
       context: "Clean, conservative, and polished for ceremonies or official settings",
-      image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
+      image: "/images/occasions/court.jpg",
     },
     {
       id: "funeral" as Occasion,
       label: "Memorial or Solemn Event",
       context: "Respectful, dark, understated and dignified",
-      image: "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?auto=format&fit=crop&w=800&q=80",
+      image: "/images/occasions/funeral.jpg",
     },
   ];
 
@@ -301,25 +325,25 @@ export function MultiStepProfile({
       id: "office_professional" as LifestyleTag,
       label: "Work & Hybrid Office",
       desc: "Split between home desk and downtown office meetings",
-      image: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80",
+      image: "/images/lifestyles/office_professional.jpg",
     },
     {
       id: "new_grad" as LifestyleTag,
       label: "Starting Out / New Grad",
       desc: "Building a reliable starter wardrobe that punches above its price tag",
-      image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
+      image: "/images/lifestyles/new_grad.jpg",
     },
     {
       id: "family" as LifestyleTag,
       label: "Family & Weekend Routine",
       desc: "School drop-offs, weekend coffee, errands and all-day durable comfort",
-      image: "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?auto=format&fit=crop&w=800&q=80",
+      image: "/images/lifestyles/family.jpg",
     },
     {
       id: "outdoors" as LifestyleTag,
       label: "Transit & On-the-Go",
       desc: "Weather-ready layers for city walking, transit, and spontaneous weekend plans",
-      image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80",
+      image: "/images/lifestyles/outdoors.jpg",
     },
   ];
 
@@ -557,9 +581,15 @@ export function MultiStepProfile({
                   type="text"
                   value={audienceText}
                   onChange={(e) => onAudienceChange(e.target.value)}
-                  placeholder="e.g. Meeting tech partners at a casual cafe, or dinner with my in-laws at a nice Italian spot"
+                  placeholder="e.g. Meeting tech partners at a casual cafe, or type 'NoAI' for pure algorithm mode"
                   className="w-full px-4 py-3 text-sm bg-surface/40 border border-border rounded-fitting focus:outline-none focus:ring-1 focus:ring-accent focus:bg-surface-raised transition-all"
                 />
+                {/\bno[-_\s]?ai\b/i.test(audienceText) && (
+                  <div className="flex items-center gap-1.5 text-xs text-thread font-medium pt-1 animate-fadeIn">
+                    <span>⚡</span>
+                    <span>NoAI mode active: Using pure deterministic styling algorithms (no AI models will be called).</span>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -624,6 +654,13 @@ export function MultiStepProfile({
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {styleArchetypes.map((st) => {
+              const currentGenderCut: "female" | "male" | "neutral" =
+                profile.gender_cut === "female" || profile.gender_expression === "Female"
+                  ? "female"
+                  : profile.gender_cut === "male" || profile.gender_expression === "Male"
+                  ? "male"
+                  : "neutral";
+              const styleImg = st.images[currentGenderCut] || st.images.male;
               const isSelected =
                 profile.style === st.id || profile.preferred_styles?.includes(st.id);
               return (
@@ -636,8 +673,8 @@ export function MultiStepProfile({
                     }`}
                 >
                   <div>
-                    <div className="aspect-[16/10] relative overflow-hidden bg-surface">
-                      <img src={st.image} alt={st.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="aspect-[3/4] relative overflow-hidden bg-surface">
+                      <img src={styleImg} alt={st.label} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
                     </div>
                     <div className="p-3.5 space-y-1">
                       <h4 className="text-sm font-bold text-ink">{st.label}</h4>
@@ -766,11 +803,10 @@ export function MultiStepProfile({
                 <div
                   key={p.id}
                   onClick={() => handlePaletteSelect(p.id)}
-                  className={`group rounded-fitting border p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between ${
-                    isSelected
-                      ? "border-accent ring-2 ring-accent/30 bg-surface/90 shadow-xs"
-                      : "border-border hover:border-thread/50 bg-surface/30 hover:bg-surface/50"
-                  }`}
+                  className={`group rounded-fitting border p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between ${isSelected
+                    ? "border-accent ring-2 ring-accent/30 bg-surface/90 shadow-xs"
+                    : "border-border hover:border-thread/50 bg-surface/30 hover:bg-surface/50"
+                    }`}
                 >
                   <div className="space-y-3.5">
                     {/* Header with Icon and Title on 1 line */}
@@ -831,11 +867,10 @@ export function MultiStepProfile({
                   key={comp}
                   type="button"
                   onClick={() => handleComplexionSelect(comp.toLowerCase() as Complexion)}
-                  className={`py-2 text-xs font-medium rounded border transition-all cursor-pointer ${
-                    profile.complexion === comp.toLowerCase()
-                      ? "bg-accent text-white border-accent"
-                      : "bg-surface border-border text-ink-muted hover:text-ink"
-                  }`}
+                  className={`py-2 text-xs font-medium rounded border transition-all cursor-pointer ${profile.complexion === comp.toLowerCase()
+                    ? "bg-accent text-white border-accent"
+                    : "bg-surface border-border text-ink-muted hover:text-ink"
+                    }`}
                 >
                   {comp} Complexion
                 </button>
@@ -880,13 +915,13 @@ export function MultiStepProfile({
                   id: "Fall/Winter" as const,
                   label: "Fall & Winter (Cool, Rain or Snow)",
                   desc: "Warm wools, cozy knitwear, water-resistant layers & boots",
-                  image: "https://images.unsplash.com/photo-1516431883659-655d41c09bf9?auto=format&fit=crop&w=800&q=80",
+                  image: "/images/climates/fall_winter.jpg",
                 },
                 {
                   id: "Spring/Summer" as const,
                   label: "Spring & Summer (Mild to Warm)",
                   desc: "Breathable cottons, lightweight linens & easy unlined tailoring",
-                  image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+                  image: "/images/climates/spring_summer.jpg",
                 },
               ].map((c) => {
                 const isSelected =

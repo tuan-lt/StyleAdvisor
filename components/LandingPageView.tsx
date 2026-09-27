@@ -49,10 +49,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
         <div className="absolute bottom-0 left-1/4 w-96 h-96 rounded-full bg-verified/5 blur-3xl pointer-events-none" />
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/5 border border-accent/15 text-accent text-xs font-semibold tracking-wider uppercase shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            Your Friendly AI Personal Stylist
-          </div>
+
 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-ink tracking-tight leading-[1.25] max-w-2xl mx-auto">
             Look great and feel confident, <span className="italic text-thread font-normal">every single day</span>.<br />
@@ -82,8 +79,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
           {/* Metric Highlights */}
           <div className="pt-10 grid grid-cols-3 gap-4 max-w-xl mx-auto text-center border-t border-border/60">
             <div>
-              <div className="text-2xl sm:text-3xl font-serif font-semibold text-ink">1 Click</div>
-              <div className="text-[11px] text-ink-muted uppercase tracking-wider mt-0.5">Instant Outfits</div>
+              <div className="text-2xl sm:text-3xl font-serif font-semibold text-ink">Zero Guesswork</div>
+              <div className="text-[11px] text-ink-muted uppercase tracking-wider mt-0.5">Full Outfit Curation</div>
             </div>
             <div>
               <div className="text-2xl sm:text-3xl font-serif font-semibold text-verified">100%</div>
@@ -136,7 +133,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
                 <span className="text-verified font-bold">✓</span> Say goodbye to morning stress
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-verified font-bold">✓</span> Complete outfit with 1 click
+                <span className="text-verified font-bold">✓</span> Complete head-to-toe curation
               </div>
             </div>
           </div>

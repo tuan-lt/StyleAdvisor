@@ -402,6 +402,121 @@ Respond with JSON object containing: calibration (formality_score, signal, notes
   return JSON.parse(jsonMatch[0]) as LLMRecommendationPayload;
 }
 
+/**
+ * Call OpenRouter API (Gemini 2.0 Flash / Free Tier)
+ */
+async function callOpenRouterEngine(
+  candidatesBySlot: Record<GarmentSlot, Garment[]>,
+  body: RecommendRequestBody,
+  signal: AbortSignal
+): Promise<LLMRecommendationPayload> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error("NO_API_KEY");
+  }
+  const model = process.env.OPENROUTER_MODEL || "openrouter/free";
+
+  const occasion = body.occasion || "pitch";
+  const style = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]) || "classic";
+  const overrideCheck = checkOccasionOverride(occasion, style);
+
+  let nudgeGuideline = "";
+  if (body.nudge === "too_formal") {
+    nudgeGuideline =
+      "DISLIKE NUDGE: The user felt the previous outfit was overly formal. Tone down formality by 1 point and select softer, more approachable pieces from the candidate list.";
+  } else if (body.nudge === "too_casual") {
+    nudgeGuideline =
+      "DISLIKE NUDGE: The user felt the previous outfit was too casual. Elevate formality by 1 point and select sharper, more authoritative tailoring from the candidate list.";
+  } else if (body.nudge === "not_me") {
+    nudgeGuideline =
+      "DISLIKE NUDGE: The user wants an alternative aesthetic direction. Swap the silhouette and pick alternative candidate garments.";
+  }
+
+  const candidatePoolPrompt = Object.entries(candidatesBySlot).map(([slot, items]) => ({
+    slot,
+    items: items.slice(0, 8).map((g) => ({
+      id: g.id,
+      name: g.name,
+      brand: g.brand,
+      formality_score: g.formality_level || Math.round(g.formality_score / 2),
+      styles: g.styles,
+      fabric: typeof g.fabric === "string" ? g.fabric : g.fabric.composition,
+    })),
+  }));
+
+  const systemPrompt = `You are the AI Styling Engine for "Style Advisor" (Canadian Climate & High-Stakes Dressing).
+ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
+- You MUST select EXACTLY ONE garment ID per slot (outerwear, top, bottom, shoes, and optional accessory) ONLY from the provided candidate list.
+- NEVER invent or hallucinate new garment IDs, prices, or links.
+- Write editorial styling reasoning in a confident Newsreader serif tone.
+- Return ONLY valid JSON containing: calibration (formality_score, signal, notes), interpretation_summary, selected_garment_ids (outerwear, top, bottom, shoes, accessory), reasoning, override_applied.
+${overrideCheck ? `OCCASION OVERRIDE NOTICE: ${overrideCheck}` : ""}
+${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
+
+  const userPrompt = JSON.stringify({
+    task: "Select and calibrate exactly one complete outfit from candidates",
+    user_context: {
+      gender_expression: body.user_profile?.gender_expression || body.user_profile?.gender_cut || "male",
+      occasion: body.occasion || "pitch",
+      audience_free_text: body.audience_text || "VC partners in Gastown",
+      season: body.season_or_climate || body.season_of_wear || "fall_winter",
+      style: style,
+      nudge: body.nudge || null,
+    },
+    candidate_pool: candidatePoolPrompt,
+    required_json_format: {
+      calibration: {
+        formality_score: 4,
+        signal: "considered_not_corporate",
+        notes: "Explanation of audience signal",
+      },
+      interpretation_summary: "Short one-sentence confirmation line before displaying outfit",
+      selected_garment_ids: {
+        outerwear: "ca_brand_id_or_null",
+        top: "ca_brand_id",
+        bottom: "ca_brand_id",
+        shoes: "ca_brand_id",
+        accessory: "ca_brand_id_or_null",
+      },
+      reasoning: "Editorial justification in Newsreader tone explaining why this calibration satisfies room expectations.",
+      override_applied: overrideCheck || null,
+    },
+  });
+
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+      "X-Title": "Style Advisor",
+    },
+    body: JSON.stringify({
+      model,
+      temperature: 0.3,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+    }),
+    signal,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`OpenRouter API error (${response.status}): ${errorText}`);
+  }
+
+  const result = await response.json();
+  const content = result.choices?.[0]?.message?.content;
+  if (!content) throw new Error("EMPTY_LLM_RESPONSE");
+
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error("INVALID_JSON_FROM_OPENROUTER");
+
+  return JSON.parse(jsonMatch[0]) as LLMRecommendationPayload;
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiResponse>> {
   const abortController = new AbortController();
   const timeoutId = setTimeout(() => abortController.abort(), TIMEOUT_MS);
@@ -445,23 +560,36 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
 
     const filterResult = filterCandidates(catalog, filterInput);
 
-    // Step 2: LLM Generation (with graceful fallback resilience)
+    // Step 2: LLM Generation vs Algorithm-Only Mode (NoAI flag)
+    const isNoAiRequested = Boolean(
+      body.audience_text &&
+      /\bno[-_\s]?ai\b/i.test(body.audience_text.trim())
+    );
+
     let llmPayload: LLMRecommendationPayload;
 
-    try {
-      if (process.env.OPENAI_API_KEY) {
-        llmPayload = await callOpenAIEngine(filterResult.candidates_by_slot, body, abortController.signal);
-      } else if (process.env.ANTHROPIC_API_KEY) {
-        llmPayload = await callAnthropicEngine(filterResult.candidates_by_slot, body, abortController.signal);
-      } else {
+    if (isNoAiRequested) {
+      console.info("⚡ User requested 'NoAI' mode: executing deterministic heuristic algorithm directly without calling any LLM models.");
+      llmPayload = generateDeterministicRecommendation(filterResult, body);
+      llmPayload.interpretation_summary = "Algorithm Mode: Curated directly via deterministic style, color & climate heuristics.";
+    } else {
+      try {
+        if (process.env.OPENROUTER_API_KEY) {
+          llmPayload = await callOpenRouterEngine(filterResult.candidates_by_slot, body, abortController.signal);
+        } else if (process.env.OPENAI_API_KEY) {
+          llmPayload = await callOpenAIEngine(filterResult.candidates_by_slot, body, abortController.signal);
+        } else if (process.env.ANTHROPIC_API_KEY) {
+          llmPayload = await callAnthropicEngine(filterResult.candidates_by_slot, body, abortController.signal);
+        } else {
+          llmPayload = generateDeterministicRecommendation(filterResult, body);
+        }
+      } catch (llmError: any) {
+        if (abortController.signal.aborted) {
+          throw new Error("TIMEOUT");
+        }
+        console.warn("Engaging deterministic recommendation engine:", llmError?.message);
         llmPayload = generateDeterministicRecommendation(filterResult, body);
       }
-    } catch (llmError: any) {
-      if (abortController.signal.aborted) {
-        throw new Error("TIMEOUT");
-      }
-      console.warn("Engaging deterministic recommendation engine:", llmError?.message);
-      llmPayload = generateDeterministicRecommendation(filterResult, body);
     }
 
     // Step 3: Zero-Hallucination Code Validation

@@ -16,10 +16,7 @@ export const TrustLandingBlock: React.FC<TrustLandingBlockProps> = ({ onStartSty
         <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-72 h-72 rounded-full bg-verified/5 blur-3xl pointer-events-none" />
 
         <div className="max-w-3xl mx-auto text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/5 border border-accent/15 text-accent text-xs font-semibold tracking-wider uppercase shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            Your Friendly AI Personal Stylist
-          </div>
+
 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-ink tracking-tight leading-[1.2] max-w-2xl mx-auto">
             Look great and feel confident, <span className="italic text-thread">every single day</span>.<br />
