@@ -415,21 +415,59 @@ export default function AdminCatalogPage() {
     showToast("Link verification complete!", "success");
   };
 
-  // Export Catalog to JSON Backup
-  const handleExportCatalogJSON = () => {
-    if (!garments || garments.length === 0) {
-      showToast("Catalog is empty.", "error");
+  // Backup Database directly to SQL file (1-click psql compatible)
+  const handleBackupDatabase = async () => {
+    try {
+      const res = await authFetch("/api/admin/backup");
+      if (!res.ok) {
+        showToast("Failed to generate database SQL backup.", "error");
+        return;
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const dateStr = new Date().toISOString().split("T")[0];
+      a.download = `style-advisor-postgres-backup-${dateStr}.sql`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      showToast(`💾 PostgreSQL SQL backup downloaded (${garments.length} garments).`, "success");
+    } catch (e: any) {
+      showToast("Error downloading backup: " + e.message, "error");
+    }
+  };
+
+  // Restore Database from SQL file
+  const handleRestoreDatabase = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!confirm(`Are you sure you want to restore database from "${file.name}"? This will execute the SQL script.`)) {
+      e.target.value = "";
       return;
     }
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(garments, null, 2));
-    const downloadAnchor = document.createElement("a");
-    downloadAnchor.setAttribute("href", dataStr);
-    const dateStr = new Date().toISOString().split("T")[0];
-    downloadAnchor.setAttribute("download", `style-advisor-catalog-backup-${dateStr}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-    showToast(`📥 Exported ${garments.length} catalog items to JSON backup.`, "success");
+
+    try {
+      const sqlText = await file.text();
+      const res = await authFetch("/api/admin/backup", {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: sqlText,
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`✅ ${data.message}`, "success");
+        fetchCatalog();
+      } else {
+        showToast(`❌ Restore failed: ${data.message}`, "error");
+      }
+    } catch (err: any) {
+      showToast("Error restoring database: " + err.message, "error");
+    } finally {
+      e.target.value = "";
+    }
   };
 
   // Test URL in Modal
@@ -791,17 +829,32 @@ export default function AdminCatalogPage() {
           </div>
 
           <div className="flex items-center gap-2.5">
-            {/* Export Backup JSON Button */}
+            {/* Backup Database Button (.sql) */}
             <button
               type="button"
-              onClick={handleExportCatalogJSON}
+              onClick={handleBackupDatabase}
               disabled={garments.length === 0}
-              className="px-3 py-1.5 rounded-fitting border border-border bg-surface-raised hover:border-thread text-ink text-xs font-medium flex items-center gap-1.5 transition-all disabled:opacity-50 shadow-xs"
-              title="Download full catalog backup as JSON file"
+              className="px-3 py-1.5 rounded-fitting border border-border bg-surface-raised hover:border-thread text-ink text-xs font-medium flex items-center gap-1.5 transition-all disabled:opacity-50 shadow-xs cursor-pointer"
+              title="Download full PostgreSQL database backup (.sql file)"
+            >
+              <span>💾</span>
+              <span className="hidden sm:inline">Backup database</span>
+            </button>
+
+            {/* Restore Database Input (.sql) */}
+            <label
+              className="px-3 py-1.5 rounded-fitting border border-border bg-surface-raised hover:border-thread text-ink text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+              title="Upload and restore a PostgreSQL .sql backup script"
             >
               <span>📥</span>
-              <span className="hidden sm:inline">Export JSON</span>
-            </button>
+              <span className="hidden sm:inline">Restore database</span>
+              <input
+                type="file"
+                accept=".sql"
+                onChange={handleRestoreDatabase}
+                className="hidden"
+              />
+            </label>
 
             {/* Verify All Links Button */}
             <button

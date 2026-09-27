@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
 import {
   Garment,
   GarmentSlot,
@@ -12,8 +10,11 @@ import {
   SeasonOfWear,
 } from "../../../../types/catalog";
 import { validateAdminAuth, unauthorizedResponse } from "../../../../lib/admin-auth";
-
-const CATALOG_PATH = path.join(process.cwd(), "data", "catalog.json");
+import {
+  getAllGarmentsFromDb,
+  upsertGarmentToDb,
+  deleteGarmentFromDb,
+} from "../../../../lib/db";
 
 // CORS Headers for Chrome Extension & local dev access
 const CORS_HEADERS: Record<string, string> = {
@@ -47,25 +48,17 @@ export async function OPTIONS() {
 }
 
 /**
- * Helper to read catalog from disk
+ * Helper to read catalog directly from Postgres database
  */
 async function readCatalog(): Promise<Garment[]> {
-  try {
-    const raw = await fs.readFile(CATALOG_PATH, "utf-8");
-    return JSON.parse(raw) as Garment[];
-  } catch (err: any) {
-    if (err.code === "ENOENT") {
-      return [];
-    }
-    throw err;
-  }
+  return await getAllGarmentsFromDb();
 }
 
 /**
- * Helper to write catalog to disk
+ * Helper to write garment directly to Postgres database
  */
-async function writeCatalog(garments: Garment[]): Promise<void> {
-  await fs.writeFile(CATALOG_PATH, JSON.stringify(garments, null, 2), "utf-8");
+async function writeCatalog(garment: Garment): Promise<void> {
+  await upsertGarmentToDb(garment);
 }
 
 /**
@@ -247,7 +240,8 @@ export async function POST(req: NextRequest) {
       garments.unshift(validatedGarment);
     }
 
-    await writeCatalog(garments);
+    await writeCatalog(validatedGarment);
+    const updatedGarments = await readCatalog();
 
     return corsJson({
       success: true,
@@ -256,7 +250,7 @@ export async function POST(req: NextRequest) {
         ? `Garment "${validatedGarment.name}" updated successfully.`
         : `Garment "${validatedGarment.name}" successfully ingested into catalog.`,
       garment: validatedGarment,
-      count: garments.length,
+      count: updatedGarments.length,
     });
   } catch (err: any) {
     console.error("POST /api/admin/catalog error:", err);
@@ -297,24 +291,14 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    const garments = await readCatalog();
-    const initialCount = garments.length;
-    const filtered = garments.filter((g) => g.id !== id);
-
-    if (filtered.length === initialCount) {
-      return corsJson(
-        { success: false, error: "NOT_FOUND", message: `Garment with ID "${id}" was not found.` },
-        { status: 404 }
-      );
-    }
-
-    await writeCatalog(filtered);
+    await deleteGarmentFromDb(id);
+    const updatedGarments = await readCatalog();
 
     return corsJson({
       success: true,
-      message: `Garment "${id}" removed from catalog.`,
+      message: `Garment "${id}" removed from catalog database.`,
       deleted_id: id,
-      count: filtered.length,
+      count: updatedGarments.length,
     });
   } catch (err: any) {
     console.error("DELETE /api/admin/catalog error:", err);

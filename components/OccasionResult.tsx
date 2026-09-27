@@ -77,12 +77,12 @@ export function OccasionResult({
 
       {/* Main Container */}
       <div className={`space-y-8 transition-opacity duration-300 ${isNudging ? "opacity-60 pointer-events-none" : "opacity-100"}`}>
-        {/* 1. AI Interpretation Line (PRD FR-2.3) */}
+        {/* 1. AI Interpretation Line */}
         <div className="bg-surface border border-border rounded-fitting p-4 sm:p-5 flex items-start gap-3">
           <span className="w-2.5 h-2.5 rounded-full bg-accent mt-1.5 shrink-0" />
           <div>
             <div className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1">
-              AI Interpretation Line
+              Stylist's Read on the Room
             </div>
             <p className="text-sm sm:text-base font-medium text-ink leading-relaxed">
               &ldquo;{interpretation_summary}&rdquo;
@@ -90,52 +90,48 @@ export function OccasionResult({
           </div>
         </div>
 
-        {/* 2. Occasion Overrides & Filter Relaxation Ochre Warning Chips (PRD FR-2.5 & Section 6.2) */}
+        {/* 2. Occasion Overrides & Filter Relaxation Notice */}
         {(override_applied || filter_metadata?.relaxed_field) && (
           <div className="bg-caution/10 border border-caution/30 rounded-fitting p-4 flex items-start gap-3">
-            <span className="text-caution font-bold text-base leading-none mt-0.5">⚠️</span>
+            <span className="text-caution font-bold text-base leading-none mt-0.5">💡</span>
             <div className="text-xs text-caution leading-relaxed space-y-1">
-              <span className="font-bold">Stylist Protocol Notice: </span>
+              <span className="font-bold">Stylist Advice: </span>
               {typeof override_applied === "string" ? (
                 <span>{override_applied}</span>
               ) : override_applied ? (
-                <span>You picked a bold personal style. For high-stakes decorum, we have kept the silhouette modern but the colours quiet.</span>
+                <span>We balanced your personal style with subtle, confident colors suited for the event.</span>
               ) : null}
               {filter_metadata?.relaxed_field === "palette" && (
-                <div>We relaxed your palette to universal Canadian neutrals to ensure zero empty slots.</div>
+                <div>We expanded your colors to classic versatile neutrals so all items match easily.</div>
               )}
               {filter_metadata?.relaxed_field === "style" && (
-                <div>We relaxed your style to Classic/Minimalist staples to find this.</div>
+                <div>We incorporated timeless staples to ensure a balanced look.</div>
               )}
             </div>
           </div>
         )}
 
-        {/* 3. Stated Reasoning Block (Newsreader Serif 18px - PRD FR-2.5) */}
+        {/* 3. Stated Reasoning Block */}
         <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-3 shadow-fitting-card">
           <div className="flex items-center justify-between">
-            <div className="text-xs font-bold uppercase tracking-widest text-thread">Stylist Rationale</div>
-            <span className="text-[11px] font-mono text-ink-muted bg-surface px-2 py-0.5 rounded border border-border">
-              Newsreader Serif 18px
-            </span>
+            <div className="text-xs font-bold uppercase tracking-widest text-thread">Why This Look Works</div>
           </div>
           <p className="font-serif text-[18px] sm:text-[20px] text-ink leading-relaxed italic">
             &ldquo;{reasoning}&rdquo;
           </p>
         </div>
 
-        {/* 4. Single Decisive Outfit Recommendation (PRD FR-2.4) */}
+        {/* 4. Outfit Recommendation */}
         <div className="bg-surface-raised border border-border rounded-fitting-lg overflow-hidden shadow-fitting-raised">
           {/* Card Header */}
           <div className="p-5 sm:p-6 border-b border-border bg-surface/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-verified/15 text-verified text-xs font-bold uppercase tracking-wider">
-                  <span>✓</span> Verified Canadian Catalog
+                  <span>✓</span> In-Stock from Canadian Brands
                 </span>
-                <span className="text-xs text-ink-muted">Zero Hallucinations</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-serif text-ink mt-1 font-medium">Exactly One Complete Outfit</h2>
+              <h2 className="text-xl sm:text-2xl font-serif text-ink mt-1 font-medium">Your Complete Outfit</h2>
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
@@ -258,7 +254,7 @@ export function OccasionResult({
           </div>
         </div>
 
-        {/* 5. Dislike Recovery (The Nudge) - Placed BELOW outfit per PRD FR-2.6 */}
+        {/* 5. Outfit Adjustment / Feedback */}
         <div className="bg-surface-raised border border-border rounded-fitting p-5 text-center space-y-3 shadow-fitting-card">
           <div className="flex items-center justify-center gap-2">
             <button
@@ -266,7 +262,7 @@ export function OccasionResult({
               onClick={() => setShowNudgeOptions(!showNudgeOptions)}
               className="text-sm font-medium text-ink-muted hover:text-ink transition-colors underline underline-offset-4 cursor-pointer"
             >
-              Not quite right?
+              Want to adjust this look?
             </button>
           </div>
 
@@ -275,23 +271,23 @@ export function OccasionResult({
               <button
                 type="button"
                 onClick={() => onNudge("too_formal")}
-                className="py-2 px-4 rounded-fitting bg-surface border border-border hover:border-accent text-xs font-semibold text-ink transition-all cursor-pointer"
+                className="py-2 px-4 rounded-fitting bg-surface border border-border hover:border-accent text-xs font-semibold text-ink transition-all cursor-pointer shadow-xs"
               >
-                [Too formal]
+                A bit too formal
               </button>
               <button
                 type="button"
                 onClick={() => onNudge("too_casual")}
-                className="py-2 px-4 rounded-fitting bg-surface border border-border hover:border-accent text-xs font-semibold text-ink transition-all cursor-pointer"
+                className="py-2 px-4 rounded-fitting bg-surface border border-border hover:border-accent text-xs font-semibold text-ink transition-all cursor-pointer shadow-xs"
               >
-                [Too casual]
+                A bit too casual
               </button>
               <button
                 type="button"
                 onClick={() => onNudge("not_me")}
-                className="py-2 px-4 rounded-fitting bg-surface border border-border hover:border-accent text-xs font-semibold text-ink transition-all cursor-pointer"
+                className="py-2 px-4 rounded-fitting bg-surface border border-border hover:border-accent text-xs font-semibold text-ink transition-all cursor-pointer shadow-xs"
               >
-                [Not me]
+                Just not my style
               </button>
             </div>
           )}

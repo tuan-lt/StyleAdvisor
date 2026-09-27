@@ -9,16 +9,17 @@ import { OccasionResult } from "../components/OccasionResult";
 import { CapsuleResult } from "../components/CapsuleResult";
 import { SharedCart } from "../components/SharedCart";
 import { CheckoutModal } from "../components/CheckoutModal";
+import { LandingPageView } from "../components/LandingPageView";
 import { Garment, Occasion, RecommendApiResponse, NudgeType } from "../types/catalog";
 
-type ViewState = "profile" | "result";
+type ViewState = "landing" | "profile" | "result";
 
 export default function Home() {
   const { profile, isLoaded, updateProfile, toggleOwnedItem } = useProfileStorage();
   const [occasion, setOccasion] = useState<Occasion>("pitch");
   const [audienceText, setAudienceText] = useState<string>("Seed fund, partners are ex-engineers, meeting at their office in Gastown");
   const [flow, setFlow] = useState<"occasion" | "everyday">("occasion");
-  const [viewState, setViewState] = useState<ViewState>("profile");
+  const [viewState, setViewState] = useState<ViewState>("landing");
   const [profileMode, setProfileMode] = useState<"wizard" | "single">("wizard");
 
   const [recommendationData, setRecommendationData] = useState<RecommendApiResponse["data"] | null>(null);
@@ -144,6 +145,35 @@ export default function Home() {
     );
   }
 
+  if (viewState === "landing") {
+    return (
+      <>
+        <LandingPageView onEnterFittingRoom={() => setViewState("profile")} />
+
+        {/* Shared Slide-over Cart (De-duplicated) */}
+        <SharedCart
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+          cartItems={cartItems}
+          onRemoveItem={handleRemoveFromCart}
+          onClearCart={handleClearCart}
+          onOpenCheckout={() => {
+            setIsCartOpen(false);
+            setIsCheckoutOpen(true);
+          }}
+        />
+
+        {/* Checkout & WTP Survey Modal */}
+        <CheckoutModal
+          isOpen={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          cartItems={cartItems}
+          initialEmail={profile.email}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-surface text-ink selection:bg-thread/20">
       {/* Top Navigation Header */}
@@ -152,19 +182,19 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setViewState("profile")}
-              className="text-left group cursor-pointer"
+              onClick={() => setViewState("landing")}
+              className="text-left group cursor-pointer flex items-center gap-2"
+              title="Return to Home"
             >
-              <span className="text-[10px] uppercase tracking-widest text-thread font-bold block">
-                The Fitting Room
-              </span>
+              <span className="text-xs text-thread font-bold group-hover:-translate-x-0.5 transition-transform">← Home</span>
+              <span className="text-border font-light">|</span>
               <span className="text-lg font-serif text-ink font-semibold group-hover:text-accent transition-colors">
                 Style Advisor
               </span>
             </button>
             <span className="hidden sm:inline-block text-border font-light">|</span>
             <span className="hidden sm:inline-block text-xs text-ink-muted">
-              Zero-Hallucination Canadian Wardrobe
+              Personal Fitting Room
             </span>
           </div>
 
@@ -191,7 +221,7 @@ export default function Home() {
                       : "text-ink-muted hover:text-ink"
                   }`}
                 >
-                  Single Sheet
+                  Single Page
                 </button>
               </div>
             )}
@@ -213,74 +243,68 @@ export default function Home() {
               className="relative p-2 rounded-fitting text-ink hover:bg-surface-raised border border-border transition-all flex items-center gap-1.5 cursor-pointer"
               aria-label="Open Cart"
             >
-              <span className="text-xs font-semibold">Fitting Bag</span>
+              <span className="text-xs font-semibold">Shopping Bag</span>
               {cartItems.length > 0 && (
                 <span className="w-5 h-5 rounded-full bg-accent text-white text-[11px] font-bold flex items-center justify-center">
                   {cartItems.length}
                 </span>
               )}
             </button>
-
-            {/* Admin Hub Link */}
-            <Link
-              href="/admin"
-              className="hidden sm:inline-block text-xs font-medium text-thread hover:underline"
-            >
-              Admin Catalog
-            </Link>
           </div>
         </div>
       </header>
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-8 pb-16">
-        {/* Progressive Loading Feedback (PRD Section 7.3) */}
+        {/* Progressive Loading Feedback */}
         {isLoading && (
           <div className="fixed inset-0 z-50 bg-surface/85 backdrop-blur-xs flex flex-col items-center justify-center space-y-4">
             <div className="w-8 h-8 border-3 border-accent/20 border-t-accent rounded-full animate-spin" />
             <div className="text-center space-y-1">
               <p className="font-serif text-lg text-ink font-medium">
                 {loadingStep === 1
-                  ? "Checking 250 Canadian products..."
+                  ? "Checking in-stock Canadian clothes..."
                   : flow === "occasion"
-                  ? "Putting the outfit together..."
-                  : "Building your capsule..."}
+                  ? "Putting your outfit together..."
+                  : "Building your capsule wardrobe..."}
               </p>
               <p className="text-xs text-ink-muted">
-                Filtering by body silhouette, palette season, and room decorum
+                Finding the best matches for your shape, colors, and setting
               </p>
             </div>
           </div>
         )}
 
         {viewState === "profile" ? (
-          profileMode === "wizard" ? (
-            <MultiStepProfile
-              profile={profile}
-              onUpdate={updateProfile}
-              occasion={occasion}
-              onOccasionChange={setOccasion}
-              audienceText={audienceText}
-              onAudienceChange={setAudienceText}
-              flow={flow}
-              onFlowChange={setFlow}
-              onSubmit={() => fetchRecommendation()}
-              isLoading={isLoading}
-            />
-          ) : (
-            <SharedProfile
-              profile={profile}
-              onUpdate={updateProfile}
-              occasion={occasion}
-              onOccasionChange={setOccasion}
-              audienceText={audienceText}
-              onAudienceChange={setAudienceText}
-              flow={flow}
-              onFlowChange={setFlow}
-              onSubmit={() => fetchRecommendation()}
-              isLoading={isLoading}
-            />
-          )
+          <div>
+            {profileMode === "wizard" ? (
+              <MultiStepProfile
+                profile={profile}
+                onUpdate={updateProfile}
+                occasion={occasion}
+                onOccasionChange={setOccasion}
+                audienceText={audienceText}
+                onAudienceChange={setAudienceText}
+                flow={flow}
+                onFlowChange={setFlow}
+                onSubmit={() => fetchRecommendation()}
+                isLoading={isLoading}
+              />
+            ) : (
+              <SharedProfile
+                profile={profile}
+                onUpdate={updateProfile}
+                occasion={occasion}
+                onOccasionChange={setOccasion}
+                audienceText={audienceText}
+                onAudienceChange={setAudienceText}
+                flow={flow}
+                onFlowChange={setFlow}
+                onSubmit={() => fetchRecommendation()}
+                isLoading={isLoading}
+              />
+            )}
+          </div>
         ) : flow === "occasion" && recommendationData ? (
           <OccasionResult
             data={recommendationData}

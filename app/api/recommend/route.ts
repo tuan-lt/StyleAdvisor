@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import rawCatalog from "../../../data/catalog.json";
 import { filterCandidates } from "../../../lib/catalog-filter";
 import {
   Garment,
@@ -15,7 +14,16 @@ import {
   StyleOption,
 } from "../../../types/catalog";
 
-const catalog = rawCatalog as Garment[];
+import {
+  getAllGarmentsFromDb,
+} from "../../../lib/db";
+
+/**
+ * Get catalog directly from Postgres database
+ */
+async function getLatestCatalog(): Promise<Garment[]> {
+  return await getAllGarmentsFromDb();
+}
 
 // In-Memory Deterministic Response Cache (keyed on input MD5 hash)
 const cache = new Map<string, { timestamp: number; data: any }>();
@@ -422,6 +430,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
     }
 
     // Step 1: Deterministic Code Filtering (Zero-Hallucination Foundation)
+    const catalog = await getLatestCatalog();
     const filterInput: CandidateFilterInput = {
       ...body.user_profile,
       gender_cut: body.user_profile.gender_cut || (body.user_profile.gender_expression?.toLowerCase() as any) || "male",

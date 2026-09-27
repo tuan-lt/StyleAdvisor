@@ -39,10 +39,16 @@ export function MultiStepProfile({
   onSubmit,
   isLoading,
 }: MultiStepProfileProps) {
-  // Step index: 0 = Goal, 1 = Gender, 2 = Body Silhouette, 3 = Palette, 4 = Style, 5 = Climate & Budget, 6 = Context/Occasion
+  // Step index:
+  // 0 -> Step 01: Styling Goal & Fit (Goal + Gender Cut)
+  // 1 -> Step 02: Occasion / Setting (Event / Routine)
+  // 2 -> Step 03: Personal Style
+  // 3 -> Step 04: Body Shape & Proportions
+  // 4 -> Step 05: Color Palette & Complexion
+  // 5 -> Step 06: Weather, Sizing & Budget -> Final Submit
   const [currentStep, setCurrentStep] = useState<number>(0);
 
-  const TOTAL_STEPS = 7; // Steps 0 to 6
+  const TOTAL_STEPS = 6; // Steps 0 to 5 = 6 Steps total
 
   const handleNext = () => {
     if (currentStep < TOTAL_STEPS - 1) {
@@ -101,183 +107,191 @@ export function MultiStepProfile({
   };
 
   // ----------------------------------------------------
-  // DATA WITH HIGH QUALITY EDITORIAL IMAGES
+  // DATA AND OPTIONS (FRIENDLY & RELATABLE)
   // ----------------------------------------------------
 
   const genderOptions = [
     {
       id: "Female",
       cut: "female" as GenderCut,
-      label: "Female Expression",
-      desc: "Tailored drape, fluid trousers & structured blazers",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
+      icon: "✨",
+      label: "Womenswear",
+      desc: "Tailored blazers, fluid trousers, dresses, and feminine silhouettes",
     },
     {
       id: "Neutral",
       cut: "neutral" as GenderCut,
-      label: "Neutral / Fluid",
-      desc: "Minimalist silhouettes & architectural unisex lines",
-      image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80",
+      icon: "🌿",
+      label: "Gender-Neutral",
+      desc: "Clean minimal lines, relaxed boxy fits, and versatile everyday cuts",
     },
     {
       id: "Male",
       cut: "male" as GenderCut,
-      label: "Male Expression",
-      desc: "Structured shoulders, clean chinos & fine knitwear",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80",
-    },
-  ];
-
-  const bodyTypeOptions = [
-    {
-      id: "rectangle",
-      label: "Rectangle",
-      tag: "H-Frame",
-      sub: "Balanced shoulders & hips with straight column lines; ideal for layered depth & clean tailoring",
-      image: "/images/body-shapes/rectangle.png",
-    },
-    {
-      id: "bottom_triangle",
-      label: "Teardrop / Pear",
-      tag: "A-Frame",
-      sub: "Broader hips & thighs than shoulders; balanced with structured tops & A-line/wide-leg bottoms",
-      image: "/images/body-shapes/pear.png",
-    },
-    {
-      id: "oval",
-      label: "Oval / Apple",
-      tag: "O-Frame",
-      sub: "Fuller midsection & rounded torso; elevated by open unstructured layers & vertical drape",
-      image: "/images/body-shapes/oval.png",
-    },
-    {
-      id: "top_triangle",
-      label: "Inverted Triangle",
-      tag: "V-Frame",
-      sub: "Broad athletic shoulders & chest tapering to hips; balanced by relaxed & pleated bottoms",
-      image: "/images/body-shapes/inverted_triangle.png",
-    },
-    {
-      id: "double_triangle",
-      label: "Hourglass",
-      tag: "X-Frame",
-      sub: "Balanced bust/shoulders & hips with defined waist; highlighted by fitted tailored cuts",
-      image: "/images/body-shapes/hourglass.png",
-    },
-    {
-      id: "standard",
-      label: "Standard Balanced",
-      tag: "Balanced",
-      sub: "Evenly distributed natural proportions; versatile across all classic Canadian tailoring",
-      image: "/images/body-shapes/standard.png",
-    },
-  ];
-
-  const seasonalPalettes = [
-    {
-      id: "winter",
-      label: "Winter Palette",
-      swatches: ["#1F2A44", "#1C1B19", "#FFFFFF", "#521820"],
-      desc: "High contrast cool tones: Deep Navy, Charcoal, Crisp White & Burgundy",
-      image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: "autumn",
-      label: "Autumn Palette",
-      swatches: ["#B08A5B", "#3F6B4F", "#8A5A12", "#4A3319"],
-      desc: "Warm earthy tones: Camel, Moss Green, Ochre & Deep Chocolate",
-      image: "https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: "summer",
-      label: "Summer Palette",
-      swatches: ["#8CA4B8", "#B5A7BD", "#E4DED4", "#5F7482"],
-      desc: "Soft muted tones: Pearl Slate, Dusty Rose, Oatmeal & Soft Blue",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: "spring",
-      label: "Spring Palette",
-      swatches: ["#D4A373", "#CCD5AE", "#FAEDCD", "#E76F51"],
-      desc: "Bright warm tones: Warm Sand, Light Sage, Cream & Coral",
-      image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80",
+      icon: "👔",
+      label: "Menswear",
+      desc: "Structured shoulders, classic chinos, clean button-ups, and knitwear",
     },
   ];
 
   const styleArchetypes = [
     {
       id: "classic",
-      label: "Classic Sartorial",
-      desc: "Timeless tailoring, sharp lapels, structured fabrics",
+      label: "Classic & Sharp",
+      desc: "Timeless tailoring, crisp shirts, clean lines, and polished shoes",
       image: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "casual",
-      label: "Approachable Casual",
-      desc: "Effortless chinos, soft cotton layers, relaxed polish",
+      label: "Easygoing & Relaxed",
+      desc: "Comfy chinos, soft cotton layers, simple sneakers, and clean everyday vibes",
       image: "https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "trendy",
-      label: "Directional Trendy",
-      desc: "Modern boxy cuts, relaxed pleats, contemporary edge",
+      label: "Modern & Streetwise",
+      desc: "Boxy cuts, relaxed pleats, contemporary streetwear textures, and fresh silhouettes",
       image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "sporty",
-      label: "Technical Sporty",
-      desc: "4-way stretch fabrics, commuter resilience, sleek mobility",
+      label: "Active & Commuter",
+      desc: "Stretch performance fabrics, sleek water-repellent layers, and athletic comfort",
       image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "nerdy",
-      label: "Considered Nerdy",
-      desc: "Purposeful minimalism, fine turtlenecks, tech founder vibe",
+      label: "Smart & Minimalist",
+      desc: "Thoughtful basics, fine turtlenecks, tasteful knitwear, and founder-chic simplicity",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "fabulous",
-      label: "Elevated Fabulous",
-      desc: "Rich wool-cashmere drape, silk textures, quiet luxury",
+      label: "Elevated & Luxurious",
+      desc: "Fine wool-cashmere blends, subtle textures, and understated quiet luxury",
       image: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=800&q=80",
+    },
+  ];
+
+  const bodyTypeOptions = [
+    {
+      id: "rectangle",
+      label: "Rectangle / Straight",
+      tag: "Straight Frame",
+      sub: "Shoulders and hips are about the same width; great for layered jackets and neat tailoring",
+      image: "/images/body-shapes/rectangle.png",
+    },
+    {
+      id: "bottom_triangle",
+      label: "Pear / Teardrop",
+      tag: "A-Frame",
+      sub: "Hips are slightly wider than shoulders; balanced with eye-catching tops and easy wide-leg pants",
+      image: "/images/body-shapes/pear.png",
+    },
+    {
+      id: "oval",
+      label: "Oval / Round",
+      tag: "Soft Frame",
+      sub: "Fuller midsection; looks great with open jackets, soft vertical drapes, and relaxed fits",
+      image: "/images/body-shapes/oval.png",
+    },
+    {
+      id: "top_triangle",
+      label: "Inverted Triangle",
+      tag: "V-Frame",
+      sub: "Broad shoulders tapering down to narrower hips; looks best with relaxed pants and softer shoulders",
+      image: "/images/body-shapes/inverted_triangle.png",
+    },
+    {
+      id: "double_triangle",
+      label: "Hourglass",
+      tag: "Curved Frame",
+      sub: "Balanced bust and hips with a defined waist; highlighted by fitted styles and belted coats",
+      image: "/images/body-shapes/hourglass.png",
+    },
+    {
+      id: "standard",
+      label: "Balanced Regular",
+      tag: "Classic Fit",
+      sub: "Proportional build that works well with most standard off-the-rack Canadian cuts",
+      image: "/images/body-shapes/standard.png",
+    },
+  ];
+
+  const seasonalPalettes = [
+    {
+      id: "winter" as PaletteSeason,
+      name: "Winter Palette",
+      icon: "❄️",
+      undertone: "Cool & High Contrast",
+      accentBg: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+      desc: "Crisp, bold & cool: Deep Navy, Pure Black, Stark White, Crimson Burgundy & Pine Green",
+      swatches: ["#0B0F19", "#FFFFFF", "#1E3A8A", "#BE123C", "#0D9488", "#581C87", "#0284C7", "#9D174D"],
+    },
+    {
+      id: "spring" as PaletteSeason,
+      name: "Spring Palette",
+      icon: "🌸",
+      undertone: "Warm & Radiant Glow",
+      accentBg: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+      desc: "Fresh, warm & sunny: Warm Camel, Coral Pink, Honey Amber, Golden Wheat & Turquoise",
+      swatches: ["#D97706", "#EA580C", "#0D9488", "#CA8A04", "#F59E0B", "#FEF3C7", "#14B8A6", "#FB923C"],
+    },
+    {
+      id: "autumn" as PaletteSeason,
+      name: "Autumn Palette",
+      icon: "🍂",
+      undertone: "Warm & Earthy Rich",
+      accentBg: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+      desc: "Deep, earthy & spicy: Rich Rust, Forest Green, Spicy Ochre, Dark Chocolate & Cinnamon",
+      swatches: ["#9A3412", "#15803D", "#A16207", "#78350F", "#C2410C", "#FDE68A", "#4D7C0F", "#B45309"],
+    },
+    {
+      id: "summer" as PaletteSeason,
+      name: "Summer Palette",
+      icon: "☀️",
+      undertone: "Cool & Soft Muted",
+      accentBg: "bg-pink-500/10 text-pink-500 border-pink-500/20",
+      desc: "Soft, gentle & muted: Slate Grey, Dusty Rose, Powder Blue, Muted Lavender & Soft Oatmeal",
+      swatches: ["#334155", "#64748B", "#94A3B8", "#A855F7", "#F1F5F9", "#BE185D", "#475569", "#7C3AED"],
     },
   ];
 
   const occasionOptions = [
     {
       id: "pitch" as Occasion,
-      label: "Pitching to investors",
-      context: "VCs in Gastown / Toronto, founder credibility without stiff suits",
+      label: "Pitching or Big Meeting",
+      context: "Meeting partners, pitching clients or presenting — look credible without feeling overdressed",
       image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "interview" as Occasion,
-      label: "Job interview",
-      context: "Commanding competence, polished lines, sharp executive presence",
+      label: "Job Interview",
+      context: "Confident, sharp, and put-together so you make a great first impression",
       image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "family" as Occasion,
-      label: "Meeting partner's family",
-      context: "Warm, respectful, considered and approachable elegance",
+      label: "Meeting the Family / In-Laws",
+      context: "Warm, respectful, and comfortably stylish for family gatherings",
       image: "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "date" as Occasion,
-      label: "First date",
-      context: "Magnetic, comfortable tailoring suited for evening dining",
+      label: "Date Night or Dinner Out",
+      context: "Effortlessly charming and comfortable for an evening dinner or drinks",
       image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "court" as Occasion,
-      label: "Court appearance",
-      context: "Strict institutional decorum, solemn respect, clean lines",
+      label: "Formal / Official Event",
+      context: "Clean, conservative, and polished for ceremonies or official settings",
       image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "funeral" as Occasion,
-      label: "Funeral / Memorial",
-      context: "Quiet respect, subdued dark tones, solemn dignity",
+      label: "Memorial or Solemn Event",
+      context: "Respectful, dark, understated and dignified",
       image: "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?auto=format&fit=crop&w=800&q=80",
     },
   ];
@@ -285,26 +299,26 @@ export function MultiStepProfile({
   const lifestyleOptions = [
     {
       id: "office_professional" as LifestyleTag,
-      label: "Office Professional",
-      desc: "Downtown Vancouver hybrid schedule, meetings & desks",
+      label: "Work & Hybrid Office",
+      desc: "Split between home desk and downtown office meetings",
       image: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "new_grad" as LifestyleTag,
-      label: "New Grad / Career Launch",
-      desc: "Building initial professional foundation & interview wardrobe",
+      label: "Starting Out / New Grad",
+      desc: "Building a reliable starter wardrobe that punches above its price tag",
       image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "family" as LifestyleTag,
-      label: "Family & Parenting",
-      desc: "School drop-offs, weekend playgrounds & durable comfort",
+      label: "Family & Weekend Routine",
+      desc: "School drop-offs, weekend coffee, errands and all-day durable comfort",
       image: "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?auto=format&fit=crop&w=800&q=80",
     },
     {
       id: "outdoors" as LifestyleTag,
-      label: "West Coast Transit & Outdoors",
-      desc: "Rain-resistant layering, coastal commuting & weekend trails",
+      label: "Transit & On-the-Go",
+      desc: "Weather-ready layers for city walking, transit, and spontaneous weekend plans",
       image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80",
     },
   ];
@@ -319,13 +333,12 @@ export function MultiStepProfile({
               Step 0{currentStep + 1} of 0{TOTAL_STEPS}
             </span>
             <span className="text-ink-muted hidden sm:inline-block">
-              {currentStep === 0 && "Mission Objective"}
-              {currentStep === 1 && "Gender & Proportions"}
-              {currentStep === 2 && "Body Silhouette"}
-              {currentStep === 3 && "Colour Analysis"}
-              {currentStep === 4 && "Style Archetype"}
-              {currentStep === 5 && "Climate & Budget"}
-              {currentStep === 6 && (flow === "occasion" ? "Occasion & Room Context" : "Lifestyle Utility")}
+              {currentStep === 0 && "Styling Goal & Fit"}
+              {currentStep === 1 && (flow === "occasion" ? "Where are you heading?" : "Your Weekly Routine")}
+              {currentStep === 2 && "Your Style Vibe"}
+              {currentStep === 3 && "Your Body Shape"}
+              {currentStep === 4 && "Your Best Colors"}
+              {currentStep === 5 && "Sizes, Weather & Budget"}
             </span>
           </div>
 
@@ -335,7 +348,7 @@ export function MultiStepProfile({
               onClick={handlePrev}
               className="text-ink-muted hover:text-ink transition-colors flex items-center gap-1 cursor-pointer"
             >
-              <span>←</span> Previous Step
+              <span>←</span> Back
             </button>
           )}
         </div>
@@ -350,125 +363,286 @@ export function MultiStepProfile({
       </div>
 
       {/* ============================================================ */}
-      {/* STEP 0: MISSION SELECTION (FLOW A vs FLOW B) */}
+      {/* STEP 01: GOAL SELECTION & SIZING FIT (COMBINED, NO IMAGES) */}
       {/* ============================================================ */}
       {currentStep === 0 && (
-        <div className="space-y-6 animate-fadeIn">
-          <div className="text-center space-y-2">
+        <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-8 shadow-fitting-card animate-fadeIn">
+          {/* Header */}
+          <div className="text-center space-y-2 border-b border-border pb-6">
+            <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 01 • Styling Goal & Fit</div>
             <h1 className="text-3xl sm:text-4xl font-serif text-ink font-normal">
-              Choose Your Styling Mission
+              What are we styling today?
             </h1>
-            <p className="text-sm sm:text-base text-ink-muted font-serif italic max-w-lg mx-auto">
-              “Gain confidence with our style advisor. Remove the guesswork.”
+            <p className="text-sm sm:text-base text-ink-muted max-w-lg mx-auto">
+              Pick your goal, then choose the clothing cut you feel most comfortable wearing.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 items-stretch">
-            {/* FLOW A CARD */}
-            <div
-              onClick={() => {
-                onFlowChange("occasion");
-                handleNext();
-              }}
-              className={`group rounded-fitting-lg border overflow-hidden cursor-pointer transition-all duration-300 shadow-fitting-card hover:shadow-fitting-raised flex flex-col h-full ${
-                flow === "occasion"
-                  ? "border-accent ring-2 ring-accent/30 bg-surface-raised"
-                  : "border-border bg-surface-raised hover:border-thread/50"
-              }`}
-            >
-              <div className="aspect-[16/10] w-full relative overflow-hidden bg-surface shrink-0">
-                <img
-                  src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1000&h=625&q=80"
-                  alt="High-Stakes Occasion"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-2">
-                  <h3 className="text-xl font-serif font-medium text-ink group-hover:text-accent transition-colors">
-                    High-Stakes Occasion
-                  </h3>
+          {/* Goal selection (No images, interactive cards) */}
+          <div className="space-y-3">
+            <div className="text-xs font-bold uppercase tracking-wider text-ink">
+              1. Choose your styling goal
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* FLOW A CARD */}
+              <div
+                onClick={() => onFlowChange("occasion")}
+                className={`group rounded-fitting border p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between ${flow === "occasion"
+                  ? "border-accent ring-2 ring-accent/30 bg-surface/90 shadow-xs"
+                  : "border-border hover:border-thread/50 bg-surface/30 hover:bg-surface/50"
+                  }`}
+              >
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl shrink-0 leading-none">
+                      🎯
+                    </span>
+                    <h3 className="text-base sm:text-lg font-serif font-bold text-ink group-hover:text-accent transition-colors">
+                      One Perfect Outfit for an Event
+                    </h3>
+                  </div>
                   <p className="text-xs text-ink-muted leading-relaxed">
-                    Pitching seed funds in Gastown, high-profile interviews, family dinners, court hearings or memorials.
-                    Delivers <strong>exactly 1 complete head-to-toe outfit</strong> calibrated for room decorum in under 1 minute.
+                    Have an upcoming interview, big meeting, date, or family gathering? Get <strong>1 complete head-to-toe outfit</strong> tailored specifically for the occasion.
                   </p>
                 </div>
-                <div className="pt-2 flex items-center text-xs font-bold text-thread group-hover:underline">
-                  Start High-Stakes Flow →
+                <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs">
+                  <span className={flow === "occasion" ? "font-bold text-accent" : "text-ink-muted"}>
+                    {flow === "occasion" ? "✓ Selected" : "Tap to select"}
+                  </span>
                 </div>
               </div>
-            </div>
 
-            {/* FLOW B CARD */}
-            <div
-              onClick={() => {
-                onFlowChange("everyday");
-                handleNext();
-              }}
-              className={`group rounded-fitting-lg border overflow-hidden cursor-pointer transition-all duration-300 shadow-fitting-card hover:shadow-fitting-raised flex flex-col h-full ${
-                flow === "everyday"
-                  ? "border-accent ring-2 ring-accent/30 bg-surface-raised"
-                  : "border-border bg-surface-raised hover:border-thread/50"
-              }`}
-            >
-              <div className="aspect-[16/10] w-full relative overflow-hidden bg-surface shrink-0">
-                <img
-                  src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1000&h=625&q=80"
-                  alt="Everyday Capsule Wardrobe"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-2">
-                  <h3 className="text-xl font-serif font-medium text-ink group-hover:text-thread transition-colors">
-                    Everyday Capsule Wardrobe
-                  </h3>
+              {/* FLOW B CARD */}
+              <div
+                onClick={() => onFlowChange("everyday")}
+                className={`group rounded-fitting border p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between ${flow === "everyday"
+                  ? "border-accent ring-2 ring-accent/30 bg-surface/90 shadow-xs"
+                  : "border-border hover:border-thread/50 bg-surface/30 hover:bg-surface/50"
+                  }`}
+              >
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl shrink-0 leading-none">
+                      🔄
+                    </span>
+                    <h3 className="text-base sm:text-lg font-serif font-bold text-ink group-hover:text-thread transition-colors">
+                      Everyday Mix-and-Match Capsule
+                    </h3>
+                  </div>
                   <p className="text-xs text-ink-muted leading-relaxed">
-                    Tired of decision fatigue? Assemble a cohesive <strong>15-piece modular wardrobe</strong> with 3 worked combinations and a highlighted <strong>Starter Set of 5</strong>.
+                    Tired of a full closet with nothing to wear? Build a versatile <strong>15-piece wardrobe</strong> where every top, bottom, and layer matches naturally.
                   </p>
                 </div>
-                <div className="pt-2 flex items-center text-xs font-bold text-thread group-hover:underline">
-                  Build 15-Item Capsule →
+                <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs">
+                  <span className={flow === "everyday" ? "font-bold text-thread" : "text-ink-muted"}>
+                    {flow === "everyday" ? "✓ Selected" : "Tap to select"}
+                  </span>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Gender / Sizing Fit Section */}
+          <div className="space-y-3 pt-2 border-t border-border">
+            <div className="text-xs font-bold uppercase tracking-wider text-ink">
+              2. Gender
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {genderOptions.map((g) => {
+                const isSelected =
+                  profile.gender_expression === g.id || profile.gender_cut === g.cut;
+                return (
+                  <div
+                    key={g.id}
+                    onClick={() => onUpdate({ gender_expression: g.id as any, gender_cut: g.cut })}
+                    className={`group rounded-fitting border p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between ${isSelected
+                      ? "border-accent ring-2 ring-accent/30 bg-surface/90 shadow-xs"
+                      : "border-border hover:border-thread/50 bg-surface/30 hover:bg-surface/50"
+                      }`}
+                  >
+                    <div className="space-y-2.5">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-xl shrink-0 leading-none">
+                          {g.icon}
+                        </span>
+                        <h3 className="text-base font-bold text-ink group-hover:text-accent transition-colors">
+                          {g.label}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-ink-muted leading-relaxed">
+                        {g.desc}
+                      </p>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs">
+                      <span className={isSelected ? "font-bold text-accent" : "text-ink-muted"}>
+                        {isSelected ? "✓ Selected" : "Tap to select"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Step 1 Continue button */}
+          <div className="flex justify-end pt-4 border-t border-border">
+            <button
+              type="button"
+              onClick={handleNext}
+              className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer shadow-xs"
+            >
+              Continue to {flow === "occasion" ? "The Event" : "Weekly Routine"} →
+            </button>
           </div>
         </div>
       )}
 
       {/* ============================================================ */}
-      {/* STEP 1: GENDER EXPRESSION & CUT */}
+      {/* STEP 02: OCCASION & SETTING */}
       {/* ============================================================ */}
       {currentStep === 1 && (
         <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-6 shadow-fitting-card animate-fadeIn">
+          {flow === "occasion" ? (
+            /* FLOW A: 6 Occasion Photo Tiles + Audience Free-Text */
+            <div className="space-y-6">
+              <div className="border-b border-border pb-4">
+                <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 02 • The Event</div>
+                <h2 className="text-2xl font-serif text-ink font-medium mt-1">Where are you heading?</h2>
+                <p className="text-xs sm:text-sm text-ink-muted mt-1">
+                  Pick the event or meeting so we can tailor the right level of polish and formality.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+                {occasionOptions.map((occ) => {
+                  const isSelected = occasion === occ.id;
+                  return (
+                    <div
+                      key={occ.id}
+                      onClick={() => onOccasionChange(occ.id)}
+                      className={`group rounded-fitting border overflow-hidden cursor-pointer transition-all flex flex-col justify-between ${isSelected
+                        ? "border-accent ring-2 ring-accent/30 bg-surface/50 shadow-xs"
+                        : "border-border hover:border-thread/50 bg-surface/20"
+                        }`}
+                    >
+                      <div>
+                        <div className="aspect-[16/10] relative overflow-hidden bg-surface">
+                          <img src={occ.image} alt={occ.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        </div>
+                        <div className="p-3 space-y-0.5">
+                          <h4 className="text-xs font-bold text-ink">{occ.label}</h4>
+                          <p className="text-[11px] text-ink-muted leading-tight">{occ.context}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Free Text Input for Extra Context */}
+              <div className="space-y-2 pt-2 border-t border-border">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-ink">
+                    Any extra details about the vibe? (Optional)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => onAudienceChange("Meeting tech startup founders at a casual coffee shop in Vancouver")}
+                    className="text-xs text-thread hover:underline cursor-pointer"
+                  >
+                    Use example
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={audienceText}
+                  onChange={(e) => onAudienceChange(e.target.value)}
+                  placeholder="e.g. Meeting tech partners at a casual cafe, or dinner with my in-laws at a nice Italian spot"
+                  className="w-full px-4 py-3 text-sm bg-surface/40 border border-border rounded-fitting focus:outline-none focus:ring-1 focus:ring-accent focus:bg-surface-raised transition-all"
+                />
+              </div>
+            </div>
+          ) : (
+            /* FLOW B: 4 Lifestyle Tiles */
+            <div className="space-y-6">
+              <div className="border-b border-border pb-4">
+                <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 02 • Weekly Routine</div>
+                <h2 className="text-2xl font-serif text-ink font-medium mt-1">What does your week look like?</h2>
+                <p className="text-xs sm:text-sm text-ink-muted mt-1">
+                  Choose up to 2 settings that describe your regular everyday routine.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {lifestyleOptions.map((ls) => {
+                  const isSelected = (profile.lifestyle || profile.lifestyle_tags || []).includes(ls.id);
+                  return (
+                    <div
+                      key={ls.id}
+                      onClick={() => handleLifestyleToggle(ls.id)}
+                      className={`group rounded-fitting border overflow-hidden cursor-pointer transition-all flex items-center gap-3.5 p-3.5 ${isSelected
+                        ? "border-accent ring-2 ring-accent/30 bg-surface/50 shadow-xs"
+                        : "border-border hover:border-thread/50 bg-surface/20"
+                        }`}
+                    >
+                      <img src={ls.image} alt={ls.label} className="w-20 h-20 rounded object-cover shrink-0" />
+                      <div>
+                        <h4 className="text-sm font-bold text-ink">{ls.label}</h4>
+                        <p className="text-xs text-ink-muted leading-snug mt-1">{ls.desc}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end pt-4">
+            <button
+              type="button"
+              onClick={handleNext}
+              className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer shadow-xs"
+            >
+              Continue to Personal Style →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* STEP 03: PERSONAL STYLE IDENTITY */}
+      {/* ============================================================ */}
+      {currentStep === 2 && (
+        <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-6 shadow-fitting-card animate-fadeIn">
           <div className="border-b border-border pb-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 1 • Silhouette Foundation</div>
-            <h2 className="text-2xl font-serif text-ink font-medium mt-1">Gender Expression & Tailoring Cut</h2>
-            <p className="text-xs text-ink-muted mt-1">
-              Calibrates torso shoulder widths, waist tapers, and sleeve drop ratios.
+            <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 03 • Personal Style</div>
+            <h2 className="text-2xl font-serif text-ink font-medium mt-1">What's your preferred style vibe?</h2>
+            <p className="text-xs sm:text-sm text-ink-muted mt-1">
+              Choose the aesthetic that feels most natural and comfortable to you.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {genderOptions.map((g) => {
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {styleArchetypes.map((st) => {
               const isSelected =
-                profile.gender_expression === g.id || profile.gender_cut === g.cut;
+                profile.style === st.id || profile.preferred_styles?.includes(st.id);
               return (
                 <div
-                  key={g.id}
-                  onClick={() => onUpdate({ gender_expression: g.id as any, gender_cut: g.cut })}
-                  className={`group rounded-fitting border overflow-hidden cursor-pointer transition-all ${
-                    isSelected
-                      ? "border-accent ring-2 ring-accent/30 bg-surface/50"
-                      : "border-border hover:border-thread/50 bg-surface/20"
-                  }`}
+                  key={st.id}
+                  onClick={() => onUpdate({ style: st.id, preferred_styles: [st.id] })}
+                  className={`group rounded-fitting border overflow-hidden cursor-pointer transition-all flex flex-col justify-between ${isSelected
+                    ? "border-accent ring-2 ring-accent/30 bg-surface/50 shadow-xs"
+                    : "border-border hover:border-thread/50 bg-surface/20"
+                    }`}
                 >
-                  <div className="aspect-[4/3] relative overflow-hidden bg-surface">
-                    <img src={g.image} alt={g.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  </div>
-                  <div className="p-4 space-y-1">
-                    <h3 className="text-sm font-bold text-ink">{g.label}</h3>
-                    <p className="text-xs text-ink-muted">{g.desc}</p>
+                  <div>
+                    <div className="aspect-[16/10] relative overflow-hidden bg-surface">
+                      <img src={st.image} alt={st.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div className="p-3.5 space-y-1">
+                      <h4 className="text-sm font-bold text-ink">{st.label}</h4>
+                      <p className="text-xs text-ink-muted leading-relaxed">{st.desc}</p>
+                    </div>
                   </div>
                 </div>
               );
@@ -479,25 +653,25 @@ export function MultiStepProfile({
             <button
               type="button"
               onClick={handleNext}
-              className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer"
+              className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer shadow-xs"
             >
-              Continue to Body Silhouette →
+              Continue to Body Shape →
             </button>
           </div>
         </div>
       )}
 
       {/* ============================================================ */}
-      {/* STEP 2: BODY SILHOUETTE & PROPORTIONS */}
+      {/* STEP 04: BODY SILHOUETTE & PROPORTIONS */}
       {/* ============================================================ */}
-      {currentStep === 2 && (
+      {currentStep === 3 && (
         <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-6 shadow-fitting-card animate-fadeIn">
           <div className="border-b border-border pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 2 • Frame & Proportions</div>
-              <h2 className="text-2xl font-serif text-ink font-medium mt-1">Body Silhouette Archetype</h2>
-              <p className="text-xs text-ink-muted mt-1">
-                Ensures lapel widths, fabric drape, and jacket drops flatter your natural frame.
+              <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 04 • Body Fit & Shape</div>
+              <h2 className="text-2xl font-serif text-ink font-medium mt-1">What's your body shape?</h2>
+              <p className="text-xs sm:text-sm text-ink-muted mt-1">
+                Helps us pick cuts, sleeve lengths, and jacket structures that look great on your build.
               </p>
             </div>
             <button
@@ -508,7 +682,7 @@ export function MultiStepProfile({
               }}
               className="text-xs px-3 py-1.5 rounded-fitting bg-surface border border-border text-ink-muted hover:text-ink cursor-pointer shrink-0"
             >
-              Not sure (Default Balanced)
+              Not sure? (Pick Standard)
             </button>
           </div>
 
@@ -519,11 +693,10 @@ export function MultiStepProfile({
                 <div
                   key={b.id}
                   onClick={() => onUpdate({ body_type: b.id as BodyType })}
-                  className={`group rounded-fitting-lg border overflow-hidden cursor-pointer transition-all duration-300 shadow-fitting-card hover:shadow-fitting-raised flex flex-col justify-between ${
-                    isSelected
-                      ? "border-accent ring-2 ring-accent/30 bg-surface-raised"
-                      : "border-border hover:border-thread/50 bg-surface-raised"
-                  }`}
+                  className={`group rounded-fitting-lg border overflow-hidden cursor-pointer transition-all duration-300 shadow-fitting-card hover:shadow-fitting-raised flex flex-col justify-between ${isSelected
+                    ? "border-accent ring-2 ring-accent/30 bg-surface-raised"
+                    : "border-border hover:border-thread/50 bg-surface-raised"
+                    }`}
                 >
                   <div>
                     <div className="aspect-[4/5] relative overflow-hidden bg-white/95 p-3 flex items-center justify-center border-b border-border">
@@ -546,25 +719,28 @@ export function MultiStepProfile({
             <button
               type="button"
               onClick={handleNext}
-              className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer"
+              className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer shadow-xs"
             >
-              Continue to Seasonal Colour →
+              Continue to Color Palette →
             </button>
           </div>
         </div>
       )}
 
       {/* ============================================================ */}
-      {/* STEP 3: SEASONAL COLOUR ANALYSIS & COMPLEXION */}
+      {/* STEP 05: 4-SEASON COLOR ANALYSIS & COMPLEXION */}
       {/* ============================================================ */}
-      {currentStep === 3 && (
-        <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-6 shadow-fitting-card animate-fadeIn">
-          <div className="border-b border-border pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+      {currentStep === 4 && (
+        <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-7 shadow-fitting-card animate-fadeIn">
+          {/* Header */}
+          <div className="border-b border-border pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 3 • Color Theory</div>
-              <h2 className="text-2xl font-serif text-ink font-medium mt-1">Seasonal Colour Analysis</h2>
-              <p className="text-xs text-ink-muted mt-1">
-                Colors that illuminate your facial undertones without competing for attention.
+              <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 05 • Color Palette</div>
+              <h2 className="text-2xl sm:text-3xl font-serif text-ink font-medium mt-1">
+                What colors look best on you?
+              </h2>
+              <p className="text-xs sm:text-sm text-ink-muted mt-1">
+                Choose the seasonal color palette that naturally complements your skin tone, eyes, and hair.
               </p>
             </div>
             <button
@@ -573,49 +749,81 @@ export function MultiStepProfile({
                 handlePaletteSelect("not_sure");
                 handleNext();
               }}
-              className="text-xs px-3 py-1.5 rounded-fitting bg-surface border border-border text-ink-muted hover:text-ink cursor-pointer shrink-0"
+              className="text-xs px-3.5 py-2 rounded-fitting bg-surface border border-border text-ink-muted hover:text-ink cursor-pointer shrink-0 transition-all shadow-xs"
             >
-              Not sure (Universal Neutrals)
+              Not sure? (Universal Neutrals)
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          {/* 4 Seasonal Palette Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {seasonalPalettes.map((p) => {
               const isSelected =
-                profile.seasonal_colour === p.id || profile.palette_season === p.id;
+                profile.palette_season === p.id ||
+                profile.seasonal_colour === p.id ||
+                (typeof profile.palette_season === "string" && profile.palette_season.includes(p.id));
               return (
                 <div
                   key={p.id}
                   onClick={() => handlePaletteSelect(p.id)}
-                  className={`group rounded-fitting border overflow-hidden cursor-pointer transition-all flex flex-col justify-between ${
+                  className={`group rounded-fitting border p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between ${
                     isSelected
-                      ? "border-accent ring-2 ring-accent/30 bg-surface/50"
-                      : "border-border hover:border-thread/50 bg-surface/20"
+                      ? "border-accent ring-2 ring-accent/30 bg-surface/90 shadow-xs"
+                      : "border-border hover:border-thread/50 bg-surface/30 hover:bg-surface/50"
                   }`}
                 >
-                  <div>
-                    <div className="aspect-[4/3] relative overflow-hidden bg-surface">
-                      <img src={p.image} alt={p.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="space-y-3.5">
+                    {/* Header with Icon and Title on 1 line */}
+                    <div>
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-xl shrink-0 leading-none">{p.icon}</span>
+                        <h4 className="text-base font-serif font-bold text-ink group-hover:text-accent transition-colors">
+                          {p.name}
+                        </h4>
+                      </div>
+                      <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full border mt-2 ${p.accentBg}`}>
+                        {p.undertone}
+                      </span>
                     </div>
-                    <div className="p-4 space-y-2">
-                      <div className="flex gap-1.5">
+
+                    {/* Dot Matrix Swatches (8 dots in 4x2 grid) */}
+                    <div className="bg-surface/80 border border-border/70 rounded p-2.5">
+                      <div className="grid grid-cols-4 gap-2 justify-items-center">
                         {p.swatches.map((hex, i) => (
-                          <span key={i} className="w-4 h-4 rounded-full border border-black/15" style={{ backgroundColor: hex }} />
+                          <span
+                            key={i}
+                            title={hex}
+                            className="w-5 h-5 rounded-full border border-black/15 shadow-2xs group-hover:scale-110 transition-transform"
+                            style={{ backgroundColor: hex }}
+                          />
                         ))}
                       </div>
-                      <h4 className="text-sm font-bold text-ink">{p.label}</h4>
-                      <p className="text-xs text-ink-muted leading-relaxed">{p.desc}</p>
                     </div>
+
+                    {/* Description */}
+                    <p className="text-xs text-ink-muted leading-relaxed">
+                      {p.desc}
+                    </p>
+                  </div>
+
+                  {/* Selected Status Bar */}
+                  <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs">
+                    <span className={isSelected ? "font-bold text-accent" : "text-ink-muted"}>
+                      {isSelected ? "✓ Selected" : "Tap to select"}
+                    </span>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Complexion helper */}
-          <div className="pt-2 border-t border-border space-y-2">
-            <div className="text-xs font-semibold text-ink-muted uppercase tracking-wider">
-              Optional: Skin Tone Undertone Reference
+          {/* Skin Tone & Undertone Helper */}
+          <div className="pt-3 border-t border-border space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-semibold text-ink-muted uppercase tracking-wider">
+                Quick Guide: Match with Skin Tone
+              </div>
+              <span className="text-[11px] text-ink-muted">Auto-selects your best palette</span>
             </div>
             <div className="grid grid-cols-3 gap-3">
               {(["Light", "Medium", "Dark"] as const).map((comp) => (
@@ -635,101 +843,49 @@ export function MultiStepProfile({
             </div>
           </div>
 
-          <div className="flex justify-end pt-4">
+          {/* Continue Button */}
+          <div className="flex justify-end pt-4 border-t border-border">
             <button
               type="button"
               onClick={handleNext}
-              className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer"
+              className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer shadow-xs"
             >
-              Continue to Personal Style →
+              Continue to Sizes & Budget →
             </button>
           </div>
         </div>
       )}
 
       {/* ============================================================ */}
-      {/* STEP 4: PERSONAL STYLE IDENTITY (6 ARCHETYPES) */}
-      {/* ============================================================ */}
-      {currentStep === 4 && (
-        <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-6 shadow-fitting-card animate-fadeIn">
-          <div className="border-b border-border pb-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 4 • Aesthetic Identity</div>
-            <h2 className="text-2xl font-serif text-ink font-medium mt-1">Personal Style Archetype</h2>
-            <p className="text-xs text-ink-muted mt-1">
-              Informs how the AI calibrates formality without stripping away your authentic identity.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {styleArchetypes.map((st) => {
-              const isSelected =
-                profile.style === st.id || profile.preferred_styles?.includes(st.id);
-              return (
-                <div
-                  key={st.id}
-                  onClick={() => onUpdate({ style: st.id, preferred_styles: [st.id] })}
-                  className={`group rounded-fitting border overflow-hidden cursor-pointer transition-all flex flex-col justify-between ${
-                    isSelected
-                      ? "border-accent ring-2 ring-accent/30 bg-surface/50"
-                      : "border-border hover:border-thread/50 bg-surface/20"
-                  }`}
-                >
-                  <div>
-                    <div className="aspect-[16/10] relative overflow-hidden bg-surface">
-                      <img src={st.image} alt={st.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </div>
-                    <div className="p-3.5 space-y-1">
-                      <h4 className="text-sm font-bold text-ink">{st.label}</h4>
-                      <p className="text-xs text-ink-muted leading-relaxed">{st.desc}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="flex justify-end pt-4">
-            <button
-              type="button"
-              onClick={handleNext}
-              className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer"
-            >
-              Continue to Climate & Budget →
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================ */}
-      {/* STEP 5: CLIMATE, SIZE & BUDGET TIER */}
+      {/* STEP 06: CLIMATE, SIZE, BUDGET & FINAL SUBMIT */}
       {/* ============================================================ */}
       {currentStep === 5 && (
         <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-8 shadow-fitting-card animate-fadeIn">
           <div className="border-b border-border pb-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 5 • Constraints & Climate</div>
-            <h2 className="text-2xl font-serif text-ink font-medium mt-1">Climate, Sizing & Budget Tier</h2>
-            <p className="text-xs text-ink-muted mt-1">
-              Hard constraints applied deterministically in code before LLM inference.
+            <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 06 • Practical Details</div>
+            <h2 className="text-2xl font-serif text-ink font-medium mt-1">Weather, Sizing & Budget</h2>
+            <p className="text-xs sm:text-sm text-ink-muted mt-1">
+              Final details so every recommendation is in-stock and in your comfort zone.
             </p>
           </div>
 
-          {/* Climate selection with images */}
+          {/* Climate / Weather Selection */}
           <div className="space-y-3">
             <label className="text-xs font-semibold uppercase tracking-wider text-ink">
-              Active Canadian Weather Season
+              Current Weather / Season
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 {
                   id: "Fall/Winter" as const,
-                  label: "Fall / Winter (Rain & Cold)",
-                  desc: "Water-resistant outerwear, virgin wool, fine knitwear & thermal layering",
+                  label: "Fall & Winter (Cool, Rain or Snow)",
+                  desc: "Warm wools, cozy knitwear, water-resistant layers & boots",
                   image: "https://images.unsplash.com/photo-1516431883659-655d41c09bf9?auto=format&fit=crop&w=800&q=80",
                 },
                 {
                   id: "Spring/Summer" as const,
-                  label: "Spring / Summer (Warm)",
-                  desc: "Breathable Egyptian cotton, linen blends, lightweight unlined tailoring",
+                  label: "Spring & Summer (Mild to Warm)",
+                  desc: "Breathable cottons, lightweight linens & easy unlined tailoring",
                   image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
                 },
               ].map((c) => {
@@ -745,11 +901,10 @@ export function MultiStepProfile({
                         season_of_wear: c.id.includes("Fall") ? "fall_winter" : "spring_summer",
                       })
                     }
-                    className={`group rounded-fitting border overflow-hidden cursor-pointer transition-all flex items-center gap-3 p-3 ${
-                      isSelected
-                        ? "border-accent ring-2 ring-accent/30 bg-surface/50"
-                        : "border-border hover:border-thread/50 bg-surface/20"
-                    }`}
+                    className={`group rounded-fitting border overflow-hidden cursor-pointer transition-all flex items-center gap-3 p-3 ${isSelected
+                      ? "border-accent ring-2 ring-accent/30 bg-surface/50 shadow-xs"
+                      : "border-border hover:border-thread/50 bg-surface/20"
+                      }`}
                   >
                     <img src={c.image} alt={c.label} className="w-20 h-16 rounded object-cover shrink-0" />
                     <div>
@@ -766,37 +921,36 @@ export function MultiStepProfile({
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <label className="text-xs font-semibold uppercase tracking-wider text-ink">
-                Budget Tier (Hard Constraint: Never Relaxed)
+                Price Range
               </label>
-              <span className="text-xs text-thread font-semibold font-mono">100% In-Stock Canadian Catalog</span>
+              <span className="text-xs text-thread font-semibold">100% Real In-Stock Items</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { tier: "$", label: "$ (Value)", desc: "Under $100 / garment (Kotn, RW&CO Essentials, Tentree)" },
-                { tier: "$$", label: "$$ (Mid-Tier)", desc: "$100 - $250 / garment (Aritzia, Lululemon, Vessi, Frank And Oak)" },
-                { tier: "$$$", label: "$$$ (Premium)", desc: "$250+ / garment (Club Monaco, Canada Goose, Mackage, Maguire)" },
+                { tier: "$", label: "$ (Value)", desc: "Under $100 / piece (Kotn, RW&CO Essentials, Tentree)" },
+                { tier: "$$", label: "$$ (Mid-Range)", desc: "$100 - $250 / piece (Aritzia, Lululemon, Vessi, Frank And Oak)" },
+                { tier: "$$$", label: "$$$ (Premium)", desc: "$250+ / piece (Club Monaco, Canada Goose, Mackage, Maguire)" },
               ].map((b) => (
                 <button
                   key={b.tier}
                   type="button"
                   onClick={() => onUpdate({ budget: b.tier as any, budget_tier: b.tier as any })}
-                  className={`p-3.5 text-left rounded-fitting border transition-all cursor-pointer ${
-                    profile.budget === b.tier || profile.budget_tier === b.tier
-                      ? "border-accent bg-accent/5 ring-1 ring-accent text-ink"
-                      : "border-border hover:border-thread/50 bg-surface/40 text-ink-muted"
-                  }`}
+                  className={`p-3.5 text-left rounded-fitting border transition-all cursor-pointer ${profile.budget === b.tier || profile.budget_tier === b.tier
+                    ? "border-accent bg-accent/5 ring-1 ring-accent text-ink shadow-xs"
+                    : "border-border hover:border-thread/50 bg-surface/40 text-ink-muted"
+                    }`}
                 >
-                  <div className="text-sm font-bold text-ink font-mono">{b.label}</div>
+                  <div className="text-sm font-bold text-ink">{b.label}</div>
                   <div className="text-xs text-ink-muted mt-1 leading-snug">{b.desc}</div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Size Spectrum */}
+          {/* Size Selection */}
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-ink">
-              Size Reference
+              Your Usual Size
             </label>
             <div className="grid grid-cols-6 gap-2">
               {(["XS", "S", "M", "L", "XL", "XXL"] as const).map((size) => (
@@ -804,131 +958,16 @@ export function MultiStepProfile({
                   key={size}
                   type="button"
                   onClick={() => onUpdate({ size })}
-                  className={`py-2 text-xs font-bold rounded-fitting border transition-all cursor-pointer ${
-                    profile.size === size
-                      ? "bg-accent text-white border-accent"
-                      : "bg-surface border-border text-ink hover:border-thread/50"
-                  }`}
+                  className={`py-2 text-xs font-bold rounded-fitting border transition-all cursor-pointer ${profile.size === size
+                    ? "bg-accent text-white border-accent shadow-xs"
+                    : "bg-surface border-border text-ink hover:border-thread/50"
+                    }`}
                 >
                   {size}
                 </button>
               ))}
             </div>
           </div>
-
-          <div className="flex justify-end pt-4">
-            <button
-              type="button"
-              onClick={handleNext}
-              className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer"
-            >
-              Continue to {flow === "occasion" ? "Occasion Selection" : "Lifestyle Selection"} →
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================ */}
-      {/* STEP 6: CONTEXT & AUDIENCE-FIT (FLOW A vs FLOW B) */}
-      {/* ============================================================ */}
-      {currentStep === 6 && (
-        <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-6 shadow-fitting-card animate-fadeIn">
-          {flow === "occasion" ? (
-            /* FLOW A: 6 Occasion Photo Tiles + Audience Free-Text */
-            <div className="space-y-6">
-              <div className="border-b border-border pb-4">
-                <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 6 • High-Stakes Occasion</div>
-                <h2 className="text-2xl font-serif text-ink font-medium mt-1">Room Decorum & Stakes</h2>
-                <p className="text-xs text-ink-muted mt-1">
-                  Select the exact room setting to calibrate formality and trigger occasion override protections.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-                {occasionOptions.map((occ) => {
-                  const isSelected = occasion === occ.id;
-                  return (
-                    <div
-                      key={occ.id}
-                      onClick={() => onOccasionChange(occ.id)}
-                      className={`group rounded-fitting border overflow-hidden cursor-pointer transition-all flex flex-col justify-between ${
-                        isSelected
-                          ? "border-accent ring-2 ring-accent/30 bg-surface/50"
-                          : "border-border hover:border-thread/50 bg-surface/20"
-                      }`}
-                    >
-                      <div>
-                        <div className="aspect-[16/10] relative overflow-hidden bg-surface">
-                          <img src={occ.image} alt={occ.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        </div>
-                        <div className="p-3 space-y-0.5">
-                          <h4 className="text-xs font-bold text-ink">{occ.label}</h4>
-                          <p className="text-[11px] text-ink-muted leading-tight">{occ.context}</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Audience-Fit Free Text Input */}
-              <div className="space-y-2 pt-2 border-t border-border">
-                <div className="flex justify-between items-center">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-ink">
-                    Audience-fit context (Optional Room Expectations)
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => onAudienceChange("Seed fund, partners are ex-engineers, meeting at their office in Gastown")}
-                    className="text-xs text-thread hover:underline cursor-pointer"
-                  >
-                    Demo Preset (Persona Sam)
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  value={audienceText}
-                  onChange={(e) => onAudienceChange(e.target.value)}
-                  placeholder="e.g. Seed fund, partners are ex-engineers, meeting at their office in Gastown"
-                  className="w-full px-4 py-3 text-sm bg-surface/40 border border-border rounded-fitting focus:outline-none focus:ring-1 focus:ring-accent focus:bg-surface-raised transition-all"
-                />
-              </div>
-            </div>
-          ) : (
-            /* FLOW B: 4 Lifestyle Tiles */
-            <div className="space-y-6">
-              <div className="border-b border-border pb-4">
-                <div className="text-xs font-bold uppercase tracking-wider text-thread">Step 6 • Lifestyle Utility</div>
-                <h2 className="text-2xl font-serif text-ink font-medium mt-1">Everyday Wardrobe Context</h2>
-                <p className="text-xs text-ink-muted mt-1">
-                  Select up to 2 contexts that reflect your hybrid week.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {lifestyleOptions.map((ls) => {
-                  const isSelected = (profile.lifestyle || profile.lifestyle_tags || []).includes(ls.id);
-                  return (
-                    <div
-                      key={ls.id}
-                      onClick={() => handleLifestyleToggle(ls.id)}
-                      className={`group rounded-fitting border overflow-hidden cursor-pointer transition-all flex items-center gap-3.5 p-3.5 ${
-                        isSelected
-                          ? "border-accent ring-2 ring-accent/30 bg-surface/50"
-                          : "border-border hover:border-thread/50 bg-surface/20"
-                      }`}
-                    >
-                      <img src={ls.image} alt={ls.label} className="w-20 h-20 rounded object-cover shrink-0" />
-                      <div>
-                        <h4 className="text-sm font-bold text-ink">{ls.label}</h4>
-                        <p className="text-xs text-ink-muted leading-snug mt-1">{ls.desc}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           {/* Final Submit CTA */}
           <div className="pt-6 border-t border-border">
@@ -941,11 +980,11 @@ export function MultiStepProfile({
               {isLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Calibrating Zero-Hallucination Recommendation...</span>
+                  <span>Putting your look together...</span>
                 </>
               ) : (
                 <span>
-                  {flow === "occasion" ? "Generate Decisive Outfit →" : "Assemble 15-Item Capsule Matrix →"}
+                  {flow === "occasion" ? "See My Outfit →" : "Build My Capsule Wardrobe →"}
                 </span>
               )}
             </button>

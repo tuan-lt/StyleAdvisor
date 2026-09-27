@@ -133,29 +133,26 @@ export function CapsuleResult({
         </div>
       </div>
 
-      {/* 1. Serif Headline & Lifestyle Reasoning Paragraph (PRD FR-3.1) */}
+      {/* 1. Headline & Lifestyle Reasoning Paragraph */}
       <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-4 shadow-fitting-card">
         <div className="flex items-center justify-between">
           <div className="text-xs font-bold uppercase tracking-widest text-thread">
-            Wardrobe Architecture
+            Your Everyday Capsule Wardrobe
           </div>
-          <span className="text-[11px] font-mono text-ink-muted bg-surface px-2 py-0.5 rounded border border-border">
-            Newsreader Serif
-          </span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-serif text-ink font-medium">
-          The Modular Vancouver Capsule
+          The 15-Piece Mix & Match Wardrobe
         </h1>
         <p className="font-serif text-[18px] sm:text-[19px] text-ink leading-relaxed italic">
-          &ldquo;Translating hybrid office requirements and unpredictable coastal climates into an interconnected 15-piece matrix. By standardizing tonal undertones across Canadian tailoring and technical knits, any single top coordinates with every single bottom, eliminating morning decision fatigue.&rdquo;
+          &ldquo;Designed for real life and changing Canadian weather. We handpicked 15 versatile pieces in complementary tones so that every single top pairs naturally with every bottom. No more morning guesswork—just effortless style every day.&rdquo;
         </p>
       </div>
 
-      {/* 2. Three Worked Outfits Carousel / Tabs (PRD FR-3.1) */}
+      {/* 2. Three Worked Outfits Carousel / Tabs */}
       <div className="bg-surface-raised border border-border rounded-fitting-lg overflow-hidden shadow-fitting-raised">
         <div className="p-5 sm:p-6 border-b border-border bg-surface/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-thread">Demonstration Outfits</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-thread">Example Outfits</div>
             <h2 className="text-xl font-serif text-ink mt-0.5 font-medium">3 Ready-to-Wear Combinations</h2>
           </div>
           <div className="flex gap-1.5 bg-surface p-1 rounded-fitting border border-border">

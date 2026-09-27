@@ -1,5 +1,51 @@
 [
   {
+    "id": "ca_lululemon_define-cropped-jacke_8072",
+    "name": "Define Cropped Jacket Nulu",
+    "brand": "Lululemon",
+    "slot": "outerwear",
+    "price": 138,
+    "currency": "CAD",
+    "product_url": "https://shop.lululemon.com/en-ca/p/nulu-cropped-define-jacket/oo2vz3qc01",
+    "image_url": "https://images.lululemon.com/is/image/lululemon/LW3HWES_074115_1",
+    "gender_cut": "unisex",
+    "budget_tier": "mid",
+    "occasions": [
+      "work",
+      "smart-casual",
+      "casual"
+    ],
+    "palette_seasons": [
+      "autumn",
+      "winter"
+    ],
+    "body_types": [
+      "average",
+      "athletic"
+    ],
+    "season_of_wear": [
+      "all-season",
+      "fall"
+    ],
+    "formality_score": 8,
+    "color": "ColourTrue Leopard Black MultiTrue Leopard Black Multi",
+    "hex_color": "#1c1b19",
+    "fabric": {
+      "composition": "Nulu",
+      "care": "Machine wash cold. Hang dry.",
+      "sustainable": false
+    },
+    "return_policy": {
+      "window_days": 30,
+      "free_returns": true,
+      "policy_note": "Free returns and exchanges within 30 days at Lululemon."
+    },
+    "description": "Crafted by Lululemon for refined wardrobe versatility in Canadian climates.",
+    "styling_notes": "Pairs seamlessly with tailored foundation pieces.",
+    "in_stock": true,
+    "verified_date": "2026-09-26"
+  },
+  {
     "id": "ca_rw-co_tailored-fit-striped_1107",
     "name": "Tailored-Fit Striped Brown Wool Suit Pant",
     "brand": "RW&CO",
