@@ -203,42 +203,66 @@ export function MultiStepProfile({
       label: "Rectangle / Straight",
       tag: "Straight Frame",
       sub: "Shoulders and hips are about the same width; great for layered jackets and neat tailoring",
-      image: "/images/body-shapes/rectangle.png",
+      images: {
+        female: "/images/body-shapes/rectangle.png",
+        male: "/images/body-shapes/male_rectangle.png",
+        neutral: "/images/body-shapes/male_rectangle.png",
+      },
     },
     {
       id: "bottom_triangle",
-      label: "Pear / Teardrop",
+      label: "Pear / Triangle",
       tag: "A-Frame",
       sub: "Hips are slightly wider than shoulders; balanced with eye-catching tops and easy wide-leg pants",
-      image: "/images/body-shapes/pear.png",
+      images: {
+        female: "/images/body-shapes/pear.png",
+        male: "/images/body-shapes/male_triangle.png",
+        neutral: "/images/body-shapes/male_triangle.png",
+      },
     },
     {
       id: "oval",
       label: "Oval / Round",
       tag: "Soft Frame",
       sub: "Fuller midsection; looks great with open jackets, soft vertical drapes, and relaxed fits",
-      image: "/images/body-shapes/oval.png",
+      images: {
+        female: "/images/body-shapes/oval.png",
+        male: "/images/body-shapes/male_oval.png",
+        neutral: "/images/body-shapes/male_oval.png",
+      },
     },
     {
       id: "top_triangle",
       label: "Inverted Triangle",
       tag: "V-Frame",
       sub: "Broad shoulders tapering down to narrower hips; looks best with relaxed pants and softer shoulders",
-      image: "/images/body-shapes/inverted_triangle.png",
+      images: {
+        female: "/images/body-shapes/inverted_triangle.png",
+        male: "/images/body-shapes/male_inverted_triangle.png",
+        neutral: "/images/body-shapes/male_inverted_triangle.png",
+      },
     },
     {
       id: "double_triangle",
       label: "Hourglass",
       tag: "Curved Frame",
       sub: "Balanced bust and hips with a defined waist; highlighted by fitted styles and belted coats",
-      image: "/images/body-shapes/hourglass.png",
+      images: {
+        female: "/images/body-shapes/hourglass.png",
+        male: "/images/body-shapes/male_hourglass.png",
+        neutral: "/images/body-shapes/hourglass.png",
+      },
     },
     {
       id: "standard",
-      label: "Balanced Regular",
+      label: "Trapezoid / Regular",
       tag: "Classic Fit",
       sub: "Proportional build that works well with most standard off-the-rack Canadian cuts",
-      image: "/images/body-shapes/standard.png",
+      images: {
+        female: "/images/body-shapes/standard.png",
+        male: "/images/body-shapes/male_trapezoid.png",
+        neutral: "/images/body-shapes/standard.png",
+      },
     },
   ];
 
@@ -725,6 +749,13 @@ export function MultiStepProfile({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
             {bodyTypeOptions.map((b) => {
+              const currentGenderCut: "female" | "male" | "neutral" =
+                profile.gender_cut === "female" || profile.gender_expression === "Female"
+                  ? "female"
+                  : profile.gender_cut === "male" || profile.gender_expression === "Male"
+                  ? "male"
+                  : "neutral";
+              const bodyImg = b.images[currentGenderCut] || b.images.male;
               const isSelected = profile.body_type === b.id;
               return (
                 <div
@@ -736,8 +767,8 @@ export function MultiStepProfile({
                     }`}
                 >
                   <div>
-                    <div className="aspect-[4/5] relative overflow-hidden bg-white/95 p-3 flex items-center justify-center border-b border-border">
-                      <img src={b.image} alt={b.label} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+                    <div className="aspect-[4/5] relative overflow-hidden bg-white p-3 flex items-center justify-center border-b border-border">
+                      <img src={bodyImg} alt={b.label} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
                       <div className="absolute top-3 left-3 bg-surface-raised/95 backdrop-blur-xs text-ink text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded border border-border shadow-xs">
                         {b.tag}
                       </div>

@@ -53,6 +53,23 @@ export default function AdminCatalogPage() {
   const [enteredKey, setEnteredKey] = useState<string>("");
   const [showKeyText, setShowKeyText] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
+  const restoreFileInputRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    }
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   // Extension Ingestion Hub State
   const [isExtensionModalOpen, setIsExtensionModalOpen] = useState<boolean>(false);
@@ -819,88 +836,121 @@ export default function AdminCatalogPage() {
                 Catalog Management
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-verified/10 text-verified text-[10px] font-sans font-semibold tracking-wide border border-verified/20">
                   <span className="w-1.5 h-1.5 rounded-full bg-verified animate-ping" />
-                  Live Ingest Stream (4s)
+                  Live Stream (4s)
                 </span>
               </h1>
-              <p className="text-[11px] text-ink-muted hidden sm:block">
-                Zero-Hallucination Inventory • Chrome Extension Ingest Ready
-              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
-            {/* Backup Database Button (.sql) */}
-            <button
-              type="button"
-              onClick={handleBackupDatabase}
-              disabled={garments.length === 0}
-              className="px-3 py-1.5 rounded-fitting border border-border bg-surface-raised hover:border-thread text-ink text-xs font-medium flex items-center gap-1.5 transition-all disabled:opacity-50 shadow-xs cursor-pointer"
-              title="Download full PostgreSQL database backup (.sql file)"
-            >
-              <span>💾</span>
-              <span className="hidden sm:inline">Backup database</span>
-            </button>
+          <div className="flex items-center gap-3">
+            {/* Quick Actions Dropdown Menu */}
+            <div className="relative" ref={menuRef}>
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="px-3.5 py-2 rounded-fitting bg-surface-raised border border-border hover:border-thread text-ink text-xs font-medium tracking-wide flex items-center gap-2 shadow-xs transition-all cursor-pointer"
+                id="admin-menu-dropdown-btn"
+              >
+                <span>⚙️ Actions & Tools</span>
+                <span className="text-[10px] transform transition-transform duration-200" style={{ transform: isMenuOpen ? "rotate(180deg)" : "rotate(0deg)" }}>
+                  ▼
+                </span>
+              </button>
 
-            {/* Restore Database Input (.sql) */}
-            <label
-              className="px-3 py-1.5 rounded-fitting border border-border bg-surface-raised hover:border-thread text-ink text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
-              title="Upload and restore a PostgreSQL .sql backup script"
-            >
-              <span>📥</span>
-              <span className="hidden sm:inline">Restore database</span>
+              {isMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-surface-raised border border-border rounded-fitting shadow-fitting-raised py-1 z-50 animate-fadeIn divide-y divide-border/60">
+                  {/* Primary Ingestion / Creation */}
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleOpenCreateModal();
+                      }}
+                      className="w-full px-3.5 py-2 text-left text-xs font-semibold text-ink hover:bg-accent/10 hover:text-accent flex items-center gap-2.5 transition-colors cursor-pointer"
+                    >
+                      <span className="text-sm font-bold text-accent">+</span>
+                      <span>Add Garment</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        checkExtensionEndpointHealth();
+                        setIsExtensionModalOpen(true);
+                      }}
+                      className="w-full px-3.5 py-2 text-left text-xs text-ink hover:bg-thread/10 hover:text-thread flex items-center gap-2.5 transition-colors cursor-pointer"
+                    >
+                      <span>🧩</span>
+                      <span>Import from Extension</span>
+                    </button>
+                  </div>
+
+                  {/* Verification & Maintenance */}
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleBatchVerify();
+                      }}
+                      disabled={isBatchChecking || garments.length === 0}
+                      className="w-full px-3.5 py-2 text-left text-xs text-ink hover:bg-surface flex items-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <span className={isBatchChecking ? "animate-spin" : ""}>🔄</span>
+                      <span>{isBatchChecking ? "Verifying Links..." : "Verify link"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleBackupDatabase();
+                      }}
+                      disabled={garments.length === 0}
+                      className="w-full px-3.5 py-2 text-left text-xs text-ink hover:bg-surface flex items-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <span>💾</span>
+                      <span>Backup</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        restoreFileInputRef.current?.click();
+                      }}
+                      className="w-full px-3.5 py-2 text-left text-xs text-ink hover:bg-surface flex items-center gap-2.5 transition-colors cursor-pointer"
+                    >
+                      <span>📥</span>
+                      <span>Restore</span>
+                    </button>
+                  </div>
+
+                  {/* Security / Session */}
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full px-3.5 py-2 text-left text-xs text-red-500 hover:bg-red-500/10 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    >
+                      <span>🔒</span>
+                      <span>Lock</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Hidden file input for Restore */}
               <input
+                ref={restoreFileInputRef}
                 type="file"
                 accept=".sql"
                 onChange={handleRestoreDatabase}
                 className="hidden"
               />
-            </label>
-
-            {/* Verify All Links Button */}
-            <button
-              type="button"
-              onClick={handleBatchVerify}
-              disabled={isBatchChecking || garments.length === 0}
-              className="px-3 py-1.5 rounded-fitting border border-border bg-surface-raised hover:border-thread text-ink text-xs font-medium flex items-center gap-1.5 transition-all disabled:opacity-50"
-              title="Verify live link status for all catalog items"
-            >
-              <span className={isBatchChecking ? "animate-spin" : ""}>🔄</span>
-              <span className="hidden sm:inline">{isBatchChecking ? "Pinging..." : "Verify Links"}</span>
-            </button>
-
-            {/* Import from Extension Button */}
-            <button
-              type="button"
-              onClick={() => {
-                checkExtensionEndpointHealth();
-                setIsExtensionModalOpen(true);
-              }}
-              className="px-3 py-1.5 rounded-fitting border border-thread/40 bg-surface-raised hover:bg-thread/5 text-thread text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs"
-            >
-              <span>🧩</span>
-              <span>Import from Extension</span>
-            </button>
-
-            {/* Add New Garment Button */}
-            <button
-              type="button"
-              onClick={handleOpenCreateModal}
-              className="px-3.5 py-1.5 rounded-fitting bg-accent hover:bg-accent/90 text-white text-xs font-semibold tracking-wide flex items-center gap-1.5 shadow-xs transition-all"
-            >
-              <span>+</span>
-              <span className="hidden sm:inline">Add Garment</span>
-            </button>
-
-            {/* Lock / Logout Button */}
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="px-2.5 py-1.5 rounded-fitting border border-border bg-surface-raised hover:border-red-500/40 text-ink-muted hover:text-red-400 text-xs font-medium flex items-center gap-1.5 transition-all shadow-xs"
-              title="Lock Admin Session"
-            >
-              <span>🔒</span>
-              <span className="hidden sm:inline">Lock</span>
-            </button>
+            </div>
           </div>
         </div>
       </header>
