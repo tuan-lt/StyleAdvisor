@@ -319,6 +319,7 @@ export default function Home() {
           />
         ) : (
           <CapsuleResult
+            profile={profile}
             ownedItemIds={profile.owned_item_ids || []}
             onToggleOwned={toggleOwnedItem}
             onAddToCart={handleAddToCart}

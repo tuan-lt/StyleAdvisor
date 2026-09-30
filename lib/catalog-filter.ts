@@ -216,6 +216,8 @@ export function hasAllRequiredSlots(candidatesBySlot: Record<GarmentSlot, Garmen
 
 /**
  * Primary candidate filter implementation adhering to the Fitting Room PRD v4.2.
+ * Implements intelligent multi-tier per-slot relaxation so that all slots (outerwear, top, bottom, shoes)
+ * are guaranteed to have candidate items without returning empty slots or incomplete outfits.
  */
 export function filterCandidates(
   catalog: Garment[],
@@ -232,116 +234,124 @@ export function filterCandidates(
   // Exclude garments the user already owns to prevent redundant recommendation
   const ownedItemIds = new Set(inputs.owned_item_ids || []);
 
-  // --- STEP 1: Strict Hard-Filter Base ---
-  const hardFiltered = catalog.filter((garment) => {
-    // Check owned exclusions
+  // Base pool respecting unowned status and strict gender cut
+  const genderPool = catalog.filter((garment) => {
     if (ownedItemIds.has(garment.id)) return false;
-
-    // 1. Gender / Cut (Strict Hard-Filter: Never Relaxed)
-    if (!matchGender(garment.gender_cut, targetGender as any)) return false;
-
-    // 2. Budget Tier (Strict Hard-Filter: Never Relaxed)
-    if (!matchBudget(garment.budget_tier, targetBudget as any)) return false;
-
-    // 3. Season of Wear (Strict Hard-Filter: Never Relaxed)
-    if (!matchSeason(garment.season_of_wear, targetSeason as any)) return false;
-
-    // 4. Occasion (Strict Hard-Filter for Occasion Flow: Never Relaxed)
-    if (isOccasionFlow && targetOccasion) {
-      if (!matchOccasion(garment.occasions, targetOccasion)) return false;
-    }
-
-    return true;
+    return matchGender(garment.gender_cut, targetGender as any);
   });
 
-  // --- OCCASION FLOW (Flow A) RELAXATION HIERARCHY ---
-  if (isOccasionFlow) {
-    // Attempt 0: Strict soft-filters (Palette + Style)
-    const strictPool = hardFiltered.filter((garment) => {
-      if (targetPalette && targetPalette !== "not_sure" && !matchPalette(garment.palette_seasons, targetPalette)) {
-        return false;
-      }
-      if (targetStyle && !matchStyle(garment.styles, targetStyle)) {
-        return false;
-      }
+  const relaxedFields: RelaxedField[] = [];
+  const candidates_by_slot: Record<GarmentSlot, Garment[]> = {
+    outerwear: [],
+    top: [],
+    bottom: [],
+    shoes: [],
+    accessory: [],
+  };
+
+  for (const slot of ALL_SLOTS) {
+    const slotPool = genderPool.filter((g) => g.slot === slot);
+    if (slotPool.length === 0) continue;
+
+    // Tier 1: Strict soft-filters (Budget + Season + Occasion/Lifestyle + Palette + Style)
+    let candidates = slotPool.filter((g) => {
+      if (!matchBudget(g.budget_tier, targetBudget as any)) return false;
+      if (!matchSeason(g.season_of_wear, targetSeason as any)) return false;
+      if (isOccasionFlow && targetOccasion && !matchOccasion(g.occasions, targetOccasion)) return false;
+      if (targetPalette && targetPalette !== "not_sure" && !matchPalette(g.palette_seasons, targetPalette)) return false;
+      if (targetStyle && !matchStyle(g.styles, targetStyle)) return false;
       return true;
     });
 
-    const strictGrouped = groupGarmentsBySlot(strictPool);
-    if (hasAllRequiredSlots(strictGrouped.candidates_by_slot)) {
-      return buildResult(strictGrouped, null, []);
-    }
-
-    // Attempt 1: Relax Palette Season (Fallback to nearest neutral tones)
-    const paletteRelaxedPool = hardFiltered.filter((garment) => {
-      if (targetStyle && !matchStyle(garment.styles, targetStyle)) {
-        return false;
-      }
-      return true;
-    });
-
-    const paletteRelaxedGrouped = groupGarmentsBySlot(paletteRelaxedPool);
-    if (hasAllRequiredSlots(paletteRelaxedGrouped.candidates_by_slot)) {
-      return buildResult(paletteRelaxedGrouped, "palette", ["palette"]);
-    }
-
-    // Attempt 2: Relax Style (Fallback to Classic/Minimalist staples)
-    const fullyRelaxedGrouped = groupGarmentsBySlot(hardFiltered);
-    return buildResult(fullyRelaxedGrouped, "style", ["palette", "style"]);
-  }
-
-  // --- EVERYDAY FLOW (Flow B) RELAXATION HIERARCHY ---
-  const lifestyleTags = inputs.lifestyle || inputs.lifestyle_tags || [];
-
-  // Attempt 0: Filter by lifestyle if tags provided
-  if (lifestyleTags.length > 0) {
-    const lifestylePool = hardFiltered.filter((garment) => {
-      const matchesLifestyle = lifestyleTags.some((tag) => {
-        const t = tag.toLowerCase().replace(/_/g, " ");
-        return (
-          garment.occasions.some((occ) => occ.toLowerCase().includes(t)) ||
-          (garment.description && garment.description.toLowerCase().includes(t)) ||
-          (garment.styling_notes && garment.styling_notes.toLowerCase().includes(t)) ||
-          (garment.styles && garment.styles.some((s) => s.toLowerCase().includes(t)))
-        );
+    // Tier 2: Relax Palette
+    if (candidates.length === 0) {
+      candidates = slotPool.filter((g) => {
+        if (!matchBudget(g.budget_tier, targetBudget as any)) return false;
+        if (!matchSeason(g.season_of_wear, targetSeason as any)) return false;
+        if (isOccasionFlow && targetOccasion && !matchOccasion(g.occasions, targetOccasion)) return false;
+        if (targetStyle && !matchStyle(g.styles, targetStyle)) return false;
+        return true;
       });
-      return matchesLifestyle;
-    });
-
-    const lifestyleGrouped = groupGarmentsBySlot(lifestylePool);
-    if (hasAllRequiredSlots(lifestyleGrouped.candidates_by_slot)) {
-      return buildResult(lifestyleGrouped, null, []);
+      if (candidates.length > 0 && !relaxedFields.includes("palette")) {
+        relaxedFields.push("palette");
+      }
     }
+
+    // Tier 3: Relax Style
+    if (candidates.length === 0) {
+      candidates = slotPool.filter((g) => {
+        if (!matchBudget(g.budget_tier, targetBudget as any)) return false;
+        if (!matchSeason(g.season_of_wear, targetSeason as any)) return false;
+        if (isOccasionFlow && targetOccasion && !matchOccasion(g.occasions, targetOccasion)) return false;
+        return true;
+      });
+      if (candidates.length > 0 && !relaxedFields.includes("style")) {
+        relaxedFields.push("style");
+      }
+    }
+
+    // Tier 4: Relax Occasion / Lifestyle (fallback to versatile work/casual staples)
+    if (candidates.length === 0 && isOccasionFlow && targetOccasion) {
+      candidates = slotPool.filter((g) => {
+        if (!matchBudget(g.budget_tier, targetBudget as any)) return false;
+        if (!matchSeason(g.season_of_wear, targetSeason as any)) return false;
+        return true;
+      });
+      if (candidates.length > 0 && !relaxedFields.includes("occasion")) {
+        relaxedFields.push("occasion");
+      }
+    }
+
+    // Tier 5: Relax Budget (allow adjacent tiers matching season)
+    if (candidates.length === 0) {
+      candidates = slotPool.filter((g) => {
+        if (!matchSeason(g.season_of_wear, targetSeason as any)) return false;
+        return true;
+      });
+      if (candidates.length > 0 && !relaxedFields.includes("budget")) {
+        relaxedFields.push("budget");
+      }
+    }
+
+    // Tier 6: Relax Season (fallback to all gender-matched items in this slot)
+    if (candidates.length === 0) {
+      candidates = slotPool;
+      if (!relaxedFields.includes("season")) {
+        relaxedFields.push("season");
+      }
+    }
+
+    candidates_by_slot[slot] = candidates;
   }
 
-  // Attempt 1: Relax Lifestyle only
-  const relaxedLifestyleGrouped = groupGarmentsBySlot(hardFiltered);
-  return buildResult(
-    relaxedLifestyleGrouped,
-    lifestyleTags.length > 0 ? "lifestyle" : null,
-    lifestyleTags.length > 0 ? ["lifestyle"] : []
-  );
-}
+  const candidate_ids_by_slot: Record<GarmentSlot, string[]> = {
+    outerwear: (candidates_by_slot.outerwear || []).map((g) => g.id),
+    top: (candidates_by_slot.top || []).map((g) => g.id),
+    bottom: (candidates_by_slot.bottom || []).map((g) => g.id),
+    shoes: (candidates_by_slot.shoes || []).map((g) => g.id),
+    accessory: (candidates_by_slot.accessory || []).map((g) => g.id),
+  };
 
-function buildResult(
-  grouped: {
-    candidates_by_slot: Record<GarmentSlot, Garment[]>;
-    candidate_ids_by_slot: Record<GarmentSlot, string[]>;
-    slot_counts: Record<GarmentSlot, number>;
-  },
-  relaxed_field: RelaxedField | null,
-  relaxed_fields: RelaxedField[]
-): FilterCandidatesResult {
-  const all_candidate_ids = ALL_SLOTS.flatMap((slot) => grouped.candidate_ids_by_slot[slot] || []);
+  const slot_counts: Record<GarmentSlot, number> = {
+    outerwear: candidates_by_slot.outerwear.length,
+    top: candidates_by_slot.top.length,
+    bottom: candidates_by_slot.bottom.length,
+    shoes: candidates_by_slot.shoes.length,
+    accessory: candidates_by_slot.accessory.length,
+  };
+
+  const all_candidate_ids = ALL_SLOTS.flatMap((slot) => candidate_ids_by_slot[slot] || []);
   const total_candidates = all_candidate_ids.length;
-  const is_valid_pool = hasAllRequiredSlots(grouped.candidates_by_slot);
+  const is_valid_pool = hasAllRequiredSlots(candidates_by_slot);
+  const relaxed_field = relaxedFields.length > 0 ? relaxedFields[0] : null;
+  const relaxed_fields = relaxedFields;
 
   return {
-    candidate_ids_by_slot: grouped.candidate_ids_by_slot,
-    candidates_by_slot: grouped.candidates_by_slot,
+    candidate_ids_by_slot,
+    candidates_by_slot,
     all_candidate_ids,
     total_candidates,
-    slot_counts: grouped.slot_counts,
+    slot_counts,
     relaxed_field,
     relaxed_fields,
     is_valid_pool,

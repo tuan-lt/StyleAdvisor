@@ -623,14 +623,14 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       const isValid = currentId && validCandidateIds.has(currentId) && slotCandidates[slot]?.some((g) => g.id === currentId);
 
       if (!isValid) {
-        const fallbackGarment = slotCandidates[slot]?.[0];
+        const fallbackGarment = slotCandidates[slot]?.[0] || catalog.find((g) => g.slot === slot);
         if (fallbackGarment) {
           selectedIds[slot] = fallbackGarment.id;
         }
       }
     }
 
-    // Validate Optional Outerwear
+    // Validate Layer / Outerwear
     if (selectedIds.outerwear) {
       const isValid =
         validCandidateIds.has(selectedIds.outerwear) &&
@@ -640,6 +640,11 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       }
     } else if (slotCandidates.outerwear && slotCandidates.outerwear.length > 0) {
       selectedIds.outerwear = slotCandidates.outerwear[0].id;
+    } else {
+      const fallbackOuterwear = catalog.find((g) => g.slot === "outerwear");
+      if (fallbackOuterwear) {
+        selectedIds.outerwear = fallbackOuterwear.id;
+      }
     }
 
     // Validate Optional Accessory
@@ -650,15 +655,17 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       if (!isValid) {
         selectedIds.accessory = slotCandidates.accessory?.[0]?.id || null;
       }
+    } else if (slotCandidates.accessory && slotCandidates.accessory.length > 0) {
+      selectedIds.accessory = slotCandidates.accessory[0].id;
     }
 
     // Hydrate Full Garment Objects from Catalog
     const catalogMap = new Map(catalog.map((g) => [g.id, g]));
-    const topGarment = catalogMap.get(selectedIds.top)!;
-    const bottomGarment = catalogMap.get(selectedIds.bottom)!;
-    const shoesGarment = catalogMap.get(selectedIds.shoes)!;
-    const outerwearGarment = selectedIds.outerwear ? catalogMap.get(selectedIds.outerwear) : undefined;
-    const accessoryGarment = selectedIds.accessory ? catalogMap.get(selectedIds.accessory) : undefined;
+    const topGarment = catalogMap.get(selectedIds.top) || slotCandidates.top?.[0] || catalog.find((g) => g.slot === "top");
+    const bottomGarment = catalogMap.get(selectedIds.bottom) || slotCandidates.bottom?.[0] || catalog.find((g) => g.slot === "bottom");
+    const shoesGarment = catalogMap.get(selectedIds.shoes) || slotCandidates.shoes?.[0] || catalog.find((g) => g.slot === "shoes");
+    const outerwearGarment = selectedIds.outerwear ? (catalogMap.get(selectedIds.outerwear) || slotCandidates.outerwear?.[0]) : undefined;
+    const accessoryGarment = selectedIds.accessory ? (catalogMap.get(selectedIds.accessory) || slotCandidates.accessory?.[0]) : undefined;
 
     // Calculate Total Price in CAD
     const totalPrice =

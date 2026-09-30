@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Garment, GarmentSlot } from "../types/catalog";
+import { Garment, GarmentSlot, UserProfile } from "../types/catalog";
+import { matchGender } from "../lib/catalog-filter";
 import rawCatalog from "../data/catalog.json";
 
 const catalog = rawCatalog as Garment[];
 
 interface CapsuleResultProps {
+  profile?: UserProfile;
   ownedItemIds: string[];
   onToggleOwned: (garmentId: string) => void;
   onAddToCart: (garment: Garment) => void;
@@ -18,6 +20,7 @@ interface CapsuleResultProps {
 }
 
 export function CapsuleResult({
+  profile,
   ownedItemIds,
   onToggleOwned,
   onAddToCart,
@@ -30,15 +33,21 @@ export function CapsuleResult({
   const [activeCombinationIndex, setActiveCombinationIndex] = useState<number>(0);
   const [filterSlot, setFilterSlot] = useState<string>("all");
 
+  const gender = profile?.gender_expression || profile?.gender_cut || "unisex";
+  const activeCatalog = useMemo(() => {
+    const matched = catalog.filter((g) => matchGender(g.gender_cut, gender as any));
+    return matched.length >= 10 ? matched : catalog;
+  }, [gender]);
+
   // Select 15 modular foundation items from the Canadian catalog (5 Tops, 4 Bottoms, 3 Outerwear, 2 Shoes, 1 Accessory)
   const capsule15: Garment[] = useMemo(() => {
-    const tops = catalog.filter((g) => g.slot === "top").slice(0, 5);
-    const bottoms = catalog.filter((g) => g.slot === "bottom").slice(0, 4);
-    const outerwear = catalog.filter((g) => g.slot === "outerwear").slice(0, 3);
-    const shoes = catalog.filter((g) => g.slot === "shoes").slice(0, 2);
-    const accessories = catalog.filter((g) => g.slot === "accessory").slice(0, 1);
+    const tops = activeCatalog.filter((g) => g.slot === "top").slice(0, 5);
+    const bottoms = activeCatalog.filter((g) => g.slot === "bottom").slice(0, 4);
+    const outerwear = activeCatalog.filter((g) => g.slot === "outerwear").slice(0, 3);
+    const shoes = activeCatalog.filter((g) => g.slot === "shoes").slice(0, 2);
+    const accessories = activeCatalog.filter((g) => g.slot === "accessory").slice(0, 1);
     return [...tops, ...bottoms, ...outerwear, ...shoes, ...accessories];
-  }, []);
+  }, [activeCatalog]);
 
   // Starter Set of 5 Core Foundation Pieces (PRD FR-3.1)
   const starterSetIds = useMemo(() => {
