@@ -17,6 +17,7 @@ import {
 import {
   getAllGarmentsFromDb,
 } from "../../../lib/db";
+import { rankCandidates } from "../../../lib/garment-scorer";
 
 /**
  * Get catalog directly from Postgres database with local catalog.json fallback
@@ -265,6 +266,45 @@ function generateDeterministicRecommendation(
 }
 
 /**
+ * Pre-scores and ranks all candidates per slot, extracting the Top 8 most suitable
+ * items to include in the AI prompt candidate pool.
+ */
+function prepareCandidatePoolPrompt(
+  candidatesBySlot: Record<GarmentSlot, Garment[]>,
+  body: RecommendRequestBody
+) {
+  const targetFormality = body.formality_target || 4;
+  const targetPalette = body.user_profile?.seasonal_colour || body.user_profile?.palette_season;
+  const targetStyle = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]);
+  const targetOccasion = body.occasion;
+  const excludedIds = new Set(body.excluded_garment_ids || []);
+
+  return Object.entries(candidatesBySlot).map(([slot, items]) => {
+    const ranked = rankCandidates(items, {
+      targetFormality,
+      targetPalette,
+      targetStyle,
+      targetOccasion,
+      excludedIds,
+    });
+
+    const top8 = ranked.slice(0, 8).map((r) => r.garment);
+
+    return {
+      slot,
+      items: top8.map((g) => ({
+        id: g.id,
+        name: g.name,
+        brand: g.brand,
+        formality_score: g.formality_level || Math.round((g.formality_score || 6) / 2),
+        styles: g.styles,
+        fabric: typeof g.fabric === "string" ? g.fabric : g.fabric?.composition || "Canadian Blend",
+      })),
+    };
+  });
+}
+
+/**
  * Call OpenAI API with candidate IDs and minimal metadata (Zero-Hallucination)
  */
 async function callOpenAIEngine(
@@ -293,17 +333,7 @@ async function callOpenAIEngine(
       "DISLIKE NUDGE: The user wants an alternative aesthetic direction. Swap the silhouette and pick alternative candidate garments.";
   }
 
-  const candidatePoolPrompt = Object.entries(candidatesBySlot).map(([slot, items]) => ({
-    slot,
-    items: items.slice(0, 8).map((g) => ({
-      id: g.id,
-      name: g.name,
-      brand: g.brand,
-      formality_score: g.formality_level || Math.round(g.formality_score / 2),
-      styles: g.styles,
-      fabric: typeof g.fabric === "string" ? g.fabric : g.fabric.composition,
-    })),
-  }));
+  const candidatePoolPrompt = prepareCandidatePoolPrompt(candidatesBySlot, body);
 
   const systemPrompt = `You are the AI Styling Engine for "Style Advisor" (Canadian Climate & High-Stakes Dressing).
 ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
@@ -396,17 +426,7 @@ async function callAnthropicEngine(
   const style = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]) || "classic";
   const overrideCheck = checkOccasionOverride(occasion, style);
 
-  const candidatePoolPrompt = Object.entries(candidatesBySlot).map(([slot, items]) => ({
-    slot,
-    items: items.slice(0, 8).map((g) => ({
-      id: g.id,
-      name: g.name,
-      brand: g.brand,
-      formality_score: g.formality_level || Math.round(g.formality_score / 2),
-      styles: g.styles,
-      fabric: typeof g.fabric === "string" ? g.fabric : g.fabric.composition,
-    })),
-  }));
+  const candidatePoolPrompt = prepareCandidatePoolPrompt(candidatesBySlot, body);
 
   const systemPrompt = `You are the AI Styling Engine for "Style Advisor".
 ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
@@ -421,6 +441,7 @@ ${overrideCheck ? `OCCASION OVERRIDE NOTICE: ${overrideCheck}` : ""}`;
       season: body.season_or_climate || body.season_of_wear,
       style: style,
       nudge: body.nudge,
+      excluded_garment_ids: body.excluded_garment_ids || [],
     },
     candidate_pool: candidatePoolPrompt,
   })}
@@ -487,17 +508,7 @@ async function callOpenRouterEngine(
       "DISLIKE NUDGE: The user wants an alternative aesthetic direction. Swap the silhouette and pick alternative candidate garments.";
   }
 
-  const candidatePoolPrompt = Object.entries(candidatesBySlot).map(([slot, items]) => ({
-    slot,
-    items: items.slice(0, 8).map((g) => ({
-      id: g.id,
-      name: g.name,
-      brand: g.brand,
-      formality_score: g.formality_level || Math.round(g.formality_score / 2),
-      styles: g.styles,
-      fabric: typeof g.fabric === "string" ? g.fabric : g.fabric.composition,
-    })),
-  }));
+  const candidatePoolPrompt = prepareCandidatePoolPrompt(candidatesBySlot, body);
 
   const systemPrompt = `You are the AI Styling Engine for "Style Advisor" (Canadian Climate & High-Stakes Dressing).
 ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
@@ -654,11 +665,18 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       }
     }
 
-    // Step 3: Zero-Hallucination Code Validation
+    // Step 3: Zero-Hallucination Code Validation & Scored Fallbacks
     const validCandidateIds = new Set(filterResult.all_candidate_ids);
     const slotCandidates = filterResult.candidates_by_slot;
     const selectedIds = { ...llmPayload.selected_garment_ids };
     let overrideApplied = llmPayload.override_applied || checkOccasionOverride(body.occasion || "pitch", body.user_profile.style);
+
+    const scoringOpts = {
+      targetFormality: body.formality_target || 4,
+      targetPalette: body.user_profile?.seasonal_colour || body.user_profile?.palette_season,
+      targetStyle: body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]),
+      targetOccasion: body.occasion,
+    };
 
     // Validate Required Slots (top, bottom, shoes)
     const requiredSlots: GarmentSlot[] = ["top", "bottom", "shoes"];
@@ -667,7 +685,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       const isValid = currentId && validCandidateIds.has(currentId) && slotCandidates[slot]?.some((g) => g.id === currentId);
 
       if (!isValid) {
-        const fallbackGarment = slotCandidates[slot]?.[0] || catalog.find((g) => g.slot === slot);
+        const pool = slotCandidates[slot] && slotCandidates[slot].length > 0 ? slotCandidates[slot] : catalog.filter((g) => g.slot === slot);
+        const fallbackGarment = rankCandidates(pool, scoringOpts)[0]?.garment;
         if (fallbackGarment) {
           selectedIds[slot] = fallbackGarment.id;
         }
@@ -680,12 +699,13 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
         validCandidateIds.has(selectedIds.outerwear) &&
         slotCandidates.outerwear?.some((g) => g.id === selectedIds.outerwear);
       if (!isValid) {
-        selectedIds.outerwear = slotCandidates.outerwear?.[0]?.id || null;
+        const pool = slotCandidates.outerwear && slotCandidates.outerwear.length > 0 ? slotCandidates.outerwear : catalog.filter((g) => g.slot === "outerwear");
+        selectedIds.outerwear = rankCandidates(pool, scoringOpts)[0]?.garment?.id || null;
       }
     } else if (slotCandidates.outerwear && slotCandidates.outerwear.length > 0) {
-      selectedIds.outerwear = slotCandidates.outerwear[0].id;
+      selectedIds.outerwear = rankCandidates(slotCandidates.outerwear, scoringOpts)[0]?.garment?.id || slotCandidates.outerwear[0].id;
     } else {
-      const fallbackOuterwear = catalog.find((g) => g.slot === "outerwear");
+      const fallbackOuterwear = rankCandidates(catalog.filter((g) => g.slot === "outerwear"), scoringOpts)[0]?.garment;
       if (fallbackOuterwear) {
         selectedIds.outerwear = fallbackOuterwear.id;
       }
@@ -697,10 +717,11 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
         validCandidateIds.has(selectedIds.accessory) &&
         slotCandidates.accessory?.some((g) => g.id === selectedIds.accessory);
       if (!isValid) {
-        selectedIds.accessory = slotCandidates.accessory?.[0]?.id || null;
+        const pool = slotCandidates.accessory && slotCandidates.accessory.length > 0 ? slotCandidates.accessory : catalog.filter((g) => g.slot === "accessory");
+        selectedIds.accessory = rankCandidates(pool, scoringOpts)[0]?.garment?.id || null;
       }
     } else if (slotCandidates.accessory && slotCandidates.accessory.length > 0) {
-      selectedIds.accessory = slotCandidates.accessory[0].id;
+      selectedIds.accessory = rankCandidates(slotCandidates.accessory, scoringOpts)[0]?.garment?.id || null;
     }
 
     // Hydrate Full Garment Objects from Catalog

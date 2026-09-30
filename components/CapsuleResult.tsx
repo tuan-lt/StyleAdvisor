@@ -3,6 +3,11 @@
 import React, { useState, useMemo } from "react";
 import { Garment, GarmentSlot, UserProfile } from "../types/catalog";
 import { matchGender } from "../lib/catalog-filter";
+import {
+  selectBalancedCapsule15,
+  assembleWorkedOutfit,
+  rankCandidates,
+} from "../lib/garment-scorer";
 import rawCatalog from "../data/catalog.json";
 
 const catalog = rawCatalog as Garment[];
@@ -32,6 +37,7 @@ export function CapsuleResult({
 }: CapsuleResultProps) {
   const [activeCombinationIndex, setActiveCombinationIndex] = useState<number>(0);
   const [filterSlot, setFilterSlot] = useState<string>("all");
+  const [capsuleIteration, setCapsuleIteration] = useState<number>(0);
 
   const gender = profile?.gender_expression || profile?.gender_cut || "unisex";
   const activeCatalog = useMemo(() => {
@@ -39,71 +45,95 @@ export function CapsuleResult({
     return matched.length >= 10 ? matched : catalog;
   }, [gender]);
 
-  // Select 15 modular foundation items from the Canadian catalog (5 Tops, 4 Bottoms, 3 Outerwear, 2 Shoes, 1 Accessory)
+  // Select 15 modular foundation items with balanced formal/casual distribution
   const capsule15: Garment[] = useMemo(() => {
-    const tops = activeCatalog.filter((g) => g.slot === "top").slice(0, 5);
-    const bottoms = activeCatalog.filter((g) => g.slot === "bottom").slice(0, 4);
-    const outerwear = activeCatalog.filter((g) => g.slot === "outerwear").slice(0, 3);
-    const shoes = activeCatalog.filter((g) => g.slot === "shoes").slice(0, 2);
-    const accessories = activeCatalog.filter((g) => g.slot === "accessory").slice(0, 1);
-    return [...tops, ...bottoms, ...outerwear, ...shoes, ...accessories];
-  }, [activeCatalog]);
+    return selectBalancedCapsule15(activeCatalog, {
+      targetPalette: profile?.seasonal_colour || profile?.palette_season,
+      targetStyle: profile?.style || (profile?.preferred_styles && profile?.preferred_styles[0]),
+      iteration: capsuleIteration,
+    });
+  }, [activeCatalog, profile, capsuleIteration]);
 
-  // Starter Set of 5 Core Foundation Pieces (PRD FR-3.1)
+  // Starter Set of 5 Core Foundation Pieces: highest versatility across work & casual
   const starterSetIds = useMemo(() => {
-    return new Set([
-      capsule15.find((g) => g.slot === "outerwear")?.id || "",
-      capsule15.find((g) => g.slot === "top")?.id || "",
-      capsule15.find((g) => g.slot === "bottom")?.id || "",
-      capsule15.find((g) => g.slot === "shoes")?.id || "",
-      capsule15.find((g) => g.slot === "accessory")?.id || "",
-    ].filter(Boolean));
+    const top = rankCandidates(capsule15.filter((g) => g.slot === "top"), { targetFormality: 3 })[0]?.garment?.id || "";
+    const bottom = rankCandidates(capsule15.filter((g) => g.slot === "bottom"), { targetFormality: 3 })[0]?.garment?.id || "";
+    const outerwear = rankCandidates(capsule15.filter((g) => g.slot === "outerwear"), { targetFormality: 3 })[0]?.garment?.id || "";
+    const shoes = rankCandidates(capsule15.filter((g) => g.slot === "shoes"), { targetFormality: 3 })[0]?.garment?.id || "";
+    const accessory = capsule15.find((g) => g.slot === "accessory")?.id || "";
+
+    return new Set([top, bottom, outerwear, shoes, accessory].filter(Boolean));
   }, [capsule15]);
 
-  // 3 Worked Outfits (PRD FR-3.1)
+  // 3 Worked Outfits dynamically assembled according to context and target formality (PRD FR-3.1)
   const combinations = useMemo(() => {
+    const scoringOpts = {
+      targetPalette: profile?.seasonal_colour || profile?.palette_season,
+      targetStyle: profile?.style || (profile?.preferred_styles && profile?.preferred_styles[0]),
+    };
+
+    // Outfit 01: Hybrid Office (Formality 4)
+    const officeOutfit = assembleWorkedOutfit(capsule15, 4, "work", scoringOpts);
+    const officeGarments = [officeOutfit.outerwear, officeOutfit.top, officeOutfit.bottom, officeOutfit.shoes].filter(Boolean) as Garment[];
+
+    // Outfit 02: Downtown Studio (Formality 3)
+    const studioOutfit = assembleWorkedOutfit(capsule15, 3, "smart-casual", {
+      ...scoringOpts,
+      excludedIds: new Set(officeGarments.map((g) => g.id)),
+    });
+    const studioGarments = [
+      studioOutfit.top,
+      studioOutfit.bottom,
+      studioOutfit.shoes,
+      studioOutfit.accessory || studioOutfit.outerwear,
+    ].filter(Boolean) as Garment[];
+
+    // Outfit 03: Weekend Commute & Offsite (Formality 2) - Casual, relaxed layers
+    const weekendOutfit = assembleWorkedOutfit(capsule15, 2, "casual", {
+      ...scoringOpts,
+      excludedIds: new Set([...officeGarments.map((g) => g.id), ...studioGarments.map((g) => g.id)]),
+    });
+    const weekendGarments = [
+      weekendOutfit.outerwear,
+      weekendOutfit.top,
+      weekendOutfit.bottom,
+      weekendOutfit.shoes,
+    ].filter(Boolean) as Garment[];
+
     return [
       {
         id: "combo-1",
         title: "Worked Outfit 01: Hybrid Office & Client Review",
         subtitle: "Tailored structure with breathable all-day mobility",
         formality: 4,
-        garments: [
-          capsule15.find((g) => g.slot === "outerwear") || capsule15[5],
-          capsule15.find((g) => g.slot === "top") || capsule15[0],
-          capsule15.find((g) => g.slot === "bottom") || capsule15[6],
-          capsule15.find((g) => g.slot === "shoes") || capsule15[12],
-        ].filter(Boolean) as Garment[],
-        styling_tip: "Button the blazer when entering formal rooms; pair with neutral chinos for effortless West Coast polish.",
+        garments: officeGarments,
+        styling_tip: "Button the blazer when entering formal rooms; pair with neutral tailored trousers for effortless Canadian polish.",
       },
       {
         id: "combo-2",
         title: "Worked Outfit 02: Downtown Studio & Creative Standup",
         subtitle: "Minimalist drape paired with comfortable certified organic cotton",
         formality: 3,
-        garments: [
-          capsule15.filter((g) => g.slot === "top")[1] || capsule15[1],
-          capsule15.filter((g) => g.slot === "bottom")[1] || capsule15[7],
-          capsule15.find((g) => g.slot === "shoes") || capsule15[12],
-          capsule15.find((g) => g.slot === "accessory") || capsule15[14],
-        ].filter(Boolean) as Garment[],
-        styling_tip: "Clean tonal layering allows easy movement between morning school runs and afternoon coworking spaces.",
+        garments: studioGarments,
+        styling_tip: "Clean tonal layering allows easy movement between morning meetings and afternoon creative coworking spaces.",
       },
       {
         id: "combo-3",
         title: "Worked Outfit 03: Weekend Commute & Offsite",
-        subtitle: "Weatherproof protection with sleek minimalist lines",
+        subtitle: "Weatherproof protection with sleek minimalist casual lines",
         formality: 2,
-        garments: [
-          capsule15.filter((g) => g.slot === "outerwear")[1] || capsule15[10],
-          capsule15.filter((g) => g.slot === "top")[2] || capsule15[2],
-          capsule15.filter((g) => g.slot === "bottom")[2] || capsule15[8],
-          capsule15.filter((g) => g.slot === "shoes")[1] || capsule15[13],
-        ].filter(Boolean) as Garment[],
-        styling_tip: "Waterproof footwear keeps you dry in coastal drizzle without sacrificing refined silhouettes.",
+        garments: weekendGarments,
+        styling_tip: "Waterproof footwear and flexible casual denim keep you dry and comfortable in coastal drizzle without sacrificing style.",
       },
     ];
-  }, [capsule15]);
+  }, [capsule15, profile]);
+
+  const handleReplan = () => {
+    setCapsuleIteration((prev) => prev + 1);
+    if (onReplanCapsule) {
+      onReplanCapsule();
+    }
+  };
 
   const activeCombo = combinations[activeCombinationIndex];
 
@@ -148,6 +178,15 @@ export function CapsuleResult({
           <div className="text-xs font-bold uppercase tracking-widest text-thread">
             Your Everyday Capsule Wardrobe
           </div>
+          <button
+            type="button"
+            onClick={handleReplan}
+            disabled={isReplanning}
+            className="text-xs font-semibold px-3 py-1.5 rounded-fitting bg-surface border border-border hover:border-accent text-ink transition-all flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+          >
+            <span>🔄</span>
+            <span>{isReplanning ? "Re-curating..." : "Re-curate Wardrobe"}</span>
+          </button>
         </div>
         <h1 className="text-2xl sm:text-3xl font-serif text-ink font-medium">
           The 15-Piece Mix & Match Wardrobe
