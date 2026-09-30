@@ -45,9 +45,13 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [isLoading]);
 
+  const [nudgeIteration, setNudgeIteration] = useState<number>(0);
+
   const fetchRecommendation = async (
     formalityOverride?: number,
-    nudge?: NudgeType
+    nudge?: NudgeType,
+    excludedIds?: string[],
+    iterationOverride?: number
   ) => {
     if (nudge) {
       setIsNudging(true);
@@ -63,6 +67,8 @@ export default function Home() {
         formality_target: formalityOverride,
         nudge,
         owned_item_ids: profile.owned_item_ids,
+        excluded_garment_ids: excludedIds || [],
+        iteration: iterationOverride !== undefined ? iterationOverride : (nudge ? nudgeIteration : 0),
       };
 
       const res = await fetch("/api/recommend", {
@@ -88,6 +94,9 @@ export default function Home() {
   };
 
   const handleNudge = async (nudgeType: NudgeType) => {
+    const nextIteration = nudgeIteration + 1;
+    setNudgeIteration(nextIteration);
+
     const currentFormality = recommendationData?.calibration.formality_score || 4;
     let targetFormality = currentFormality;
 
@@ -99,7 +108,10 @@ export default function Home() {
       targetFormality = currentFormality;
     }
 
-    await fetchRecommendation(targetFormality, nudgeType);
+    // Capture currently displayed garment IDs to exclude them from the next recommendation
+    const currentGarmentIds = Object.values(recommendationData?.selected_garment_ids || {}).filter(Boolean) as string[];
+
+    await fetchRecommendation(targetFormality, nudgeType, currentGarmentIds, nextIteration);
   };
 
   const handleReplanCapsule = async () => {

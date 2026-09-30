@@ -59,6 +59,8 @@ interface RecommendRequestBody {
   style_preference?: string;
   nudge?: NudgeType;
   owned_item_ids?: string[];
+  excluded_garment_ids?: string[];
+  iteration?: number;
 }
 
 /**
@@ -73,6 +75,8 @@ function generateCacheKey(body: RecommendRequestBody): string {
     size: body.user_profile?.size || "M",
     style: body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]) || "classic",
     owned_item_ids: (body.owned_item_ids || body.user_profile?.owned_item_ids || []).slice().sort(),
+    excluded_garment_ids: (body.excluded_garment_ids || []).slice().sort(),
+    iteration: body.iteration ?? 0,
     occasion: body.occasion || "pitch",
     season: body.season_or_climate || body.season_of_wear || body.user_profile?.season_or_climate || body.user_profile?.season_of_wear || "fall_winter",
     audience_text: (body.audience_text || "").trim().toLowerCase(),
@@ -118,44 +122,74 @@ function generateDeterministicRecommendation(
   const audience = body.audience_text || "seed fund partners, ex-engineers in Gastown";
   const occasion = body.occasion || "pitch";
   const style = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]) || "classic";
+  const targetPalette = body.user_profile?.seasonal_colour || body.user_profile?.palette_season;
 
   let targetFormality = body.formality_target || (occasion === "court" || occasion === "funeral" ? 5 : 4);
   let signal = "considered_not_corporate";
   let nudgeReasoning = "";
 
   if (body.nudge === "too_formal") {
-    targetFormality = Math.max(2, targetFormality - 1);
     signal = "approachable_understated";
     nudgeReasoning =
       "Re-calibrated down in formality per your feedback: softened structure with more relaxed, approachable layers.";
   } else if (body.nudge === "too_casual") {
-    targetFormality = Math.min(5, targetFormality + 1);
     signal = "structured_authority";
     nudgeReasoning =
       "Elevated formality and structure per your feedback: dialed in sharper tailoring and authoritative textures.";
   } else if (body.nudge === "not_me") {
     signal = "tonal_alternative";
     nudgeReasoning =
-      "Pivoted aesthetic silhouette per your feedback: curated an alternative tonal harmony while preserving room stakes.";
+      "Pivoted aesthetic silhouette per your feedback: curated a fresh alternative tonal harmony exploring the Canadian catalog.";
   }
 
   const overrideApplied = checkOccasionOverride(occasion, style);
+  const excludedSet = new Set(body.excluded_garment_ids || []);
+  const iteration = body.iteration || 0;
 
-  // Pick candidates according to nudge
+  // Dynamic candidate scoring and rotation per slot
   const pickGarment = (slot: GarmentSlot): Garment | undefined => {
     const list = [...(candidates_by_slot[slot] || [])];
     if (list.length === 0) return undefined;
 
-    if (body.nudge === "too_formal") {
-      list.sort((a, b) => (a.formality_level || a.formality_score / 2) - (b.formality_level || b.formality_score / 2));
-      return list[0];
-    } else if (body.nudge === "too_casual") {
-      list.sort((a, b) => (b.formality_level || b.formality_score / 2) - (a.formality_level || a.formality_score / 2));
-      return list[0];
-    } else if (body.nudge === "not_me") {
-      return list.length > 1 ? list[1] : list[0];
-    }
-    return list[0];
+    // Score and rank candidates based on target formality, palette, style, in-stock
+    const scoredList = list.map((g) => {
+      let score = 0;
+      const gFormality = g.formality_score || 6;
+      const targetScore = targetFormality * 2; // scale 1-10
+      const formalityDiff = Math.abs(gFormality - targetScore);
+      score += Math.max(0, 10 - formalityDiff * 2);
+
+      // Palette match bonus
+      if (
+        targetPalette &&
+        g.palette_seasons &&
+        (g.palette_seasons.includes(targetPalette) || g.palette_seasons.includes(targetPalette.split("_").pop() as any))
+      ) {
+        score += 3;
+      }
+
+      // Style match bonus
+      if (style && g.styles && g.styles.some((s) => s.toLowerCase() === style.toLowerCase())) {
+        score += 3;
+      }
+
+      // Penalize previously displayed items so fresh items appear
+      if (excludedSet.has(g.id)) {
+        score -= 50;
+      }
+
+      return { garment: g, score };
+    });
+
+    scoredList.sort((a, b) => b.score - a.score);
+
+    // Prefer items not currently on screen
+    const unexcluded = scoredList.filter((item) => !excludedSet.has(item.garment.id));
+    const pool = unexcluded.length > 0 ? unexcluded : scoredList;
+
+    // Rotate through candidate pool with iteration
+    const selectedIndex = iteration % pool.length;
+    return pool[selectedIndex].garment;
   };
 
   const topGarment = pickGarment("top");
@@ -289,6 +323,11 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
       season: body.season_or_climate || body.season_of_wear || "fall_winter",
       style: style,
       nudge: body.nudge || null,
+      formality_target: body.formality_target || null,
+      excluded_garment_ids: body.excluded_garment_ids || [],
+      instruction: body.excluded_garment_ids && body.excluded_garment_ids.length > 0
+        ? "Do NOT select any garment IDs present in excluded_garment_ids. Pick fresh, alternative pieces from the candidate pool."
+        : "Select the most cohesive and elevated outfit from the candidate pool.",
     },
     candidate_pool: candidatePoolPrompt,
     required_json_format: {
@@ -319,7 +358,7 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
     body: JSON.stringify({
       model: "gpt-4o",
       response_format: { type: "json_object" },
-      temperature: 0.3,
+      temperature: 0.7,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
@@ -478,6 +517,11 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
       season: body.season_or_climate || body.season_of_wear || "fall_winter",
       style: style,
       nudge: body.nudge || null,
+      formality_target: body.formality_target || null,
+      excluded_garment_ids: body.excluded_garment_ids || [],
+      instruction: body.excluded_garment_ids && body.excluded_garment_ids.length > 0
+        ? "Do NOT select any garment IDs present in excluded_garment_ids. Pick fresh, alternative pieces from the candidate pool."
+        : "Select the most cohesive and elevated outfit from the candidate pool.",
     },
     candidate_pool: candidatePoolPrompt,
     required_json_format: {
@@ -509,7 +553,7 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
     },
     body: JSON.stringify({
       model,
-      temperature: 0.3,
+      temperature: 0.7,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
