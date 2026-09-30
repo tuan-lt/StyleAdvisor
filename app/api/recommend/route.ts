@@ -19,18 +19,34 @@ import {
 } from "../../../lib/db";
 
 /**
- * Get catalog directly from Postgres database
+ * Get catalog directly from Postgres database with local catalog.json fallback
  */
 async function getLatestCatalog(): Promise<Garment[]> {
-  return await getAllGarmentsFromDb();
+  try {
+    const dbGarments = await getAllGarmentsFromDb();
+    if (dbGarments && dbGarments.length > 0) {
+      return dbGarments;
+    }
+  } catch (err: any) {
+    console.warn("Postgres fetch failed, falling back to local data/catalog.json:", err?.message);
+  }
+
+  try {
+    const localCatalog = require("../../../data/catalog.json");
+    return (localCatalog || []) as Garment[];
+  } catch (e) {
+    console.error("Failed to load local data/catalog.json fallback:", e);
+    return [];
+  }
 }
 
 // In-Memory Deterministic Response Cache (keyed on input MD5 hash)
 const cache = new Map<string, { timestamp: number; data: any }>();
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24 hours
 
-// Hard Timeout Limit per PRD Section 7.3
-const TIMEOUT_MS = 15000;
+// Hard Timeout Limits per PRD Section 7.3 & 8.2
+const OVERALL_TIMEOUT_MS = 14000;
+const LLM_TIMEOUT_MS = 8000; // LLM timeout before automated fallback to heuristic engine
 
 interface RecommendRequestBody {
   user_profile: UserProfile;
@@ -414,7 +430,7 @@ async function callOpenRouterEngine(
   if (!apiKey) {
     throw new Error("NO_API_KEY");
   }
-  const model = process.env.OPENROUTER_MODEL || "openrouter/free";
+  const model = process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-001";
 
   const occasion = body.occasion || "pitch";
   const style = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]) || "classic";
@@ -518,14 +534,14 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiResponse>> {
-  const abortController = new AbortController();
-  const timeoutId = setTimeout(() => abortController.abort(), TIMEOUT_MS);
+  const overallAbortController = new AbortController();
+  const overallTimeoutId = setTimeout(() => overallAbortController.abort(), OVERALL_TIMEOUT_MS);
 
   try {
     const body = (await req.json()) as RecommendRequestBody;
 
     if (!body || !body.user_profile) {
-      clearTimeout(timeoutId);
+      clearTimeout(overallTimeoutId);
       return NextResponse.json(
         { success: false, error: "INVALID_REQUEST", message: "Missing user_profile in request body." },
         { status: 400 }
@@ -536,7 +552,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
     const cacheKey = generateCacheKey(body);
     const cachedEntry = cache.get(cacheKey);
     if (cachedEntry && Date.now() - cachedEntry.timestamp < CACHE_TTL_MS) {
-      clearTimeout(timeoutId);
+      clearTimeout(overallTimeoutId);
       return NextResponse.json({
         success: true,
         cached: true,
@@ -573,22 +589,24 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       llmPayload = generateDeterministicRecommendation(filterResult, body);
       llmPayload.interpretation_summary = "Algorithm Mode: Curated directly via deterministic style, color & climate heuristics.";
     } else {
+      const llmAbortController = new AbortController();
+      const llmTimeoutId = setTimeout(() => llmAbortController.abort(), LLM_TIMEOUT_MS);
+
       try {
         if (process.env.OPENROUTER_API_KEY) {
-          llmPayload = await callOpenRouterEngine(filterResult.candidates_by_slot, body, abortController.signal);
+          llmPayload = await callOpenRouterEngine(filterResult.candidates_by_slot, body, llmAbortController.signal);
         } else if (process.env.OPENAI_API_KEY) {
-          llmPayload = await callOpenAIEngine(filterResult.candidates_by_slot, body, abortController.signal);
+          llmPayload = await callOpenAIEngine(filterResult.candidates_by_slot, body, llmAbortController.signal);
         } else if (process.env.ANTHROPIC_API_KEY) {
-          llmPayload = await callAnthropicEngine(filterResult.candidates_by_slot, body, abortController.signal);
+          llmPayload = await callAnthropicEngine(filterResult.candidates_by_slot, body, llmAbortController.signal);
         } else {
           llmPayload = generateDeterministicRecommendation(filterResult, body);
         }
       } catch (llmError: any) {
-        if (abortController.signal.aborted) {
-          throw new Error("TIMEOUT");
-        }
-        console.warn("Engaging deterministic recommendation engine:", llmError?.message);
+        console.warn("LLM unavailable or timed out, engaging deterministic stylist engine:", llmError?.message);
         llmPayload = generateDeterministicRecommendation(filterResult, body);
+      } finally {
+        clearTimeout(llmTimeoutId);
       }
     }
 
@@ -679,15 +697,15 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
     // Store in Deterministic Cache
     cache.set(cacheKey, { timestamp: Date.now(), data: responseData });
 
-    clearTimeout(timeoutId);
+    clearTimeout(overallTimeoutId);
     return NextResponse.json({
       success: true,
       cached: false,
       data: responseData,
     });
   } catch (err: any) {
-    clearTimeout(timeoutId);
-    if (abortController.signal.aborted || err.message === "TIMEOUT") {
+    clearTimeout(overallTimeoutId);
+    if (overallAbortController.signal.aborted || err.message === "TIMEOUT") {
       return NextResponse.json(
         {
           success: false,
