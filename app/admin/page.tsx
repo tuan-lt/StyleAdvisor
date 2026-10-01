@@ -26,19 +26,67 @@ const ALL_GENDER_CUTS: GenderCut[] = ["men", "women", "unisex"];
 const ALL_BUDGET_TIERS: BudgetTier[] = ["budget", "mid", "premium", "luxury"];
 const ALL_OCCASIONS: Occasion[] = [
   "pitch",
+  "interview",
   "work",
+  "date",
+  "date-night",
+  "family",
+  "court",
+  "funeral",
+  "wedding",
   "smart-casual",
   "business-casual",
   "formal",
   "casual",
-  "date-night",
   "travel",
   "lounge",
   "outdoor",
 ];
-const ALL_SEASONS: SeasonOfWear[] = ["fall", "winter", "spring", "summer", "all-season"];
-const PRIMARY_PALETTES: PaletteSeason[] = ["autumn", "winter", "spring", "summer", "deep_autumn", "true_winter", "soft_autumn"];
-const COMMON_BODY_TYPES: BodyType[] = ["athletic", "slim", "average", "hourglass", "rectangle", "tall", "curvy"];
+const ALL_SEASONS: SeasonOfWear[] = [
+  "all-season",
+  "all_season",
+  "fall",
+  "winter",
+  "spring",
+  "summer",
+  "fall_winter",
+  "spring_summer",
+];
+const PRIMARY_PALETTES: PaletteSeason[] = [
+  "autumn",
+  "deep_autumn",
+  "soft_autumn",
+  "warm_autumn",
+  "true_autumn",
+  "winter",
+  "deep_winter",
+  "cool_winter",
+  "bright_winter",
+  "true_winter",
+  "spring",
+  "light_spring",
+  "bright_spring",
+  "warm_spring",
+  "true_spring",
+  "summer",
+  "light_summer",
+  "soft_summer",
+  "cool_summer",
+  "true_summer",
+];
+const COMMON_BODY_TYPES: BodyType[] = [
+  "rectangle",
+  "bottom_triangle",
+  "oval",
+  "top_triangle",
+  "double_triangle",
+  "athletic",
+  "slim",
+  "average",
+  "curvy",
+  "tall",
+  "hourglass",
+];
 
 export default function AdminCatalogPage() {
   const [garments, setGarments] = useState<Garment[]>([]);
