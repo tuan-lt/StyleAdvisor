@@ -99,63 +99,13 @@ function detectBrand(url: string, siteName?: string): string {
   }
 }
 
+import { detectSlotFromText, validateAndEnforceSlot } from "../../../../lib/slot-guard";
+
 /**
- * Detect Wardrobe Slot from Name, URL and Description
+ * Detect Wardrobe Slot with Slot Auto-Validation Guard
  */
 function detectSlot(name: string, description: string, url: string): GarmentSlot {
-  const text = `${name} ${url}`.toLowerCase();
-  const fullText = `${name} ${description} ${url}`.toLowerCase();
-
-  // 1. Shoes / Footwear
-  if (
-    /\b(sneaker|sneakers|boot|boots|loafer|loafers|heel|heels|oxford shoe|oxfords|shoe|shoes|runner|runners|footwear|sandal|sandals|slip-on|cityscape|weekend|sunday|move)\b/.test(
-      fullText
-    ) ||
-    url.toLowerCase().includes("vessi")
-  ) {
-    return "shoes";
-  }
-
-  // 2. Outerwear
-  if (
-    /\b(blazer|overcoat|coat|jacket|parka|trench|cardigan|fleece|vest|windbreaker|puffer|bomber|outerwear|suit jacket|raincoat|anorak)\b/.test(
-      fullText
-    )
-  ) {
-    return "outerwear";
-  }
-
-  // 3. Bottoms
-  if (
-    /\b(pant|pants|trouser|trousers|denim|jean|jeans|skirt|short|shorts|chino|chinos|legging|leggings|jogger|joggers|slacks|bottom)\b/.test(
-      fullText
-    )
-  ) {
-    return "bottom";
-  }
-
-  // 4. Accessories
-  if (
-    /\b(scarf|scarves|bag|bags|belt|belts|hat|hats|tie|ties|beanie|sunglasses|accessory|watch|wallet|cap|glove|gloves|sock|socks)\b/.test(
-      fullText
-    )
-  ) {
-    return "accessory";
-  }
-
-  // 5. Tops
-  if (
-    /\b(shirt|tee|t-shirt|sweater|knit|button-down|polo|blouse|tank|hoodie|crewneck|turtleneck|sweatshirt|crew|longsleeve|henley)\b/.test(
-      text
-    ) ||
-    /\b(shirt|tee|t-shirt|sweater|knit|button-down|polo|blouse|tank|hoodie|crewneck|turtleneck|sweatshirt|crew|longsleeve|henley)\b/.test(
-      fullText
-    )
-  ) {
-    return "top";
-  }
-
-  return "top";
+  return detectSlotFromText(name, description, url);
 }
 
 /**

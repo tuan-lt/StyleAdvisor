@@ -385,15 +385,47 @@
       }
     }
 
-    // Smart Wardrobe Slot Auto-Classification
-    const textCorpus = `${result.title} ${result.description} ${window.location.href}`.toLowerCase();
-    if (/(?:pant|pants|jean|jeans|trouser|trousers|short|shorts|skirt|legging|leggings|jogger|joggers|tights|denim|chinos|sweatpant)/i.test(textCorpus)) {
+    // -------------------------------------------------------------
+    // Smart Wardrobe Slot Auto-Classification (Hierarchical Guard)
+    // -------------------------------------------------------------
+    const titleLower = (result.title || "").trim().toLowerCase();
+    const urlLower = window.location.href.toLowerCase();
+    const descLower = (result.description || "").toLowerCase();
+
+    const BOTTOM_RE = /\b(pant|pants|trouser|trousers|jean|jeans|denim|chino|chinos|jogger|joggers|sweatpant|sweatpants|short|shorts|skirt|skirts|legging|leggings|slacks|tights|culotte|culottes)\b/i;
+    const SHOES_RE = /\b(shoe|shoes|sneaker|sneakers|boot|boots|loafer|loafers|heel|heels|oxford|oxfords|derby|derbies|sandal|sandals|runner|runners|mule|mules|slipper|slippers|espadrille|footwear)\b/i;
+    const OUTERWEAR_RE = /\b(jacket|jackets|coat|coats|blazer|blazers|parka|parkas|trench|trenchcoat|puffer|puffers|anorak|overcoat|windbreaker|vest|bomber|cardigan|overshirt|outerwear|peacoat|raincoat|shacket)\b/i;
+    const ACCESSORY_RE = /\b(belt|belts|bag|bags|tote|totes|backpack|wallet|scarf|scarves|hat|hats|cap|caps|beanie|tie|ties|sunglasses|sunglass|eyewear|glove|gloves|sock|socks|watch|watches)\b/i;
+    const TOP_RE = /\b(shirt|shirts|tee|tees|t-shirt|t-shirts|polo|polos|sweater|sweaters|knit|knits|crewneck|turtleneck|hoodie|hoodies|sweatshirt|blouse|tank|top|tops|henley|longsleeve)\b/i;
+
+    // 1. Primary Priority: Check Title directly (Highest semantic reliability)
+    if (BOTTOM_RE.test(titleLower)) {
       result.slot = "bottom";
-    } else if (/(?:jacket|coat|blazer|parka|trench|puffer|anorak|overcoat|outerwear|windbreaker|vest|bomber|cardigan|fleece|wunder puff)/i.test(textCorpus)) {
+    } else if (OUTERWEAR_RE.test(titleLower)) {
       result.slot = "outerwear";
-    } else if (/(?:sneaker|boot|loafer|shoe|sandal|heel|runner|mule|oxford|derby|footwear)/i.test(textCorpus)) {
+    } else if (SHOES_RE.test(titleLower)) {
       result.slot = "shoes";
-    } else if (/(?:belt|hat|cap|scarf|bag|tote|wallet|tie|sock|glasses|sunglass|accessory|beanie|backpack)/i.test(textCorpus)) {
+    } else if (ACCESSORY_RE.test(titleLower)) {
+      result.slot = "accessory";
+    } else if (TOP_RE.test(titleLower)) {
+      result.slot = "top";
+    // 2. Secondary Priority: Check URL pathname segments
+    } else if (BOTTOM_RE.test(urlLower)) {
+      result.slot = "bottom";
+    } else if (OUTERWEAR_RE.test(urlLower)) {
+      result.slot = "outerwear";
+    } else if (SHOES_RE.test(urlLower)) {
+      result.slot = "shoes";
+    } else if (ACCESSORY_RE.test(urlLower)) {
+      result.slot = "accessory";
+    // 3. Tertiary Priority: Description body fallback
+    } else if (BOTTOM_RE.test(descLower)) {
+      result.slot = "bottom";
+    } else if (OUTERWEAR_RE.test(descLower)) {
+      result.slot = "outerwear";
+    } else if (SHOES_RE.test(descLower)) {
+      result.slot = "shoes";
+    } else if (ACCESSORY_RE.test(descLower)) {
       result.slot = "accessory";
     } else {
       result.slot = "top";

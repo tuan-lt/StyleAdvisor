@@ -61,31 +61,14 @@ async function writeCatalog(garment: Garment): Promise<void> {
   await upsertGarmentToDb(garment);
 }
 
+import { validateAndEnforceSlot } from "../../../../lib/slot-guard";
+
 /**
- * Helper to normalize and auto-detect wardrobe slot if missing or invalid
+ * Helper to normalize and auto-detect wardrobe slot with slot auto-validation guard
  */
 function normalizeSlot(slot?: string, name?: string, url?: string): GarmentSlot {
-  if (slot) {
-    const s = slot.toLowerCase().trim();
-    if (["outerwear", "top", "bottom", "shoes", "accessory"].includes(s)) {
-      return s as GarmentSlot;
-    }
-  }
-
-  const text = `${name || ""} ${url || ""}`.toLowerCase();
-  if (/\b(sneaker|shoe|shoes|boot|boots|loafer|loafers|heel|heels|oxford shoe|runner|runners|footwear|sandal|sandals|slip-on|cityscape)\b/.test(text)) {
-    return "shoes";
-  }
-  if (/\b(blazer|overcoat|coat|jacket|parka|trench|cardigan|fleece|vest|windbreaker|puffer|bomber|outerwear|suit jacket)\b/.test(text)) {
-    return "outerwear";
-  }
-  if (/\b(pant|pants|trouser|trousers|denim|jean|jeans|skirt|short|shorts|chino|chinos|legging|leggings|jogger|joggers|slacks|bottom)\b/.test(text)) {
-    return "bottom";
-  }
-  if (/\b(scarf|scarves|bag|bags|belt|belts|hat|hats|tie|ties|beanie|sunglasses|accessory|watch|wallet|cap|glove|gloves|sock|socks)\b/.test(text)) {
-    return "accessory";
-  }
-  return "top";
+  const result = validateAndEnforceSlot(slot, name || "", "", url || "");
+  return result.slot;
 }
 
 /**
