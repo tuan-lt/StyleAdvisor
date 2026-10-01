@@ -21,6 +21,25 @@ export function getDbPool(): Pool | null {
   return pool;
 }
 
+const BRAND_ALIASES: Record<string, string> = {
+  "rw &co": "RW&CO.",
+  "rw &co.": "RW&CO.",
+  "rw&co": "RW&CO.",
+  "rw&co.": "RW&CO.",
+  "the hartt shoe company": "The Hartt Shoe Co.",
+  "the hartt shoe co.": "The Hartt Shoe Co.",
+  "the hartt shoe co": "The Hartt Shoe Co.",
+  "levis": "Levi's",
+  "levi's": "Levi's",
+};
+
+export function normalizeBrand(brand: string): string {
+  if (!brand) return "Canadian Brand";
+  const trimmed = brand.trim();
+  const lower = trimmed.toLowerCase();
+  return BRAND_ALIASES[lower] || trimmed;
+}
+
 export function isDatabaseConfigured(): boolean {
   return Boolean(connectionString);
 }
@@ -151,10 +170,12 @@ export async function upsertGarmentToDb(garment: Garment): Promise<void> {
       updated_at = CURRENT_TIMESTAMP;
   `;
 
+  const normalizedBrand = normalizeBrand(garment.brand);
+
   await db.query(upsertQuery, [
     garment.id,
     garment.name,
-    garment.brand,
+    normalizedBrand,
     garment.slot,
     garment.price,
     garment.currency || "CAD",

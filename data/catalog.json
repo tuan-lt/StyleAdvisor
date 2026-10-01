@@ -503,7 +503,7 @@
   {
     "id": "the-hartt-shoe-company-the-beaverbrook-u-k-gold--6683",
     "name": "The Beaverbrook (U.K.) Gold Bond Shoe in Cognac",
-    "brand": "The Hartt Shoe Company",
+    "brand": "The Hartt Shoe Co.",
     "slot": "shoes",
     "price": 898,
     "currency": "CAD",
@@ -994,7 +994,7 @@
   {
     "id": "rw-co--short-sleeve-supima-r-cot-3700",
     "name": "Short-Sleeve Supima (R) Cotton Polo",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 70,
     "currency": "CAD",
@@ -1050,7 +1050,7 @@
   {
     "id": "rw-co--cashmere-blend-long-sleev-0576",
     "name": "Cashmere-Blend Long-Sleeve V-Neck Sweater",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 100,
     "currency": "CAD",
@@ -1104,7 +1104,7 @@
   {
     "id": "rw-co--long-sleeve-crew-neck-swe-0823",
     "name": "Long-Sleeve Crew-Neck Sweater",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 70,
     "currency": "CAD",
@@ -1156,7 +1156,7 @@
   {
     "id": "rw-co--straight-leg-jeans-7451",
     "name": "Straight-Leg Jeans",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "bottom",
     "price": 100,
     "currency": "CAD",
@@ -1213,7 +1213,7 @@
   {
     "id": "rw-co-cotton-short-sleeve-polo--2303",
     "name": "Cotton Short-Sleeve Polo with Johnny Collar",
-    "brand": "RW&CO",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 32,
     "currency": "CAD",
@@ -1266,7 +1266,7 @@
   {
     "id": "rw-co--merino-wool-long-sleeve-p-1528",
     "name": "Merino-Wool Long-Sleeve Polo Sweater",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 120,
     "currency": "CAD",
@@ -1321,7 +1321,7 @@
   {
     "id": "rw-co--brushed-knit-milkman-jack-2794",
     "name": "Brushed-Knit Milkman Jacket with Pockets",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "outerwear",
     "price": 170,
     "currency": "CAD",
@@ -1376,7 +1376,7 @@
   {
     "id": "rw-co--suede-jacket-with-shirt-c-4091",
     "name": "Suede Jacket with Shirt Collar",
-    "brand": "RW&Co.",
+    "brand": "RW&CO.",
     "slot": "outerwear",
     "price": 550,
     "currency": "CAD",
@@ -1429,7 +1429,7 @@
   {
     "id": "rw-co--tailored-fit-dobby-dress--5752",
     "name": "Tailored-Fit Dobby Dress Shirt with Grey Micro Dots",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 40,
     "currency": "CAD",
@@ -1484,7 +1484,7 @@
   {
     "id": "rw-co--slim-fit-oat-brushed-twil-6668",
     "name": "Slim-Fit Oat Brushed Twill Pant",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "bottom",
     "price": 120,
     "currency": "CAD",
@@ -1539,7 +1539,7 @@
   {
     "id": "rw-co--slim-fit-oat-brushed-twil-4525",
     "name": "Slim-Fit Oat Brushed Twill Blazer",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 230,
     "currency": "CAD",
@@ -1594,7 +1594,7 @@
   {
     "id": "rw-co-slim-fit-camel-melange-kn-0015",
     "name": "Slim Fit Camel Melange Knit-Like Dress Shirt",
-    "brand": "RW&CO",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 25,
     "currency": "CAD",
@@ -1649,7 +1649,7 @@
   {
     "id": "rw-co--tailored-leg-rust-wool-su-2880",
     "name": "Tailored-Leg Rust Wool Suit Pant",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "bottom",
     "price": 180,
     "currency": "CAD",
@@ -1703,7 +1703,7 @@
   {
     "id": "rw-co--tailored-fit-rust-wool-su-6319",
     "name": "Tailored-Fit Rust Wool Suit Blazer",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 370,
     "currency": "CAD",
@@ -1757,7 +1757,7 @@
   {
     "id": "rw-co--regular-fit-striped-dress-8137",
     "name": "Regular-Fit Striped Dress Shirt",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 100,
     "currency": "CAD",
@@ -1812,7 +1812,7 @@
   {
     "id": "rw-co--slim-fit-burgundy-suit-pa-8695",
     "name": "Slim-Fit Burgundy Suit Pant",
-    "brand": "RW&Co.",
+    "brand": "RW&CO.",
     "slot": "bottom",
     "price": 100,
     "currency": "CAD",
@@ -1867,7 +1867,7 @@
   {
     "id": "rw-co--slim-fit-burgundy-suit-bl-4177",
     "name": "Slim-Fit Burgundy Suit Blazer",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 200,
     "currency": "CAD",
@@ -1922,7 +1922,7 @@
   {
     "id": "rw-co--regular-fit-herringbone-d-8102",
     "name": "Regular-Fit Herringbone Dress Shirt",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 100,
     "currency": "CAD",
@@ -1977,7 +1977,7 @@
   {
     "id": "rw-co--slim-fit-checkered-grey-w-0142",
     "name": "Slim-Fit Checkered Grey Wool Suit Pant",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "outerwear",
     "price": 179,
     "currency": "CAD",
@@ -2033,7 +2033,7 @@
   {
     "id": "rw-co--slim-fit-checkered-grey-w-1641",
     "name": "Slim-Fit Checkered Grey Wool Suit Blazer",
-    "brand": "RW &Co.",
+    "brand": "RW&CO.",
     "slot": "outerwear",
     "price": 369,
     "currency": "CAD",
@@ -3646,7 +3646,7 @@
   {
     "id": "ca_rwco_201",
     "name": "Unstructured Knit Wool-Blend Blazer",
-    "brand": "RW&CO",
+    "brand": "RW&CO.",
     "slot": "outerwear",
     "price": 198,
     "currency": "CAD",
@@ -4821,7 +4821,7 @@
   {
     "id": "ca_rw-co_3-4-sleeve-boat-neck_2217",
     "name": "3/4-Sleeve Boat-Neck Top",
-    "brand": "RW&CO",
+    "brand": "RW&CO.",
     "slot": "top",
     "price": 32.13,
     "currency": "CAD",
@@ -4871,7 +4871,7 @@
   {
     "id": "ca_rw-co_slim-fit-prince-of-w_1772",
     "name": "Slim-Fit Prince-of-Wales Pant",
-    "brand": "RW&CO",
+    "brand": "RW&CO.",
     "slot": "bottom",
     "price": 90.93,
     "currency": "CAD",
@@ -4921,7 +4921,7 @@
   {
     "id": "ca_rw-co_tailored-fit-striped_1107",
     "name": "Tailored-Fit Striped Brown Wool Suit Pant",
-    "brand": "RW&CO",
+    "brand": "RW&CO.",
     "slot": "bottom",
     "price": 179,
     "currency": "CAD",
