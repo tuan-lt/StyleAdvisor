@@ -147,50 +147,29 @@ function generateDeterministicRecommendation(
   const excludedSet = new Set(body.excluded_garment_ids || []);
   const iteration = body.iteration || 0;
 
+  const scoringOpts = {
+    targetFormality,
+    targetPalette,
+    targetStyle: style,
+    targetOccasion: occasion,
+    targetBodyType: body.user_profile?.body_type,
+    targetSize: body.user_profile?.size,
+    audienceText: body.audience_text,
+    excludedIds: excludedSet,
+  };
+
   // Dynamic candidate scoring and rotation per slot
   const pickGarment = (slot: GarmentSlot): Garment | undefined => {
     const list = [...(candidates_by_slot[slot] || [])];
     if (list.length === 0) return undefined;
 
-    // Score and rank candidates based on target formality, palette, style, in-stock
-    const scoredList = list.map((g) => {
-      let score = 0;
-      const gFormality = g.formality_score || 6;
-      const targetScore = targetFormality * 2; // scale 1-10
-      const formalityDiff = Math.abs(gFormality - targetScore);
-      score += Math.max(0, 10 - formalityDiff * 2);
-
-      // Palette match bonus
-      if (
-        targetPalette &&
-        g.palette_seasons &&
-        (g.palette_seasons.includes(targetPalette) || g.palette_seasons.includes(targetPalette.split("_").pop() as any))
-      ) {
-        score += 3;
-      }
-
-      // Style match bonus
-      if (style && g.styles && g.styles.some((s) => s.toLowerCase() === style.toLowerCase())) {
-        score += 3;
-      }
-
-      // Penalize previously displayed items so fresh items appear
-      if (excludedSet.has(g.id)) {
-        score -= 50;
-      }
-
-      return { garment: g, score };
-    });
-
-    scoredList.sort((a, b) => b.score - a.score);
-
-    // Prefer items not currently on screen
-    const unexcluded = scoredList.filter((item) => !excludedSet.has(item.garment.id));
-    const pool = unexcluded.length > 0 ? unexcluded : scoredList;
+    const ranked = rankCandidates(list, scoringOpts);
+    const unexcluded = ranked.filter((item) => !excludedSet.has(item.garment.id));
+    const pool = unexcluded.length > 0 ? unexcluded : ranked;
 
     // Rotate through candidate pool with iteration
     const selectedIndex = iteration % pool.length;
-    return pool[selectedIndex].garment;
+    return pool[selectedIndex]?.garment;
   };
 
   const topGarment = pickGarment("top");
@@ -277,6 +256,9 @@ function prepareCandidatePoolPrompt(
   const targetPalette = body.user_profile?.seasonal_colour || body.user_profile?.palette_season;
   const targetStyle = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]);
   const targetOccasion = body.occasion;
+  const targetBodyType = body.user_profile?.body_type;
+  const targetSize = body.user_profile?.size;
+  const audienceText = body.audience_text;
   const excludedIds = new Set(body.excluded_garment_ids || []);
 
   return Object.entries(candidatesBySlot).map(([slot, items]) => {
@@ -285,6 +267,9 @@ function prepareCandidatePoolPrompt(
       targetPalette,
       targetStyle,
       targetOccasion,
+      targetBodyType,
+      targetSize,
+      audienceText,
       excludedIds,
     });
 
@@ -299,6 +284,8 @@ function prepareCandidatePoolPrompt(
         formality_score: g.formality_level || Math.round((g.formality_score || 6) / 2),
         styles: g.styles,
         fabric: typeof g.fabric === "string" ? g.fabric : g.fabric?.composition || "Canadian Blend",
+        size_range: g.size_range || undefined,
+        styling_notes: g.styling_notes || undefined,
       })),
     };
   });
@@ -626,6 +613,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       flow: body.flow || "occasion",
       audience_text: body.audience_text,
       formality_target: body.formality_target,
+      body_type: body.user_profile.body_type,
+      size: body.user_profile.size,
       owned_item_ids: body.owned_item_ids || body.user_profile.owned_item_ids,
     };
 
@@ -676,6 +665,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       targetPalette: body.user_profile?.seasonal_colour || body.user_profile?.palette_season,
       targetStyle: body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]),
       targetOccasion: body.occasion,
+      targetBodyType: body.user_profile?.body_type,
+      targetSize: body.user_profile?.size,
+      audienceText: body.audience_text,
     };
 
     // Validate Required Slots (top, bottom, shoes)

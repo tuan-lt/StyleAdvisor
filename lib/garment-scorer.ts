@@ -4,19 +4,27 @@ import {
   Occasion,
   PaletteSeason,
   StyleOption,
+  BodyType,
+  ClothingSize,
 } from "../types/catalog";
+import { matchBodyType, matchSize } from "./catalog-filter";
 
 export interface ScoreGarmentOptions {
   targetFormality?: number; // 1 to 5
   targetPalette?: PaletteSeason | string;
   targetStyle?: StyleOption | string;
   targetOccasion?: Occasion | string;
+  targetBodyType?: BodyType | string;
+  targetSize?: ClothingSize | string;
+  audienceText?: string;
   excludedIds?: Set<string>;
 }
 
 /**
  * Calculates a comprehensive suitability score for a garment.
- * Scale is typically between 0 and 30+.
+ * Evaluates formality proximity, palette match, style match, occasion match,
+ * body silhouette flattering score, size range accommodation, and styling notes synergy.
+ * Scale is typically between 0 and 40+.
  */
 export function scoreGarment(garment: Garment, options: ScoreGarmentOptions): number {
   let score = 10; // base score
@@ -62,12 +70,78 @@ export function scoreGarment(garment: Garment, options: ScoreGarmentOptions): nu
     }
   }
 
-  // 5. In-Stock Bonus (+2)
+  // 5. Body Type Silhouette Match Bonus (+4 for direct, +2 for compatible synonym)
+  if (
+    options.targetBodyType &&
+    options.targetBodyType !== "not_sure" &&
+    garment.body_types &&
+    garment.body_types.length > 0
+  ) {
+    const target = options.targetBodyType.toLowerCase().trim();
+    const normalizedBodyTypes = garment.body_types.map((b) => b.toLowerCase().trim());
+    if (normalizedBodyTypes.includes(target)) {
+      score += 4;
+    } else if (matchBodyType(garment.body_types, options.targetBodyType as any)) {
+      score += 2;
+    }
+  }
+
+  // 6. Size Range Availability Bonus (+3)
+  if (options.targetSize && garment.size_range) {
+    if (matchSize(garment.size_range, options.targetSize)) {
+      score += 3;
+    }
+  }
+
+  // 7. Styling Notes Contextual & Editorial Synergy Bonus (+1 to +5)
+  if (garment.styling_notes && garment.styling_notes.trim() !== "") {
+    const notes = garment.styling_notes.toLowerCase();
+    let notesBonus = 0;
+
+    // Occasion context synergy in stylist notes
+    if (options.targetOccasion) {
+      const occ = options.targetOccasion.toLowerCase();
+      if (notes.includes(occ)) {
+        notesBonus += 3;
+      } else if (
+        (occ === "pitch" && (notes.includes("founder") || notes.includes("pitch") || notes.includes("blazer") || notes.includes("tailored"))) ||
+        (occ === "interview" && (notes.includes("sharp") || notes.includes("professional") || notes.includes("tailored") || notes.includes("poise"))) ||
+        (occ === "court" && (notes.includes("solemn") || notes.includes("formal") || notes.includes("structured") || notes.includes("slacks"))) ||
+        (occ === "funeral" && (notes.includes("subdued") || notes.includes("dark") || notes.includes("quiet") || notes.includes("respect"))) ||
+        (occ === "casual" && (notes.includes("relaxed") || notes.includes("effortless") || notes.includes("everyday") || notes.includes("canadian")))
+      ) {
+        notesBonus += 2;
+      }
+    }
+
+    // Free-text audience context keywords matching
+    if (options.audienceText) {
+      const audienceWords = options.audienceText
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((w) => w.length > 3);
+      for (const word of audienceWords) {
+        if (notes.includes(word)) {
+          notesBonus += 1;
+          break;
+        }
+      }
+    }
+
+    // Style match in styling notes
+    if (options.targetStyle && notes.includes(options.targetStyle.toLowerCase())) {
+      notesBonus += 1;
+    }
+
+    score += Math.min(5, notesBonus);
+  }
+
+  // 8. In-Stock Bonus (+2)
   if (garment.in_stock) {
     score += 2;
   }
 
-  // 6. Penalty for previously seen/displayed items (-50)
+  // 9. Penalty for previously seen/displayed items (-50)
   if (options.excludedIds && options.excludedIds.has(garment.id)) {
     score -= 50;
   }

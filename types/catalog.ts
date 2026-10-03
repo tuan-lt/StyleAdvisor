@@ -304,7 +304,7 @@ export type CandidateFilterInput = UserProfile & {
   occasions?: Occasion[];
 };
 
-export type RelaxedField = 'palette' | 'style' | 'lifestyle' | 'occasion' | 'budget' | 'season';
+export type RelaxedField = 'palette' | 'style' | 'body_type' | 'size' | 'lifestyle' | 'occasion' | 'budget' | 'season';
 
 export interface FilterCandidatesResult {
   candidate_ids_by_slot: Record<GarmentSlot, string[]>;

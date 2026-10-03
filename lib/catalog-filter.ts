@@ -13,10 +13,35 @@ import {
   FilterCandidatesResult,
   RelaxedField,
   StyleOption,
+  BodyType,
+  ClothingSize,
 } from "../types/catalog";
 
 export const REQUIRED_SLOTS: GarmentSlot[] = ["outerwear", "top", "bottom", "shoes"];
 export const ALL_SLOTS: GarmentSlot[] = ["outerwear", "top", "bottom", "shoes", "accessory"];
+
+/**
+ * Body type synonym and compatibility map.
+ */
+const BODY_TYPE_SYNONYMS: Record<string, string[]> = {
+  rectangle: ["rectangle", "standard", "athletic", "slim", "average"],
+  bottom_triangle: ["bottom_triangle", "bottom-triangle", "pear", "curvy", "triangle"],
+  top_triangle: ["top_triangle", "top-triangle", "inverted-triangle", "athletic", "triangle"],
+  double_triangle: ["double_triangle", "double-triangle", "hourglass", "curvy"],
+  oval: ["oval", "apple", "plus", "average"],
+  athletic: ["athletic", "rectangle", "top_triangle", "standard"],
+  slim: ["slim", "rectangle", "standard"],
+  average: ["average", "rectangle", "oval", "standard"],
+  curvy: ["curvy", "hourglass", "double_triangle", "bottom_triangle", "pear"],
+  tall: ["tall", "standard", "rectangle"],
+  petite: ["petite", "standard", "rectangle"],
+  plus: ["plus", "oval", "apple", "curvy"],
+  "inverted-triangle": ["inverted-triangle", "top_triangle", "top-triangle", "athletic"],
+  hourglass: ["hourglass", "double_triangle", "double-triangle", "curvy"],
+  pear: ["pear", "bottom_triangle", "bottom-triangle", "curvy"],
+  apple: ["apple", "oval", "plus"],
+  standard: ["standard", "rectangle", "average"],
+};
 
 /**
  * Check if a garment matches the user's gender/cut preference.
@@ -165,6 +190,94 @@ export function matchStyle(
 }
 
 /**
+ * Check if a garment silhouette flatters the target body type.
+ * SOFT FILTER (Relaxable).
+ */
+export function matchBodyType(
+  garmentBodyTypes?: BodyType[],
+  targetBodyType?: BodyType | string
+): boolean {
+  if (!targetBodyType || targetBodyType === "not_sure") return true;
+  if (!garmentBodyTypes || garmentBodyTypes.length === 0) return true;
+
+  const target = targetBodyType.toLowerCase().trim();
+  const normalizedGarmentTypes = garmentBodyTypes.map((b) => b.toLowerCase().trim());
+
+  if (normalizedGarmentTypes.includes(target)) return true;
+
+  const synonyms = BODY_TYPE_SYNONYMS[target] || [target];
+  return normalizedGarmentTypes.some((b) => synonyms.includes(b));
+}
+
+const SIZE_ORDER: Record<string, number> = {
+  xs: 1,
+  s: 2,
+  m: 3,
+  l: 4,
+  xl: 5,
+  xxl: 6,
+};
+
+/**
+ * Check if a garment size range accommodates the target clothing size.
+ * SOFT FILTER (Relaxable).
+ */
+export function matchSize(
+  garmentSizeRange?: string,
+  targetSize?: ClothingSize | string
+): boolean {
+  if (!targetSize) return true;
+  if (!garmentSizeRange || garmentSizeRange.trim() === "") return true;
+
+  const rawRange = garmentSizeRange.toLowerCase().trim();
+
+  // Accessories / One size / Universal fits
+  if (
+    rawRange.includes("one size") ||
+    rawRange.includes("os") ||
+    rawRange.includes("universal") ||
+    rawRange.includes("all")
+  ) {
+    return true;
+  }
+
+  const cleanTarget = targetSize.toLowerCase().trim();
+  const targetRank = SIZE_ORDER[cleanTarget];
+
+  // If exact token exists in size_range (e.g. "XS, S, M, L" or "M")
+  const regex = new RegExp(`\\b${cleanTarget}\\b`, "i");
+  if (regex.test(rawRange)) return true;
+
+  // Check letter range like "XS - XXL" or "S - XL"
+  const rangeMatch = rawRange.match(/([a-z]+)\s*[-–—to]+\s*([a-z]+)/i);
+  if (rangeMatch && targetRank) {
+    const minRank = SIZE_ORDER[rangeMatch[1].toLowerCase()];
+    const maxRank = SIZE_ORDER[rangeMatch[2].toLowerCase()];
+    if (minRank && maxRank) {
+      return targetRank >= minRank && targetRank <= maxRank;
+    }
+  }
+
+  // Check waist sizes e.g. "28W - 38W" or numeric sizes "00 - 16 US"
+  if (rawRange.includes("w") || /\d+\s*[-–—]\s*\d+/.test(rawRange)) {
+    const numbers = rawRange.match(/\d+/g);
+    if (numbers && numbers.length >= 2) {
+      const minNum = parseInt(numbers[0], 10);
+      const maxNum = parseInt(numbers[numbers.length - 1], 10);
+      if (cleanTarget === "xs" && minNum <= 28) return true;
+      if (cleanTarget === "s" && minNum <= 30 && maxNum >= 28) return true;
+      if (cleanTarget === "m" && minNum <= 32 && maxNum >= 30) return true;
+      if (cleanTarget === "l" && minNum <= 34 && maxNum >= 32) return true;
+      if (cleanTarget === "xl" && minNum <= 38 && maxNum >= 34) return true;
+      if (cleanTarget === "xxl" && maxNum >= 38) return true;
+    }
+    return true;
+  }
+
+  return true;
+}
+
+/**
  * Group garments by slot and collect candidate IDs.
  */
 export function groupGarmentsBySlot(garments: Garment[]): {
@@ -216,8 +329,8 @@ export function hasAllRequiredSlots(candidatesBySlot: Record<GarmentSlot, Garmen
 
 /**
  * Primary candidate filter implementation adhering to the Fitting Room PRD v4.2.
- * Implements intelligent multi-tier per-slot relaxation so that all slots (outerwear, top, bottom, shoes)
- * are guaranteed to have candidate items without returning empty slots or incomplete outfits.
+ * Implements intelligent multi-tier per-slot relaxation with body_type and size support
+ * so that all slots (outerwear, top, bottom, shoes) are guaranteed to have candidate items.
  */
 export function filterCandidates(
   catalog: Garment[],
@@ -230,6 +343,8 @@ export function filterCandidates(
   const targetBudget = inputs.budget || inputs.budget_tier;
   const targetPalette = inputs.seasonal_colour || inputs.palette_season;
   const targetStyle = inputs.style || (inputs.preferred_styles && inputs.preferred_styles[0]);
+  const targetBodyType = inputs.body_type;
+  const targetSize = inputs.size;
 
   // Exclude garments the user already owns to prevent redundant recommendation
   const ownedItemIds = new Set(inputs.owned_item_ids || []);
@@ -253,13 +368,15 @@ export function filterCandidates(
     const slotPool = genderPool.filter((g) => g.slot === slot);
     if (slotPool.length === 0) continue;
 
-    // Tier 1: Strict soft-filters (Budget + Season + Occasion/Lifestyle + Palette + Style)
+    // Tier 1: Strict soft-filters (Budget + Season + Occasion/Lifestyle + Palette + Style + BodyType + Size)
     let candidates = slotPool.filter((g) => {
       if (!matchBudget(g.budget_tier, targetBudget as any)) return false;
       if (!matchSeason(g.season_of_wear, targetSeason as any)) return false;
       if (isOccasionFlow && targetOccasion && !matchOccasion(g.occasions, targetOccasion)) return false;
       if (targetPalette && targetPalette !== "not_sure" && !matchPalette(g.palette_seasons, targetPalette)) return false;
       if (targetStyle && !matchStyle(g.styles, targetStyle)) return false;
+      if (targetBodyType && targetBodyType !== "not_sure" && !matchBodyType(g.body_types, targetBodyType)) return false;
+      if (targetSize && !matchSize(g.size_range, targetSize)) return false;
       return true;
     });
 
@@ -270,6 +387,8 @@ export function filterCandidates(
         if (!matchSeason(g.season_of_wear, targetSeason as any)) return false;
         if (isOccasionFlow && targetOccasion && !matchOccasion(g.occasions, targetOccasion)) return false;
         if (targetStyle && !matchStyle(g.styles, targetStyle)) return false;
+        if (targetBodyType && targetBodyType !== "not_sure" && !matchBodyType(g.body_types, targetBodyType)) return false;
+        if (targetSize && !matchSize(g.size_range, targetSize)) return false;
         return true;
       });
       if (candidates.length > 0 && !relaxedFields.includes("palette")) {
@@ -283,6 +402,8 @@ export function filterCandidates(
         if (!matchBudget(g.budget_tier, targetBudget as any)) return false;
         if (!matchSeason(g.season_of_wear, targetSeason as any)) return false;
         if (isOccasionFlow && targetOccasion && !matchOccasion(g.occasions, targetOccasion)) return false;
+        if (targetBodyType && targetBodyType !== "not_sure" && !matchBodyType(g.body_types, targetBodyType)) return false;
+        if (targetSize && !matchSize(g.size_range, targetSize)) return false;
         return true;
       });
       if (candidates.length > 0 && !relaxedFields.includes("style")) {
@@ -290,7 +411,25 @@ export function filterCandidates(
       }
     }
 
-    // Tier 4: Relax Occasion / Lifestyle (fallback to versatile work/casual staples)
+    // Tier 4: Relax Body Type & Size
+    if (candidates.length === 0) {
+      candidates = slotPool.filter((g) => {
+        if (!matchBudget(g.budget_tier, targetBudget as any)) return false;
+        if (!matchSeason(g.season_of_wear, targetSeason as any)) return false;
+        if (isOccasionFlow && targetOccasion && !matchOccasion(g.occasions, targetOccasion)) return false;
+        return true;
+      });
+      if (candidates.length > 0) {
+        if (targetBodyType && targetBodyType !== "not_sure" && !relaxedFields.includes("body_type")) {
+          relaxedFields.push("body_type");
+        }
+        if (targetSize && !relaxedFields.includes("size")) {
+          relaxedFields.push("size");
+        }
+      }
+    }
+
+    // Tier 5: Relax Occasion / Lifestyle (fallback to versatile work/casual staples)
     if (candidates.length === 0 && isOccasionFlow && targetOccasion) {
       candidates = slotPool.filter((g) => {
         if (!matchBudget(g.budget_tier, targetBudget as any)) return false;
@@ -302,7 +441,7 @@ export function filterCandidates(
       }
     }
 
-    // Tier 5: Relax Budget (allow adjacent tiers matching season)
+    // Tier 6: Relax Budget (allow adjacent tiers matching season)
     if (candidates.length === 0) {
       candidates = slotPool.filter((g) => {
         if (!matchSeason(g.season_of_wear, targetSeason as any)) return false;
@@ -313,7 +452,7 @@ export function filterCandidates(
       }
     }
 
-    // Tier 6: Relax Season (fallback to all gender-matched items in this slot)
+    // Tier 7: Relax Season (fallback to all gender-matched items in this slot)
     if (candidates.length === 0) {
       candidates = slotPool;
       if (!relaxedFields.includes("season")) {
