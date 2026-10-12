@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Garment, RecommendApiResponse, GarmentSlot, NudgeType } from "../types/catalog";
+import { useLanguage } from "../lib/LanguageContext";
 
 interface OccasionResultProps {
   data: NonNullable<RecommendApiResponse["data"]>;
@@ -26,6 +27,9 @@ export function OccasionResult({
   onBackToEdit,
   isNudging,
 }: OccasionResultProps) {
+  const { language, t } = useLanguage();
+  const isFr = language === "fr";
+
   const [showNudgeOptions, setShowNudgeOptions] = useState<boolean>(false);
   const [selectedSlotDetails, setSelectedSlotDetails] = useState<GarmentSlot | null>(null);
 
@@ -33,11 +37,11 @@ export function OccasionResult({
     data;
 
   const garmentList: { slot: GarmentSlot; label: string; garment?: Garment }[] = [
-    { slot: "outerwear" as const, label: "Layer / Outerwear", garment: selected_garments.outerwear },
-    { slot: "top" as const, label: "Foundation Top", garment: selected_garments.top },
-    { slot: "bottom" as const, label: "Tailored Bottom", garment: selected_garments.bottom },
-    { slot: "shoes" as const, label: "Footwear", garment: selected_garments.shoes },
-    { slot: "accessory" as const, label: "Accent / Accessory", garment: selected_garments.accessory },
+    { slot: "outerwear" as const, label: isFr ? "Veste / Manteau" : "Layer / Outerwear", garment: selected_garments.outerwear },
+    { slot: "top" as const, label: isFr ? "Haut / Chemise" : "Foundation Top", garment: selected_garments.top },
+    { slot: "bottom" as const, label: isFr ? "Pantalon / Bas" : "Tailored Bottom", garment: selected_garments.bottom },
+    { slot: "shoes" as const, label: isFr ? "Chaussures" : "Footwear", garment: selected_garments.shoes },
+    { slot: "accessory" as const, label: isFr ? "Accessoire" : "Accent / Accessory", garment: selected_garments.accessory },
   ].filter((item) => !!item.garment);
 
   const activeGarments = garmentList.map((g) => g.garment!) as Garment[];
@@ -55,10 +59,10 @@ export function OccasionResult({
           onClick={onBackToEdit}
           className="text-xs font-semibold text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors cursor-pointer"
         >
-          <span>←</span> Back to Fitting Profile
+          <span>←</span> {isFr ? "Retour au profil d'essayage" : "Back to Fitting Profile"}
         </button>
         <div className="flex items-center gap-2 text-xs text-ink-muted">
-          <span>Calibration Formality:</span>
+          <span>{isFr ? "Niveau de tenue :" : "Calibration Formality:"}</span>
           <span className="font-semibold text-ink px-2.5 py-0.5 bg-surface border border-border rounded-full font-mono">
             {calibration.formality_score || 4} / 5
           </span>
@@ -70,7 +74,9 @@ export function OccasionResult({
         <div className="bg-accent/10 border border-accent/40 rounded-fitting p-4 flex items-center justify-center gap-3 animate-pulse">
           <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin shrink-0" />
           <span className="text-xs sm:text-sm font-medium text-accent">
-            Re-calibrating outfit formality & tone per your nudge feedback...
+            {isFr
+              ? "Ajustement de la tenue selon vos préférences en cours..."
+              : "Re-calibrating outfit formality & tone per your nudge feedback..."}
           </span>
         </div>
       )}
@@ -82,7 +88,7 @@ export function OccasionResult({
           <span className="w-2.5 h-2.5 rounded-full bg-accent mt-1.5 shrink-0" />
           <div>
             <div className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1">
-              Stylist's Read on the Room
+              {isFr ? "Analyse du contexte par le styliste" : "Stylist's Read on the Room"}
             </div>
             <p className="text-sm sm:text-base font-medium text-ink leading-relaxed">
               &ldquo;{interpretation_summary}&rdquo;
@@ -95,17 +101,29 @@ export function OccasionResult({
           <div className="bg-caution/10 border border-caution/30 rounded-fitting p-4 flex items-start gap-3">
             <span className="text-caution font-bold text-base leading-none mt-0.5">💡</span>
             <div className="text-xs text-caution leading-relaxed space-y-1">
-              <span className="font-bold">Stylist Advice: </span>
+              <span className="font-bold">{isFr ? "Conseil du styliste : " : "Stylist Advice: "}</span>
               {typeof override_applied === "string" ? (
                 <span>{override_applied}</span>
               ) : override_applied ? (
-                <span>We balanced your personal style with subtle, confident colors suited for the event.</span>
+                <span>
+                  {isFr
+                    ? "Nous avons accordé vos préférences de style avec des couleurs soignées et adaptées à l'occasion."
+                    : "We balanced your personal style with subtle, confident colors suited for the event."}
+                </span>
               ) : null}
               {filter_metadata?.relaxed_field === "palette" && (
-                <div>We expanded your colors to classic versatile neutrals so all items match easily.</div>
+                <div>
+                  {isFr
+                    ? "Nous avons élargi le choix vers des tons neutres polyvalents pour que les pièces s'agencent facilement."
+                    : "We expanded your colors to classic versatile neutrals so all items match easily."}
+                </div>
               )}
               {filter_metadata?.relaxed_field === "style" && (
-                <div>We incorporated timeless staples to ensure a balanced look.</div>
+                <div>
+                  {isFr
+                    ? "Nous avons intégré des essentiels intemporels pour assurer un ensemble harmonieux."
+                    : "We incorporated timeless staples to ensure a balanced look."}
+                </div>
               )}
             </div>
           </div>
@@ -114,7 +132,9 @@ export function OccasionResult({
         {/* 3. Stated Reasoning Block */}
         <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-3 shadow-fitting-card">
           <div className="flex items-center justify-between">
-            <div className="text-xs font-bold uppercase tracking-widest text-thread">Why This Look Works</div>
+            <div className="text-xs font-bold uppercase tracking-widest text-thread">
+              {isFr ? "Pourquoi cette tenue fonctionne" : "Why This Look Works"}
+            </div>
           </div>
           <p className="font-serif text-[18px] sm:text-[20px] text-ink leading-relaxed italic">
             &ldquo;{reasoning}&rdquo;
@@ -128,15 +148,19 @@ export function OccasionResult({
             <div>
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-verified/15 text-verified text-xs font-bold uppercase tracking-wider">
-                  <span>✓</span> In-Stock from Canadian Brands
+                  <span>✓</span> {isFr ? "En stock chez des marques canadiennes" : "In-Stock from Canadian Brands"}
                 </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-serif text-ink mt-1 font-medium">Your Complete Outfit</h2>
+              <h2 className="text-xl sm:text-2xl font-serif text-ink mt-1 font-medium">
+                {isFr ? "Votre tenue complète" : "Your Complete Outfit"}
+              </h2>
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
                 <div className="text-xs text-ink-muted">
-                  {unownedGarments.length < activeGarments.length ? "Remaining Gaps (CAD)" : "Total Outfit (CAD)"}
+                  {unownedGarments.length < activeGarments.length
+                    ? (isFr ? "Pièces à acquérir (CAD)" : "Remaining Gaps (CAD)")
+                    : (isFr ? "Total de la tenue (CAD)" : "Total Outfit (CAD)")}
                 </div>
                 <div className="text-xl font-bold text-ink font-mono tabular-nums">
                   ${unownedSubtotal.toFixed(2)}
@@ -148,7 +172,9 @@ export function OccasionResult({
                 disabled={unownedGarments.length === 0}
                 className="py-2.5 px-4 rounded-fitting bg-accent hover:bg-navy-light text-white text-xs font-semibold tracking-wide transition-all disabled:opacity-40 cursor-pointer"
               >
-                {unownedGarments.length === 0 ? "You're Ready. Wear what you have." : `Add Unowned to Cart (${unownedGarments.length})`}
+                {unownedGarments.length === 0
+                  ? (isFr ? "Vous êtes prêt(e). Portez ce que vous avez." : "You're Ready. Wear what you have.")
+                  : (isFr ? `Ajouter les pièces au panier (${unownedGarments.length})` : `Add Unowned to Cart (${unownedGarments.length})`)}
               </button>
             </div>
           </div>
@@ -159,43 +185,80 @@ export function OccasionResult({
               if (!garment) return null;
               const isOwned = ownedItemIds.includes(garment.id);
               const isInCart = cartItemIds.includes(garment.id);
-              const isSelected = selectedSlotDetails === slot;
+
+              const productUrl = garment.product_url || garment.retailer_url || "#";
 
               return (
                 <div
                   key={garment.id}
-                  className={`p-4 sm:p-5 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                    isOwned ? "bg-surface/50 opacity-70" : "bg-surface-raised hover:bg-surface/30"
+                  className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors ${
+                    isOwned ? "bg-surface/30 opacity-75" : "hover:bg-surface/20"
                   }`}
                 >
-                  {/* Left: Product Info */}
-                  <div className="flex items-start gap-4 flex-1">
-                    <div className="w-16 h-20 bg-surface rounded border border-border overflow-hidden shrink-0 relative flex items-center justify-center">
-                      <img
-                        src={garment.image_url}
-                        alt={garment.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = "none";
-                        }}
-                      />
-                      <span className="absolute bottom-1 right-1 text-[9px] uppercase font-bold bg-accent text-white px-1 rounded">
-                        {slot.slice(0, 3)}
-                      </span>
-                    </div>
+                  {/* Left: Thumbnail & Info */}
+                  <div className="flex items-center gap-4 min-w-0">
+                    {/* Clickable Image -> Open Product in New Tab */}
+                    <a
+                      href={productUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/img relative block w-16 h-20 rounded-fitting bg-surface border border-border overflow-hidden shrink-0 cursor-pointer shadow-xs hover:border-accent hover:ring-2 hover:ring-accent/20 transition-all"
+                      title={
+                        isFr
+                          ? `Voir « ${garment.name} » chez ${garment.brand} (ouvre dans un nouvel onglet)`
+                          : `View "${garment.name}" on ${garment.brand} (opens in new tab)`
+                      }
+                    >
+                      {garment.image_url ? (
+                        <img
+                          src={garment.image_url}
+                          alt={garment.name}
+                          className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[10px] text-ink-muted bg-surface/80">
+                          {isFr ? "Image" : "No Img"}
+                        </div>
+                      )}
+                      {/* Subtle hover overlay badge */}
+                      <div className="absolute inset-0 bg-ink/15 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="w-5 h-5 rounded-full bg-surface-raised/95 text-ink text-[10px] font-bold flex items-center justify-center shadow-xs">
+                          ↗
+                        </span>
+                      </div>
+                    </a>
 
-                    <div className="space-y-1 flex-1">
+                    <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-thread">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-thread">
                           {label}
                         </span>
-                        <span className="text-xs text-ink-muted">· {garment.brand}</span>
+                        <span className="text-border text-xs">·</span>
+                        <span className="text-xs font-semibold text-ink-muted">{garment.brand}</span>
                       </div>
-                      <h3 className="text-base font-serif font-medium text-ink">
-                        {garment.name}
+
+                      {/* Clickable Title -> Open Product in New Tab */}
+                      <h3 className="text-sm font-serif font-medium text-ink truncate max-w-sm sm:max-w-md">
+                        <a
+                          href={productUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-accent hover:underline decoration-accent/40 transition-colors inline-flex items-center gap-1 group/title cursor-pointer max-w-full"
+                          title={
+                            isFr
+                              ? `Voir « ${garment.name} » chez ${garment.brand} (ouvre dans un nouvel onglet)`
+                              : `View "${garment.name}" on ${garment.brand} (opens in new tab)`
+                          }
+                        >
+                          <span className="truncate">{garment.name}</span>
+                          <span className="text-[11px] text-ink-muted/70 group-hover/title:text-accent group-hover/title:translate-x-0.5 group-hover/title:-translate-y-0.5 transition-all shrink-0">
+                            ↗
+                          </span>
+                        </a>
                       </h3>
-                      <div className="text-xs text-ink-muted flex flex-wrap items-center gap-3">
-                        <span>{typeof garment.fabric === "string" ? garment.fabric : garment.fabric.composition}</span>
+
+                      <div className="flex items-center gap-3 text-xs text-ink-muted">
+                        <span>{garment.color}</span>
                         {garment.size_range && (
                           <span className="text-ink-muted/80">({garment.size_range})</span>
                         )}
@@ -206,7 +269,7 @@ export function OccasionResult({
                     </div>
                   </div>
 
-                  {/* Right: Actions & "I Already Have This" Interaction (PRD FR-2.7) */}
+                  {/* Right: Actions */}
                   <div className="flex items-center gap-3 sm:gap-4 shrink-0 justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-border">
                     {/* "I Have This" Checkbox */}
                     <label className="flex items-center gap-2 text-xs text-ink-muted cursor-pointer hover:text-ink select-none">
@@ -217,7 +280,9 @@ export function OccasionResult({
                         className="w-4 h-4 rounded border-border text-accent focus:ring-accent cursor-pointer"
                       />
                       <span className={isOwned ? "font-semibold text-verified" : ""}>
-                        {isOwned ? "I have this" : "I have this"}
+                        {isOwned
+                          ? (isFr ? "Déjà dans ma garde-robe" : "I have this")
+                          : (isFr ? "J'ai déjà cette pièce" : "I have this")}
                       </span>
                     </label>
 
@@ -228,7 +293,7 @@ export function OccasionResult({
                       rel="noopener noreferrer"
                       className="text-xs text-thread hover:underline flex items-center gap-0.5"
                     >
-                      <span>Store</span>
+                      <span>{isFr ? "Boutique" : "Store"}</span>
                       <span className="text-[10px]">↗</span>
                     </a>
 
@@ -244,7 +309,9 @@ export function OccasionResult({
                             : "bg-surface border border-border text-ink hover:border-accent"
                         }`}
                       >
-                        {isInCart ? "✓ In Cart" : "+ Cart"}
+                        {isInCart
+                          ? (isFr ? "✓ Au panier" : "✓ In Cart")
+                          : (isFr ? "+ Panier" : "+ Cart")}
                       </button>
                     )}
                   </div>
@@ -262,7 +329,7 @@ export function OccasionResult({
               onClick={() => setShowNudgeOptions(!showNudgeOptions)}
               className="text-sm font-medium text-ink-muted hover:text-ink transition-colors underline underline-offset-4 cursor-pointer"
             >
-              Want to adjust this look?
+              {isFr ? "Envie d'ajuster cette tenue ?" : "Want to adjust this look?"}
             </button>
           </div>
 
@@ -273,21 +340,21 @@ export function OccasionResult({
                 onClick={() => onNudge("too_formal")}
                 className="py-2 px-4 rounded-fitting bg-surface border border-border hover:border-accent text-xs font-semibold text-ink transition-all cursor-pointer shadow-xs"
               >
-                A bit too formal
+                {isFr ? "Un peu trop habillé" : "A bit too formal"}
               </button>
               <button
                 type="button"
                 onClick={() => onNudge("too_casual")}
                 className="py-2 px-4 rounded-fitting bg-surface border border-border hover:border-accent text-xs font-semibold text-ink transition-all cursor-pointer shadow-xs"
               >
-                A bit too casual
+                {isFr ? "Un peu trop décontracté" : "A bit too casual"}
               </button>
               <button
                 type="button"
                 onClick={() => onNudge("not_me")}
                 className="py-2 px-4 rounded-fitting bg-surface border border-border hover:border-accent text-xs font-semibold text-ink transition-all cursor-pointer shadow-xs"
               >
-                Just not my style
+                {isFr ? "Pas tout à fait mon style" : "Just not my style"}
               </button>
             </div>
           )}

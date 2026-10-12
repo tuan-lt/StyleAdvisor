@@ -12,6 +12,7 @@ import {
   BodyType,
   SeasonOfWear,
 } from "../../types/catalog";
+import { LanguageSwitcher } from "../../components/LanguageSwitcher";
 
 interface UrlHealth {
   status?: number;
@@ -999,6 +1000,8 @@ export default function AdminCatalogPage() {
                 className="hidden"
               />
             </div>
+
+            <LanguageSwitcher />
           </div>
         </div>
       </header>

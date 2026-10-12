@@ -11,10 +11,13 @@ import { SharedCart } from "../components/SharedCart";
 import { CheckoutModal } from "../components/CheckoutModal";
 import { LandingPageView } from "../components/LandingPageView";
 import { Garment, Occasion, RecommendApiResponse, NudgeType } from "../types/catalog";
+import { useLanguage } from "../lib/LanguageContext";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 
 type ViewState = "landing" | "profile" | "result";
 
 export default function Home() {
+  const { language, t } = useLanguage();
   const { profile, isLoaded, updateProfile, toggleOwnedItem } = useProfileStorage();
   const [occasion, setOccasion] = useState<Occasion>("pitch");
   const [audienceText, setAudienceText] = useState<string>("Seed fund, partners are ex-engineers, meeting at their office in Gastown");
@@ -69,6 +72,7 @@ export default function Home() {
         owned_item_ids: profile.owned_item_ids,
         excluded_garment_ids: excludedIds || [],
         iteration: iterationOverride !== undefined ? iterationOverride : (nudge ? nudgeIteration : 0),
+        locale: language,
       };
 
       const res = await fetch("/api/recommend", {
@@ -152,7 +156,7 @@ export default function Home() {
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface text-ink-muted text-sm font-serif">
-        Loading Fitting Room profile...
+        {t.loading.loadingProfile}
       </div>
     );
   }
@@ -198,15 +202,15 @@ export default function Home() {
               className="text-left group cursor-pointer flex items-center gap-2"
               title="Return to Home"
             >
-              <span className="text-xs text-thread font-bold group-hover:-translate-x-0.5 transition-transform">← Home</span>
+              <span className="text-xs text-thread font-bold group-hover:-translate-x-0.5 transition-transform">{t.header.returnHome}</span>
               <span className="text-border font-light">|</span>
               <span className="text-lg font-serif text-ink font-semibold group-hover:text-accent transition-colors">
-                Style Advisor
+                {t.common.brandName}
               </span>
             </button>
             <span className="hidden sm:inline-block text-border font-light">|</span>
             <span className="hidden sm:inline-block text-xs text-ink-muted">
-              Personal Fitting Room
+              {t.header.fittingRoom}
             </span>
           </div>
 
@@ -222,7 +226,7 @@ export default function Home() {
                       : "text-ink-muted hover:text-ink"
                   }`}
                 >
-                  Step Wizard
+                  {t.header.stepWizard}
                 </button>
                 <button
                   type="button"
@@ -233,7 +237,7 @@ export default function Home() {
                       : "text-ink-muted hover:text-ink"
                   }`}
                 >
-                  Single Page
+                  {t.header.singlePage}
                 </button>
               </div>
             )}
@@ -244,7 +248,7 @@ export default function Home() {
                 onClick={() => setViewState("profile")}
                 className="text-xs font-semibold text-ink-muted hover:text-ink transition-colors cursor-pointer"
               >
-                ← Edit Profile
+                {t.header.editProfile}
               </button>
             )}
 
@@ -255,13 +259,16 @@ export default function Home() {
               className="relative p-2 rounded-fitting text-ink hover:bg-surface-raised border border-border transition-all flex items-center gap-1.5 cursor-pointer"
               aria-label="Open Cart"
             >
-              <span className="text-xs font-semibold">Shopping Bag</span>
+              <span className="text-xs font-semibold">{t.common.shoppingBag}</span>
               {cartItems.length > 0 && (
                 <span className="w-5 h-5 rounded-full bg-accent text-white text-[11px] font-bold flex items-center justify-center">
                   {cartItems.length}
                 </span>
               )}
             </button>
+
+            {/* Language Switcher in Top Right Corner */}
+            <LanguageSwitcher />
           </div>
         </div>
       </header>
@@ -275,13 +282,13 @@ export default function Home() {
             <div className="text-center space-y-1">
               <p className="font-serif text-lg text-ink font-medium">
                 {loadingStep === 1
-                  ? "Checking in-stock Canadian clothes..."
+                  ? t.loading.step1
                   : flow === "occasion"
-                  ? "Putting your outfit together..."
-                  : "Building your capsule wardrobe..."}
+                  ? t.loading.step2Occasion
+                  : t.loading.step2Capsule}
               </p>
               <p className="text-xs text-ink-muted">
-                Finding the best matches for your shape, colors, and setting
+                {t.loading.subtitle}
               </p>
             </div>
           </div>

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Garment } from "../types/catalog";
+import { useLanguage } from "../lib/LanguageContext";
 
 interface SharedCartProps {
   isOpen: boolean;
@@ -20,6 +21,9 @@ export function SharedCart({
   onClearCart,
   onOpenCheckout,
 }: SharedCartProps) {
+  const { language, t } = useLanguage();
+  const isFr = language === "fr";
+
   if (!isOpen) return null;
 
   // De-duplicate items per PRD FR-4.1
@@ -44,9 +48,12 @@ export function SharedCart({
           {/* Cart Header */}
           <div className="p-6 border-b border-border flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-serif text-ink font-medium">Fitting Bag (Shared Cart)</h2>
+              <h2 className="text-xl font-serif text-ink font-medium">
+                {isFr ? "Panier d'essayage" : "Fitting Bag (Shared Cart)"}
+              </h2>
               <p className="text-xs text-ink-muted mt-0.5">
-                {uniqueItems.length} {uniqueItems.length === 1 ? "garment" : "garments"} verified
+                {uniqueItems.length} {uniqueItems.length === 1 ? t.common.garment : t.common.garments}{" "}
+                {isFr ? "vérifié(s)" : "verified"}
               </p>
             </div>
             <button
@@ -61,20 +68,22 @@ export function SharedCart({
           {/* Cart Body */}
           <div className="p-6 overflow-y-auto flex-1">
             {uniqueItems.length === 0 ? (
-              /* Empty Cart Calm View per PRD FR-4.3 ("You're ready. Wear what you have.") */
+              /* Empty Cart Calm View */
               <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-12 px-4">
                 <div className="w-16 h-16 rounded-full bg-verified/10 text-verified flex items-center justify-center text-2xl font-bold">
                   ✓
                 </div>
                 <div className="space-y-1.5">
                   <h3 className="text-2xl font-serif text-ink font-normal tracking-tight">
-                    You&rsquo;re ready.
+                    {isFr ? "Vous êtes prêt(e)." : "You're ready."}
                   </h3>
                   <p className="text-lg font-serif text-thread italic">
-                    Wear what you have.
+                    {isFr ? "Portez ce que vous avez." : "Wear what you have."}
                   </p>
                   <p className="text-xs text-ink-muted max-w-xs mx-auto leading-relaxed pt-2">
-                    Every piece for your calibrated ensemble is already in your wardrobe. Zero new purchases necessary.
+                    {isFr
+                      ? "Chaque pièce pour votre tenue est déjà dans votre garde-robe. Aucun nouvel achat n'est nécessaire."
+                      : "Every piece for your calibrated ensemble is already in your wardrobe. Zero new purchases necessary."}
                   </p>
                 </div>
                 <button
@@ -82,20 +91,20 @@ export function SharedCart({
                   onClick={onClose}
                   className="mt-4 px-6 py-2.5 rounded-fitting bg-surface border border-border text-xs font-semibold text-ink hover:bg-surface-raised transition-all cursor-pointer"
                 >
-                  Return to Advisor
+                  {isFr ? "Retourner à la cabine d'essayage" : "Return to Advisor"}
                 </button>
               </div>
             ) : (
               /* Items List */
               <div className="space-y-4">
                 <div className="flex justify-between items-center text-xs text-ink-muted pb-2 border-b border-border">
-                  <span>De-duplicated Selection</span>
+                  <span>{isFr ? "Sélection vérifiée" : "De-duplicated Selection"}</span>
                   <button
                     type="button"
                     onClick={onClearCart}
                     className="text-caution hover:underline cursor-pointer"
                   >
-                    Clear All
+                    {isFr ? "Vider tout" : "Clear All"}
                   </button>
                 </div>
 
@@ -120,7 +129,7 @@ export function SharedCart({
                         type="button"
                         onClick={() => onRemoveItem(item.id)}
                         className="text-xs text-ink-muted hover:text-caution p-1 cursor-pointer"
-                        title="Remove"
+                        title={isFr ? "Retirer" : "Remove"}
                       >
                         ✕
                       </button>
@@ -136,15 +145,17 @@ export function SharedCart({
             <div className="p-6 border-t border-border bg-surface/40 space-y-4">
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs text-ink-muted">
-                  <span>Canadian Merchant Total</span>
+                  <span>{isFr ? "Total marchands canadiens" : "Canadian Merchant Total"}</span>
                   <span className="font-mono">CAD</span>
                 </div>
                 <div className="flex justify-between text-xl font-serif text-ink font-semibold">
-                  <span>Estimated Total</span>
+                  <span>{isFr ? "Total estimé" : "Estimated Total"}</span>
                   <span className="font-mono tabular-nums">${totalCad.toFixed(2)}</span>
                 </div>
                 <p className="text-[11px] text-ink-muted">
-                  No hidden markup. Order directly through verified Canadian retailers.
+                  {isFr
+                    ? "Sans frais cachés. Commandez directement auprès des boutiques canadiennes officielles."
+                    : "No hidden markup. Order directly through verified Canadian retailers."}
                 </p>
               </div>
 
@@ -153,7 +164,9 @@ export function SharedCart({
                 onClick={onOpenCheckout}
                 className="w-full py-3.5 px-4 rounded-fitting bg-accent hover:bg-navy-light text-white font-medium text-sm tracking-wide shadow-fitting-raised transition-all cursor-pointer"
               >
-                Proceed to Checkout ({uniqueItems.length} items) →
+                {isFr
+                  ? `Accéder aux boutiques (${uniqueItems.length} articles) →`
+                  : `Proceed to Checkout (${uniqueItems.length} items) →`}
               </button>
             </div>
           )}

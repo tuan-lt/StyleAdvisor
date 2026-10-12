@@ -62,6 +62,7 @@ interface RecommendRequestBody {
   owned_item_ids?: string[];
   excluded_garment_ids?: string[];
   iteration?: number;
+  locale?: "en" | "fr";
 }
 
 /**
@@ -84,6 +85,7 @@ function generateCacheKey(body: RecommendRequestBody): string {
     flow: body.flow || "occasion",
     formality_target: body.formality_target ?? null,
     nudge: body.nudge ?? null,
+    locale: body.locale || "en",
   };
   return crypto.createHash("md5").update(JSON.stringify(normalized)).digest("hex");
 }
@@ -178,32 +180,60 @@ function generateDeterministicRecommendation(
   const outerwearGarment = pickGarment("outerwear");
   const accessoryGarment = pickGarment("accessory");
 
+  const isFr = body.locale === "fr";
+
   // Specific high-taste styling reasoning matching PRD persona Sam
   let reasoning = "";
-  if (occasion === "pitch") {
-    reasoning = `For a pitching session with former engineering partners in Gastown, structure matters more than corporate formality. We paired the ${
-      outerwearGarment ? outerwearGarment.name : "unstructured blazer"
-    } with clean ${bottomGarment ? bottomGarment.name : "tailored chinos"} and ${
-      topGarment ? topGarment.name : "minimalist knitwear"
-    } to project founder credibility without looking stiff or out of touch.`;
-  } else if (occasion === "funeral") {
-    reasoning = `For a somber memorial service, quiet decorum takes precedence over personal fashion. We selected subdued ${
-      outerwearGarment ? outerwearGarment.name : "dark outerwear"
-    } with ${bottomGarment ? bottomGarment.name : "dark trousers"} and clean ${
-      shoesGarment ? shoesGarment.name : "formal footwear"
-    } to show profound respect.`;
-  } else if (occasion === "court") {
-    reasoning = `For a court hearing, institutional respect and clean tailoring are paramount. We structured the ensemble around the ${
-      outerwearGarment ? outerwearGarment.name : "formal jacket"
-    } and ${bottomGarment ? bottomGarment.name : "tailored slacks"}, projecting clarity and seriousness.`;
-  } else if (occasion === "interview") {
-    reasoning = `For a high-stakes job interview, competence and cultural fit are communicated through sharp, unwrinkled lines. The ${
-      topGarment ? topGarment.name : "tailored shirt"
-    } combined with the ${outerwearGarment ? outerwearGarment.name : "blazer"} establishes poise.`;
+  if (isFr) {
+    if (occasion === "pitch") {
+      reasoning = `Pour une présentation d'affaires, la crédibilité et le confort priment sur le costume strict. Nous avons associé ${
+        outerwearGarment ? outerwearGarment.name : "le veston souple"
+      } avec ${bottomGarment ? bottomGarment.name : "un pantalon ajusté"} et ${
+        topGarment ? topGarment.name : "un haut épuré"
+      } pour dégager une assurance naturelle sans paraître trop rigide.`;
+    } else if (occasion === "interview") {
+      reasoning = `Pour une entrevue d'embauche, la compétence et la présentation soignée sont mises en valeur par des lignes nettes. L'association de ${
+        topGarment ? topGarment.name : "la chemise nette"
+      } et de ${outerwearGarment ? outerwearGarment.name : "la veste ajustée"} inspire confiance et professionnalisme.`;
+    } else if (occasion === "funeral") {
+      reasoning = `Pour une cérémonie de recueillement, la discrétion et le respect prévalent. Nous avons sélectionné ${
+        outerwearGarment ? outerwearGarment.name : "un manteau sombre"
+      } avec ${bottomGarment ? bottomGarment.name : "un pantalon habillé foncé"} pour exprimer une solennité bienveillante.`;
+    } else if (occasion === "court") {
+      reasoning = `Pour un cadre officiel, le respect des codes et une coupe irréprochable sont indispensables. L'ensemble s'articule autour de ${
+        outerwearGarment ? outerwearGarment.name : "la veste formelle"
+      } et ${bottomGarment ? bottomGarment.name : "du pantalon classique"}.`;
+    } else {
+      reasoning = `Sélection de ${topGarment ? topGarment.name : "haut élégant"} associé à ${
+        bottomGarment ? bottomGarment.name : "pantalon soigné"
+      }${outerwearGarment ? ` complété par ${outerwearGarment.name}` : ""}. L'ensemble allie élégance canadienne et aisance pratique au quotidien.`;
+    }
   } else {
-    reasoning = `Selected ${topGarment ? topGarment.name : "smart top"} paired with ${
-      bottomGarment ? bottomGarment.name : "tailored trousers"
-    }${outerwearGarment ? ` and anchored by the ${outerwearGarment.name}` : ""}. The ensemble balances intentional Canadian tailoring with practical weather resistance.`;
+    if (occasion === "pitch") {
+      reasoning = `For a pitching session with former engineering partners in Gastown, structure matters more than corporate formality. We paired the ${
+        outerwearGarment ? outerwearGarment.name : "unstructured blazer"
+      } with clean ${bottomGarment ? bottomGarment.name : "tailored chinos"} and ${
+        topGarment ? topGarment.name : "minimalist knitwear"
+      } to project founder credibility without looking stiff or out of touch.`;
+    } else if (occasion === "funeral") {
+      reasoning = `For a somber memorial service, quiet decorum takes precedence over personal fashion. We selected subdued ${
+        outerwearGarment ? outerwearGarment.name : "dark outerwear"
+      } with ${bottomGarment ? bottomGarment.name : "dark trousers"} and clean ${
+        shoesGarment ? shoesGarment.name : "formal footwear"
+      } to show profound respect.`;
+    } else if (occasion === "court") {
+      reasoning = `For a court hearing, institutional respect and clean tailoring are paramount. We structured the ensemble around the ${
+        outerwearGarment ? outerwearGarment.name : "formal jacket"
+      } and ${bottomGarment ? bottomGarment.name : "tailored slacks"}, projecting clarity and seriousness.`;
+    } else if (occasion === "interview") {
+      reasoning = `For a high-stakes job interview, competence and cultural fit are communicated through sharp, unwrinkled lines. The ${
+        topGarment ? topGarment.name : "tailored shirt"
+      } combined with the ${outerwearGarment ? outerwearGarment.name : "blazer"} establishes poise.`;
+    } else {
+      reasoning = `Selected ${topGarment ? topGarment.name : "smart top"} paired with ${
+        bottomGarment ? bottomGarment.name : "tailored trousers"
+      }${outerwearGarment ? ` and anchored by the ${outerwearGarment.name}` : ""}. The ensemble balances intentional Canadian tailoring with practical weather resistance.`;
+    }
   }
 
   if (nudgeReasoning) {
@@ -211,14 +241,28 @@ function generateDeterministicRecommendation(
   }
 
   let interpretationSummary = "";
-  if (occasion === "pitch") {
-    interpretationSummary = "Technical partners, casual office. Aiming for considered, not corporate.";
-  } else if (occasion === "funeral") {
-    interpretationSummary = "Solemn gathering, respectful protocol. Aiming for quiet, understated decorum.";
-  } else if (occasion === "court") {
-    interpretationSummary = "Institutional setting. Aiming for crisp, disciplined propriety.";
+  if (isFr) {
+    if (occasion === "pitch") {
+      interpretationSummary = "Cadre d'affaires moderne et dynamique. Allure soignée et crédible, sans rigidité.";
+    } else if (occasion === "interview") {
+      interpretationSummary = "Entrevue professionnelle. Allure confiante, soignée et structurée.";
+    } else if (occasion === "funeral") {
+      interpretationSummary = "Cérémonie de recueillement. Sobriété, respect et dignité.";
+    } else if (occasion === "court") {
+      interpretationSummary = "Cadre officiel institutionnel. Tenue impeccable et mesurée.";
+    } else {
+      interpretationSummary = `Cadre ${occasion}. Tenue harmonieuse et adaptée.`;
+    }
   } else {
-    interpretationSummary = `${audience}. Aiming for ${signal.replace(/_/g, " ")}.`;
+    if (occasion === "pitch") {
+      interpretationSummary = "Technical partners, casual office. Aiming for considered, not corporate.";
+    } else if (occasion === "funeral") {
+      interpretationSummary = "Solemn gathering, respectful protocol. Aiming for quiet, understated decorum.";
+    } else if (occasion === "court") {
+      interpretationSummary = "Institutional setting. Aiming for crisp, disciplined propriety.";
+    } else {
+      interpretationSummary = `${audience}. Aiming for ${signal.replace(/_/g, " ")}.`;
+    }
   }
 
   return {
@@ -322,11 +366,13 @@ async function callOpenAIEngine(
 
   const candidatePoolPrompt = prepareCandidatePoolPrompt(candidatesBySlot, body);
 
+  const isFr = body.locale === "fr";
+
   const systemPrompt = `You are the AI Styling Engine for "Style Advisor" (Canadian Climate & High-Stakes Dressing).
 ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
 - You MUST select EXACTLY ONE garment ID per slot (outerwear, top, bottom, shoes, and optional accessory) ONLY from the provided candidate list.
 - NEVER invent or hallucinate new garment IDs, prices, or links.
-- Write editorial styling reasoning in a confident Newsreader serif tone.
+- Write editorial styling reasoning in a confident Newsreader serif tone.${isFr ? "\n- CRITICAL: Write all reasoning and interpretation_summary in conversational, polite, and natural French (Canadian French)." : ""}
 - Schema compliance is mandatory.
 ${overrideCheck ? `OCCASION OVERRIDE NOTICE: ${overrideCheck}` : ""}
 ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;

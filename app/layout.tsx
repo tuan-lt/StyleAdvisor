@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LanguageProvider } from "../lib/LanguageContext";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://StyleAdvisor.online";
 
@@ -60,7 +61,9 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="min-h-full flex flex-col justify-between bg-surface text-ink selection:bg-thread/20 selection:text-ink">
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

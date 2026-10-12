@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Garment } from "../types/catalog";
+import { useLanguage } from "../lib/LanguageContext";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -11,6 +12,9 @@ interface CheckoutModalProps {
 }
 
 export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }: CheckoutModalProps) {
+  const { language, t } = useLanguage();
+  const isFr = language === "fr";
+
   const [email, setEmail] = useState<string>(initialEmail);
   const [wtpAmount, setWtpAmount] = useState<number>(35);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -20,6 +24,12 @@ export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }:
   const totalCad = cartItems.reduce((acc, item) => acc + (item.price_cad || item.price || 0), 0);
 
   const getWtpLabel = (val: number) => {
+    if (isFr) {
+      if (val === 0) return "0 $ CAD (Liens gratuits en ligne uniquement)";
+      if (val <= 20) return `${val} $ CAD / commande (Stylisme ponctuel pour un événement)`;
+      if (val <= 50) return `${val} $ CAD / mois (Garde-robe saisonnière renouvelée)`;
+      return `${val} $ CAD / mois (Service VIP sur demande avec retours simplifiés)`;
+    }
     if (val === 0) return "$0 CAD (Free online links only)";
     if (val <= 20) return `$${val} CAD / order (Occasional high-stakes event styling)`;
     if (val <= 50) return `$${val} CAD / month (Quarterly seasonal wardrobe concierge)`;
@@ -30,7 +40,6 @@ export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }:
     e.preventDefault();
     if (!email) return;
 
-    // Persist research capture per PRD FR-4.4
     try {
       const researchData = {
         email,
@@ -60,9 +69,13 @@ export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }:
         {/* Header */}
         <div className="flex justify-between items-start border-b border-border pb-4">
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-thread">Private Pilot Intake</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-thread">
+              {isFr ? "Accès anticipé exclusif" : "Private Pilot Intake"}
+            </div>
             <h2 className="text-2xl font-serif text-ink font-medium mt-0.5">
-              {isSubmitted ? "Pilot Access Reserved" : "Checkout is Coming Soon"}
+              {isSubmitted
+                ? (isFr ? "Accès réservé avec succès" : "Pilot Access Reserved")
+                : (isFr ? "Finaliser votre sélection" : "Checkout is Coming Soon")}
             </h2>
           </div>
           <button
@@ -75,22 +88,33 @@ export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }:
         </div>
 
         {isSubmitted ? (
-          /* Confirmation View with Direct Partner Links (PRD FR-4.2) */
+          /* Confirmation View with Direct Partner Links */
           <div className="space-y-6 py-2">
             <div className="p-4 bg-verified/10 border border-verified/20 rounded-fitting text-center space-y-1.5">
               <div className="w-10 h-10 rounded-full bg-verified text-white flex items-center justify-center mx-auto text-lg font-bold">
                 ✓
               </div>
-              <h3 className="text-base font-serif font-medium text-ink">You are on the VIP Pilot List</h3>
+              <h3 className="text-base font-serif font-medium text-ink">
+                {isFr ? "Vous êtes inscrit(e) sur la liste VIP" : "You are on the VIP Pilot List"}
+              </h3>
               <p className="text-xs text-ink-muted">
-                Your styling preferences have been saved for <strong className="text-ink">{email}</strong>.
-                Below are your direct merchant links to order today with zero markup.
+                {isFr ? (
+                  <>
+                    Vos préférences de style ont bien été enregistrées pour <strong className="text-ink">{email}</strong>.
+                    Voici vos liens marchands vérifiés pour commander dès aujourd'hui sans frais ajoutés.
+                  </>
+                ) : (
+                  <>
+                    Your styling preferences have been saved for <strong className="text-ink">{email}</strong>.
+                    Below are your direct merchant links to order today with zero markup.
+                  </>
+                )}
               </p>
             </div>
 
             <div className="space-y-2">
               <div className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
-                Direct Canadian Retailer Links
+                {isFr ? "Liens directs des boutiques canadiennes" : "Direct Canadian Retailer Links"}
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto divide-y divide-border">
                 {cartItems.map((item) => (
@@ -104,7 +128,7 @@ export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }:
                       rel="noopener noreferrer"
                       className="text-thread hover:underline font-bold shrink-0 ml-2"
                     >
-                      Buy on {item.brand} ↗
+                      {isFr ? `Acheter sur ${item.brand} ↗` : `Buy on ${item.brand} ↗`}
                     </a>
                   </div>
                 ))}
@@ -116,43 +140,47 @@ export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }:
               onClick={onClose}
               className="w-full py-3 rounded-fitting bg-accent text-white font-serif text-sm font-medium hover:bg-navy-light transition-all cursor-pointer"
             >
-              Back to Fitting Room
+              {isFr ? "Retourner à la cabine d'essayage" : "Back to Fitting Room"}
             </button>
           </div>
         ) : (
-          /* Intake Form (Email + 1 Quantitative WTP Question - PRD FR-4.4) */
+          /* Intake Form */
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="p-3.5 bg-surface rounded-fitting border border-border text-xs text-ink-muted leading-relaxed">
-              Direct unified 1-click checkout across multiple Canadian retailers is launching next month. Join our private Vancouver pilot for free white-glove styling delivery.
+              {isFr
+                ? "Le paiement unifié en 1 clic auprès des boutiques canadiennes arrive le mois prochain. Rejoignez notre projet pilote pour un accès anticipé et des conseils de style gratuits."
+                : "Direct unified 1-click checkout across multiple Canadian retailers is launching next month. Join our private Vancouver pilot for free white-glove styling delivery."}
             </div>
 
             {/* Email Input */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold uppercase tracking-wider text-ink">
-                Your Work or Personal Email
+                {isFr ? "Votre adresse courriel" : "Your Work or Personal Email"}
               </label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="sam@earlystagestartup.ca"
+                placeholder={isFr ? "vous@exemple.ca" : "sam@earlystagestartup.ca"}
                 className="w-full px-4 py-2.5 text-sm bg-surface/50 border border-border rounded-fitting focus:outline-none focus:ring-1 focus:ring-accent focus:bg-surface-raised transition-all"
               />
             </div>
 
-            {/* 1 Quantitative WTP Question (PRD FR-4.4) */}
+            {/* Willingness to pay question */}
             <div className="space-y-2.5">
               <div className="flex justify-between items-start">
                 <label className="text-xs font-semibold uppercase tracking-wider text-ink">
-                  Willingness-to-Pay (WTP) Survey
+                  {isFr ? "Sondage de satisfaction & Tarif" : "Willingness-to-Pay (WTP) Survey"}
                 </label>
                 <span className="text-xs font-bold text-thread font-mono">
                   ${wtpAmount} CAD
                 </span>
               </div>
               <p className="text-xs text-ink-muted">
-                How much would you pay for a concierge service that delivers your curated outfit to your door with pre-verified sizes and free home returns?
+                {isFr
+                  ? "Combien paieriez-vous pour un service de conciergerie vestimentaire qui livre vos tenues sur mesure avec retours à domicile simplifiés ?"
+                  : "How much would you pay for a concierge service that delivers your curated outfit to your door with pre-verified sizes and free home returns?"}
               </p>
               <input
                 type="range"
@@ -170,15 +198,17 @@ export function CheckoutModal({ isOpen, onClose, cartItems, initialEmail = "" }:
 
             {/* Summary info */}
             <div className="flex justify-between items-center text-xs text-ink-muted border-t border-border pt-3">
-              <span>Current Selection:</span>
-              <span className="font-bold text-ink font-mono">${totalCad.toFixed(2)} CAD ({cartItems.length} items)</span>
+              <span>{isFr ? "Sélection actuelle :" : "Current Selection:"}</span>
+              <span className="font-bold text-ink font-mono">
+                ${totalCad.toFixed(2)} CAD ({cartItems.length} {isFr ? "articles" : "items"})
+              </span>
             </div>
 
             <button
               type="submit"
               className="w-full py-3.5 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-base font-medium tracking-wide transition-all shadow-fitting-raised cursor-pointer"
             >
-              Request Private Pilot Access & View Links
+              {isFr ? "Accéder aux liens directs & Rejoindre le pilote" : "Request Private Pilot Access & View Links"}
             </button>
           </form>
         )}

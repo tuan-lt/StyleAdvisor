@@ -1,12 +1,16 @@
 "use client";
 
 import React from "react";
+import { useLanguage } from "../lib/LanguageContext";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface LandingPageViewProps {
   onEnterFittingRoom: () => void;
 }
 
 export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFittingRoom }) => {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-surface text-ink flex flex-col justify-between selection:bg-thread/20">
       {/* 1. TOP EDITORIAL HEADER */}
@@ -14,31 +18,34 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-[10px] uppercase tracking-widest text-thread font-bold block">
-              The Fitting Room
+              {t.common.tagline}
             </span>
             <span className="hidden sm:inline-block text-border font-light">|</span>
             <span className="text-lg font-serif text-ink font-semibold">
-              Style Advisor
+              {t.common.brandName}
             </span>
           </div>
 
-          <nav className="flex items-center gap-4 sm:gap-6 text-xs font-medium">
+          <nav className="flex items-center gap-3 sm:gap-4 text-xs font-medium">
             <a href="#value-pillars" className="text-ink-muted hover:text-ink transition-colors hidden md:inline-block">
-              Why You'll Love It
+              {t.header.whyLoveIt}
             </a>
             <a href="#how-it-works" className="text-ink-muted hover:text-ink transition-colors hidden md:inline-block">
-              How It Works
+              {t.header.howItWorks}
             </a>
             <a href="#retailers" className="text-ink-muted hover:text-ink transition-colors hidden sm:inline-block">
-              Popular Brands
+              {t.header.popularBrands}
             </a>
             <button
               type="button"
               onClick={onEnterFittingRoom}
               className="px-4 py-2 rounded-fitting bg-accent hover:bg-accent/90 text-white text-xs font-semibold shadow-xs transition-all hover:scale-[1.02] cursor-pointer"
             >
-              Start Styling →
+              {t.header.startStyling}
             </button>
+
+            {/* Language Switcher in Top Right Corner */}
+            <LanguageSwitcher />
           </nav>
         </div>
       </header>
@@ -49,15 +56,16 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
         <div className="absolute bottom-0 left-1/4 w-96 h-96 rounded-full bg-verified/5 blur-3xl pointer-events-none" />
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
-
-
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-semibold text-ink tracking-tight leading-[1.25] max-w-2xl mx-auto">
-            Look great and feel confident, <span className="italic text-thread font-normal">every single day</span>.<br />
-            No guesswork, no wasted shopping.
+            {t.landing.heroTitle}{" "}
+            <span className="italic text-thread font-normal">{t.landing.heroTitleHighlight}</span>
+            {t.landing.heroTitleEnd}
           </h1>
 
           <p className="text-base sm:text-lg text-ink-muted leading-relaxed font-sans max-w-2xl mx-auto">
-            Your personal style advisor tailored to your body shape, best colors, and the weather—recommending only <strong className="text-ink font-semibold">100% real, in-stock clothes</strong> from trusted Canadian brands.
+            {t.landing.heroSubtitle}{" "}
+            <strong className="text-ink font-semibold">{t.landing.heroSubtitleHighlight}</strong>{" "}
+            {t.landing.heroSubtitleEnd}
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3.5">
@@ -66,29 +74,29 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
               onClick={onEnterFittingRoom}
               className="w-full sm:w-auto px-8 py-3.5 rounded-fitting bg-accent hover:bg-accent/90 text-white text-sm font-semibold shadow-fitting-card hover:shadow-fitting-raised transition-all hover:scale-[1.02] cursor-pointer"
             >
-              ✨ Try the Fitting Room →
+              {t.landing.tryFittingRoom}
             </button>
             <a
               href="#value-pillars"
               className="w-full sm:w-auto px-6 py-3.5 rounded-fitting border border-border bg-surface hover:bg-surface-raised text-ink text-sm font-medium transition-all"
             >
-              Why People Love It
+              {t.landing.whyPeopleLoveIt}
             </a>
           </div>
 
           {/* Metric Highlights */}
           <div className="pt-10 grid grid-cols-3 gap-4 max-w-xl mx-auto text-center border-t border-border/60">
             <div>
-              <div className="text-2xl sm:text-3xl font-serif font-semibold text-ink">Zero Guesswork</div>
-              <div className="text-[11px] text-ink-muted uppercase tracking-wider mt-0.5">Full Outfit Curation</div>
+              <div className="text-2xl sm:text-3xl font-serif font-semibold text-ink">{t.landing.metric1Title}</div>
+              <div className="text-[11px] text-ink-muted uppercase tracking-wider mt-0.5">{t.landing.metric1Desc}</div>
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-serif font-semibold text-verified">100%</div>
-              <div className="text-[11px] text-ink-muted uppercase tracking-wider mt-0.5">Real Stores</div>
+              <div className="text-2xl sm:text-3xl font-serif font-semibold text-verified">{t.landing.metric2Title}</div>
+              <div className="text-[11px] text-ink-muted uppercase tracking-wider mt-0.5">{t.landing.metric2Desc}</div>
             </div>
             <div>
-              <div className="text-2xl sm:text-3xl font-serif font-semibold text-thread">-$1,200</div>
-              <div className="text-[11px] text-ink-muted uppercase tracking-wider mt-0.5">Stop Wasting Money</div>
+              <div className="text-2xl sm:text-3xl font-serif font-semibold text-thread">{t.landing.metric3Title}</div>
+              <div className="text-[11px] text-ink-muted uppercase tracking-wider mt-0.5">{t.landing.metric3Desc}</div>
             </div>
           </div>
         </div>
@@ -98,13 +106,13 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
       <section id="value-pillars" className="py-16 sm:py-24 max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <span className="text-xs font-bold uppercase tracking-widest text-thread">
-            3 Simple Promises
+            {t.landing.pillarsBadge}
           </span>
           <h2 className="text-3xl sm:text-4xl font-serif font-semibold text-ink">
-            Getting Dressed Just Got Effortless
+            {t.landing.pillarsTitle}
           </h2>
           <p className="text-sm text-ink-muted leading-relaxed">
-            We solved the three biggest headaches of shopping online and figuring out what to wear.
+            {t.landing.pillarsDesc}
           </p>
         </div>
 
@@ -117,23 +125,25 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
                   ⚡
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-thread block">Save Time</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-thread block">
+                    {t.landing.pillar1Tag}
+                  </span>
                   <h3 className="text-lg sm:text-xl font-serif font-semibold text-ink mt-0.5">
-                    Dressed in a Few Clicks
+                    {t.landing.pillar1Title}
                   </h3>
                 </div>
               </div>
               <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
-                No more standing in front of your closet feeling stuck, or spending hours bouncing between 10 browser tabs. Get a full head-to-toe look ready for you.
+                {t.landing.pillar1Desc}
               </p>
             </div>
 
             <div className="mt-6 pt-4 border-t border-border/80 space-y-1.5 text-xs text-ink font-medium">
               <div className="flex items-center gap-2">
-                <span className="text-verified font-bold">✓</span> Say goodbye to morning stress
+                <span className="text-verified font-bold">✓</span> {t.landing.pillar1Bullet1}
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-verified font-bold">✓</span> Complete head-to-toe curation
+                <span className="text-verified font-bold">✓</span> {t.landing.pillar1Bullet2}
               </div>
             </div>
           </div>
@@ -146,23 +156,25 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
                   💰
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-verified block">Save Money</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-verified block">
+                    {t.landing.pillar2Tag}
+                  </span>
                   <h3 className="text-lg sm:text-xl font-serif font-semibold text-ink mt-0.5">
-                    No More Regret Buys
+                    {t.landing.pillar2Title}
                   </h3>
                 </div>
               </div>
               <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
-                Stop buying items that look nice online but end up hanging unworn in your closet. Our mix-and-match capsule makes sure every piece goes with everything else.
+                {t.landing.pillar2Desc}
               </p>
             </div>
 
             <div className="mt-6 pt-4 border-t border-border/80 space-y-1.5 text-xs text-ink font-medium">
               <div className="flex items-center gap-2">
-                <span className="text-verified font-bold">✓</span> Save up to $1,200/year on unworn clothes
+                <span className="text-verified font-bold">✓</span> {t.landing.pillar2Bullet1}
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-verified font-bold">✓</span> Clothes that you'll actually wear
+                <span className="text-verified font-bold">✓</span> {t.landing.pillar2Bullet2}
               </div>
             </div>
           </div>
@@ -175,23 +187,25 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
                   🛡️
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-accent block">100% Real</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-accent block">
+                    {t.landing.pillar3Tag}
+                  </span>
                   <h3 className="text-lg sm:text-xl font-serif font-semibold text-ink mt-0.5">
-                    Real Clothes You Can Buy
+                    {t.landing.pillar3Title}
                   </h3>
                 </div>
               </div>
               <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
-                Other AI tools generate fake images of clothes that don't exist. Style Advisor only suggests real garments that are currently in stock with direct links to buy.
+                {t.landing.pillar3Desc}
               </p>
             </div>
 
             <div className="mt-6 pt-4 border-t border-border/80 space-y-1.5 text-xs text-ink font-medium">
               <div className="flex items-center gap-2">
-                <span className="text-verified font-bold">✓</span> Direct links to official brand stores
+                <span className="text-verified font-bold">✓</span> {t.landing.pillar3Bullet1}
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-verified font-bold">✓</span> Clear CAD prices with stock availability
+                <span className="text-verified font-bold">✓</span> {t.landing.pillar3Bullet2}
               </div>
             </div>
           </div>
@@ -202,43 +216,57 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
       <section id="how-it-works" className="py-16 sm:py-20 bg-surface/50 border-y border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-thread">How It Works</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-thread">
+              {t.landing.howBadge}
+            </span>
             <h2 className="text-3xl sm:text-4xl font-serif font-semibold text-ink">
-              3 Easy Steps to Great Style
+              {t.landing.howTitle}
             </h2>
             <p className="text-sm text-ink-muted">
-              Designed to make getting dressed easy, fun, and foolproof.
+              {t.landing.howDesc}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             <div className="p-6 bg-surface-raised border border-border rounded-fitting-lg space-y-3 relative shadow-xs">
               <div className="flex items-center gap-3">
-                <span className="text-2xl sm:text-3xl font-serif font-bold text-thread/50 shrink-0">01</span>
-                <h4 className="text-base font-serif font-semibold text-ink">Tell Us About You</h4>
+                <span className="text-2xl sm:text-3xl font-serif font-bold text-thread/50 shrink-0">
+                  {t.landing.step1Num}
+                </span>
+                <h4 className="text-base font-serif font-semibold text-ink">
+                  {t.landing.step1Title}
+                </h4>
               </div>
               <p className="text-xs text-ink-muted leading-relaxed">
-                Share your body shape, your favourite colors, and your overall style vibe so we know what fits you best.
+                {t.landing.step1Desc}
               </p>
             </div>
 
             <div className="p-6 bg-surface-raised border border-border rounded-fitting-lg space-y-3 relative shadow-xs">
               <div className="flex items-center gap-3">
-                <span className="text-2xl sm:text-3xl font-serif font-bold text-thread/50 shrink-0">02</span>
-                <h4 className="text-base font-serif font-semibold text-ink">Where Are You Heading?</h4>
+                <span className="text-2xl sm:text-3xl font-serif font-bold text-thread/50 shrink-0">
+                  {t.landing.step2Num}
+                </span>
+                <h4 className="text-base font-serif font-semibold text-ink">
+                  {t.landing.step2Title}
+                </h4>
               </div>
               <p className="text-xs text-ink-muted leading-relaxed">
-                Whether it's an interview, a date, or just upgrading your weekly office wardrobe, pick the setting you're dressing for.
+                {t.landing.step2Desc}
               </p>
             </div>
 
             <div className="p-6 bg-surface-raised border border-border rounded-fitting-lg space-y-3 relative shadow-xs">
               <div className="flex items-center gap-3">
-                <span className="text-2xl sm:text-3xl font-serif font-bold text-thread/50 shrink-0">03</span>
-                <h4 className="text-base font-serif font-semibold text-ink">Get Your Complete Look</h4>
+                <span className="text-2xl sm:text-3xl font-serif font-bold text-thread/50 shrink-0">
+                  {t.landing.step3Num}
+                </span>
+                <h4 className="text-base font-serif font-semibold text-ink">
+                  {t.landing.step3Title}
+                </h4>
               </div>
               <p className="text-xs text-ink-muted leading-relaxed">
-                Receive head-to-toe outfit recommendations with friendly stylist tips on why each piece works for you.
+                {t.landing.step3Desc}
               </p>
             </div>
           </div>
@@ -248,7 +276,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
       {/* 5. PARTNER RETAILERS SECTION */}
       <section id="retailers" className="py-14 max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-6">
         <span className="text-xs font-bold uppercase tracking-widest text-ink-muted">
-          Featuring Clothes From Top Canadian Brands
+          {t.landing.brandsTitle}
         </span>
         <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-sm sm:text-base font-serif font-semibold text-ink/70">
           <span className="hover:text-accent transition-colors">RW&CO</span>
@@ -269,10 +297,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
       <section className="py-16 bg-accent text-white border-t border-accent/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
           <h2 className="text-3xl sm:text-5xl font-serif font-semibold tracking-tight">
-            Ready to Love What You Wear?
+            {t.landing.ctaTitle}
           </h2>
           <p className="text-sm sm:text-base text-white/80 max-w-xl mx-auto leading-relaxed">
-            Hop into the Fitting Room. Your personalized outfit suggestions are only a few clicks away.
+            {t.landing.ctaDesc}
           </p>
           <div className="pt-2">
             <button
@@ -280,7 +308,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
               onClick={onEnterFittingRoom}
               className="px-8 py-3.5 rounded-fitting bg-surface text-ink hover:bg-white text-sm font-semibold shadow-fitting-raised transition-all hover:scale-[1.03] cursor-pointer"
             >
-              Start Styling Now →
+              {t.landing.ctaButton}
             </button>
           </div>
         </div>
@@ -290,13 +318,13 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
       <footer className="py-8 bg-surface-dark text-white/60 text-xs border-t border-white/10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <span className="text-white font-serif font-semibold text-sm">Style Advisor</span>
-            <span className="ml-2 text-[11px]">© 2026 Style Advisor. All rights reserved.</span>
+            <span className="text-white font-serif font-semibold text-sm">{t.common.brandName}</span>
+            <span className="ml-2 text-[11px]">{t.landing.footerRights}</span>
           </div>
           <div className="flex items-center gap-4 text-[11px]">
-            <span>Privacy Friendly</span>
+            <span>{t.landing.footerPrivacy}</span>
             <span>•</span>
-            <span>Weather & Climate Ready</span>
+            <span>{t.landing.footerWeather}</span>
           </div>
         </div>
       </footer>

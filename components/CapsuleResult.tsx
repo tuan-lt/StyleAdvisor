@@ -9,6 +9,7 @@ import {
   rankCandidates,
 } from "../lib/garment-scorer";
 import rawCatalog from "../data/catalog.json";
+import { useLanguage } from "../lib/LanguageContext";
 
 const catalog = rawCatalog as Garment[];
 
@@ -35,6 +36,9 @@ export function CapsuleResult({
   onReplanCapsule,
   isReplanning,
 }: CapsuleResultProps) {
+  const { language, t } = useLanguage();
+  const isFr = language === "fr";
+
   const [activeCombinationIndex, setActiveCombinationIndex] = useState<number>(0);
   const [filterSlot, setFilterSlot] = useState<string>("all");
   const [capsuleIteration, setCapsuleIteration] = useState<number>(0);
@@ -54,7 +58,7 @@ export function CapsuleResult({
     });
   }, [activeCatalog, profile, capsuleIteration]);
 
-  // Starter Set of 5 Core Foundation Pieces: highest versatility across work & casual
+  // Starter Set of 5 Core Foundation Pieces
   const starterSetIds = useMemo(() => {
     const top = rankCandidates(capsule15.filter((g) => g.slot === "top"), { targetFormality: 3 })[0]?.garment?.id || "";
     const bottom = rankCandidates(capsule15.filter((g) => g.slot === "bottom"), { targetFormality: 3 })[0]?.garment?.id || "";
@@ -65,7 +69,7 @@ export function CapsuleResult({
     return new Set([top, bottom, outerwear, shoes, accessory].filter(Boolean));
   }, [capsule15]);
 
-  // 3 Worked Outfits dynamically assembled according to context and target formality (PRD FR-3.1)
+  // 3 Worked Outfits dynamically assembled according to context and target formality
   const combinations = useMemo(() => {
     const scoringOpts = {
       targetPalette: profile?.seasonal_colour || profile?.palette_season,
@@ -88,7 +92,7 @@ export function CapsuleResult({
       studioOutfit.accessory || studioOutfit.outerwear,
     ].filter(Boolean) as Garment[];
 
-    // Outfit 03: Weekend Commute & Offsite (Formality 2) - Casual, relaxed layers
+    // Outfit 03: Weekend Commute & Offsite (Formality 2)
     const weekendOutfit = assembleWorkedOutfit(capsule15, 2, "casual", {
       ...scoringOpts,
       excludedIds: new Set([...officeGarments.map((g) => g.id), ...studioGarments.map((g) => g.id)]),
@@ -103,30 +107,48 @@ export function CapsuleResult({
     return [
       {
         id: "combo-1",
-        title: "Worked Outfit 01: Hybrid Office & Client Review",
-        subtitle: "Tailored structure with breathable all-day mobility",
+        title: isFr
+          ? "Tenue 01 : Bureau hybride & Rencontre client"
+          : "Worked Outfit 01: Hybrid Office & Client Review",
+        subtitle: isFr
+          ? "Coupe soignée avec un confort pensé pour toute la journée"
+          : "Tailored structure with breathable all-day mobility",
         formality: 4,
         garments: officeGarments,
-        styling_tip: "Button the blazer when entering formal rooms; pair with neutral tailored trousers for effortless Canadian polish.",
+        styling_tip: isFr
+          ? "Boutonnez le veston pour vos rendez-vous formels ; mariez-le avec un pantalon habillé neutre pour une élégance canadienne sans effort."
+          : "Button the blazer when entering formal rooms; pair with neutral tailored trousers for effortless Canadian polish.",
       },
       {
         id: "combo-2",
-        title: "Worked Outfit 02: Downtown Studio & Creative Standup",
-        subtitle: "Minimalist drape paired with comfortable certified organic cotton",
+        title: isFr
+          ? "Tenue 02 : Studio créatif & Rencontre d'équipe"
+          : "Worked Outfit 02: Downtown Studio & Creative Standup",
+        subtitle: isFr
+          ? "Lignes épurées et coton doux certifié pour un style détendu"
+          : "Minimalist drape paired with comfortable certified organic cotton",
         formality: 3,
         garments: studioGarments,
-        styling_tip: "Clean tonal layering allows easy movement between morning meetings and afternoon creative coworking spaces.",
+        styling_tip: isFr
+          ? "Des superpositions douces permettent de passer aisément du bureau du matin aux espaces de cotravail de l'après-midi."
+          : "Clean tonal layering allows easy movement between morning meetings and afternoon creative coworking spaces.",
       },
       {
         id: "combo-3",
-        title: "Worked Outfit 03: Weekend Commute & Offsite",
-        subtitle: "Weatherproof protection with sleek minimalist casual lines",
+        title: isFr
+          ? "Tenue 03 : Fin de semaine & Déplacements"
+          : "Worked Outfit 03: Weekend Commute & Offsite",
+        subtitle: isFr
+          ? "Protection météo et allure décontractée et soignée"
+          : "Weatherproof protection with sleek minimalist casual lines",
         formality: 2,
         garments: weekendGarments,
-        styling_tip: "Waterproof footwear and flexible casual denim keep you dry and comfortable in coastal drizzle without sacrificing style.",
+        styling_tip: isFr
+          ? "Des chaussures imperméables et un jean souple vous gardent bien au sec sans rien sacrifier à votre style."
+          : "Waterproof footwear and flexible casual denim keep you dry and comfortable in coastal drizzle without sacrificing style.",
       },
     ];
-  }, [capsule15, profile]);
+  }, [capsule15, profile, isFr]);
 
   const handleReplan = () => {
     setCapsuleIteration((prev) => prev + 1);
@@ -162,12 +184,14 @@ export function CapsuleResult({
           onClick={onBackToEdit}
           className="text-xs font-semibold text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors cursor-pointer"
         >
-          <span>←</span> Back to Fitting Profile
+          <span>←</span> {isFr ? "Retour au profil d'essayage" : "Back to Fitting Profile"}
         </button>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-ink-muted font-mono">15-Piece Capsule Matrix</span>
+          <span className="text-xs text-ink-muted font-mono">
+            {isFr ? "Garde-robe capsule de 15 pièces" : "15-Piece Capsule Matrix"}
+          </span>
           <span className="text-xs px-2.5 py-0.5 rounded-full bg-verified/15 text-verified font-bold">
-            12+ Outfit Variations
+            {isFr ? "Plus de 12 déclinaisons" : "12+ Outfit Variations"}
           </span>
         </div>
       </div>
@@ -176,7 +200,7 @@ export function CapsuleResult({
       <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-4 shadow-fitting-card">
         <div className="flex items-center justify-between">
           <div className="text-xs font-bold uppercase tracking-widest text-thread">
-            Your Everyday Capsule Wardrobe
+            {isFr ? "Votre garde-robe capsule du quotidien" : "Your Everyday Capsule Wardrobe"}
           </div>
           <button
             type="button"
@@ -185,23 +209,29 @@ export function CapsuleResult({
             className="text-xs font-semibold px-3 py-1.5 rounded-fitting bg-surface border border-border hover:border-accent text-ink transition-all flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
           >
             <span>🔄</span>
-            <span>{isReplanning ? "Re-curating..." : "Re-curate Wardrobe"}</span>
+            <span>{isReplanning ? (isFr ? "Re-génération..." : "Re-curating...") : (isFr ? "Re-composer la capsule" : "Re-curate Wardrobe")}</span>
           </button>
         </div>
         <h1 className="text-2xl sm:text-3xl font-serif text-ink font-medium">
-          The 15-Piece Mix & Match Wardrobe
+          {isFr ? "La capsule de 15 pièces coordonnées" : "The 15-Piece Mix & Match Wardrobe"}
         </h1>
         <p className="font-serif text-[18px] sm:text-[19px] text-ink leading-relaxed italic">
-          &ldquo;Designed for real life and changing Canadian weather. We handpicked 15 versatile pieces in complementary tones so that every single top pairs naturally with every bottom. No more morning guesswork—just effortless style every day.&rdquo;
+          {isFr
+            ? "« Conçue pour la vraie vie et la météo canadienne. Nous avons réuni 15 pièces polyvalentes aux teintes complémentaires pour que chaque haut s'accorde naturellement avec chaque bas. Fini le casse-tête du matin : un style soigné et sans effort au quotidien. »"
+            : "“Designed for real life and changing Canadian weather. We handpicked 15 versatile pieces in complementary tones so that every single top pairs naturally with every bottom. No more morning guesswork—just effortless style every day.”"}
         </p>
       </div>
 
-      {/* 2. Three Worked Outfits Carousel / Tabs */}
+      {/* 2. 3 Worked Outfits */}
       <div className="bg-surface-raised border border-border rounded-fitting-lg overflow-hidden shadow-fitting-raised">
         <div className="p-5 sm:p-6 border-b border-border bg-surface/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="text-xs font-bold uppercase tracking-wider text-thread">Example Outfits</div>
-            <h2 className="text-xl font-serif text-ink mt-0.5 font-medium">3 Ready-to-Wear Combinations</h2>
+            <div className="text-xs font-bold uppercase tracking-wider text-thread">
+              {isFr ? "Exemples de tenues" : "Example Outfits"}
+            </div>
+            <h2 className="text-xl font-serif text-ink mt-0.5 font-medium">
+              {isFr ? "3 combinaisons prêtes à porter" : "3 Ready-to-Wear Combinations"}
+            </h2>
           </div>
           <div className="flex gap-1.5 bg-surface p-1 rounded-fitting border border-border">
             {combinations.map((c, idx) => (
@@ -215,7 +245,7 @@ export function CapsuleResult({
                     : "text-ink-muted hover:text-ink"
                 }`}
               >
-                Look 0{idx + 1}
+                {isFr ? `Look 0${idx + 1}` : `Look 0${idx + 1}`}
               </button>
             ))}
           </div>
@@ -231,6 +261,8 @@ export function CapsuleResult({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {activeCombo.garments.map((garment) => {
               const isOwned = ownedItemIds.includes(garment.id);
+              const productUrl = garment.product_url || garment.retailer_url;
+
               return (
                 <div
                   key={garment.id}
@@ -239,15 +271,55 @@ export function CapsuleResult({
                   }`}
                 >
                   <div className="space-y-2">
-                    <div className="aspect-3/4 rounded bg-surface border border-border overflow-hidden relative">
-                      <img src={garment.image_url} alt={garment.name} className="w-full h-full object-cover" />
+                    <a
+                      href={productUrl || "#"}
+                      target={productUrl ? "_blank" : undefined}
+                      rel={productUrl ? "noopener noreferrer" : undefined}
+                      className="group/img block aspect-3/4 rounded bg-surface border border-border overflow-hidden relative cursor-pointer hover:border-accent hover:ring-2 hover:ring-accent/20 transition-all"
+                      title={
+                        productUrl
+                          ? (isFr
+                              ? `Voir « ${garment.name} » chez ${garment.brand} (ouvre dans un nouvel onglet)`
+                              : `View "${garment.name}" on ${garment.brand} (opens in new tab)`)
+                          : undefined
+                      }
+                    >
+                      <img src={garment.image_url} alt={garment.name} className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300" />
                       <span className="absolute bottom-1 right-1 text-[9px] uppercase font-bold bg-accent text-white px-1 rounded">
                         {garment.slot}
                       </span>
-                    </div>
+                      {productUrl && (
+                        <div className="absolute inset-0 bg-ink/15 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="w-5 h-5 rounded-full bg-surface-raised/95 text-ink text-[10px] font-bold flex items-center justify-center shadow-xs">
+                            ↗
+                          </span>
+                        </div>
+                      )}
+                    </a>
                     <div>
                       <div className="text-[10px] uppercase font-bold text-thread">{garment.brand}</div>
-                      <div className="text-xs font-serif font-medium text-ink line-clamp-1">{garment.name}</div>
+                      <div className="text-xs font-serif font-medium text-ink line-clamp-1">
+                        <a
+                          href={productUrl || "#"}
+                          target={productUrl ? "_blank" : undefined}
+                          rel={productUrl ? "noopener noreferrer" : undefined}
+                          className="hover:text-accent hover:underline decoration-accent/40 transition-colors inline-flex items-center gap-1 group/title cursor-pointer max-w-full"
+                          title={
+                            productUrl
+                              ? (isFr
+                                  ? `Voir « ${garment.name} » chez ${garment.brand} (ouvre dans un nouvel onglet)`
+                                  : `View "${garment.name}" on ${garment.brand} (opens in new tab)`)
+                              : undefined
+                          }
+                        >
+                          <span className="truncate">{garment.name}</span>
+                          {productUrl && (
+                            <span className="text-[10px] text-ink-muted/70 group-hover/title:text-accent group-hover/title:translate-x-0.5 group-hover/title:-translate-y-0.5 transition-all shrink-0">
+                              ↗
+                            </span>
+                          )}
+                        </a>
+                      </div>
                       <div className="text-xs font-bold text-ink font-mono mt-0.5">
                         ${(garment.price_cad || garment.price || 0).toFixed(2)}
                       </div>
@@ -264,7 +336,7 @@ export function CapsuleResult({
                       }}
                       className="w-3.5 h-3.5 rounded border-border text-accent focus:ring-accent"
                     />
-                    <span>{isOwned ? "Owned" : "I have this"}</span>
+                    <span>{isOwned ? (isFr ? "Déjà acquis" : "Owned") : (isFr ? "J'ai cette pièce" : "I have this")}</span>
                   </label>
                 </div>
               );
@@ -272,36 +344,42 @@ export function CapsuleResult({
           </div>
 
           <div className="bg-surface/60 border border-border rounded-fitting p-3.5 flex items-start gap-2.5 text-xs text-ink-muted">
-            <span className="text-thread font-bold">Styling Note:</span>
+            <span className="text-thread font-bold">{isFr ? "Conseil de style :" : "Styling Note:"}</span>
             <span>{activeCombo.styling_tip}</span>
           </div>
         </div>
       </div>
 
-      {/* 3. 15-Item Interactive Grid with Starter Set of 5 Highlight (PRD FR-3.1) */}
+      {/* 3. 15-Item Interactive Grid with Starter Set of 5 Highlight */}
       <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-6 shadow-fitting-raised">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-5">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-thread">Capsule Inventory</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-thread">
+                {isFr ? "Inventaire de la capsule" : "Capsule Inventory"}
+              </span>
               <span className="text-xs px-2 py-0.5 rounded bg-surface border border-border text-ink-muted font-mono">
-                15 Items
+                {isFr ? "15 pièces" : "15 Items"}
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-serif text-ink mt-0.5 font-medium">
-              Coordinated Capsule Grid
+              {isFr ? "Grille des 15 pièces coordonnées" : "Coordinated Capsule Grid"}
             </h2>
           </div>
 
-          {/* Running Totals with Starter Set of 5 Highlights */}
+          {/* Running Totals */}
           <div className="flex flex-wrap items-center gap-4 text-right">
             <div className="bg-surface border border-border rounded-fitting px-3 py-2 text-left">
-              <div className="text-[11px] font-bold text-thread uppercase tracking-wider">Starter Set of 5</div>
+              <div className="text-[11px] font-bold text-thread uppercase tracking-wider">
+                {isFr ? "Trousse de départ (5 pièces)" : "Starter Set of 5"}
+              </div>
               <div className="text-sm font-bold text-ink font-mono">${starterSetTotal.toFixed(2)} CAD</div>
             </div>
             <div className="bg-surface border border-border rounded-fitting px-3 py-2 text-left">
               <div className="text-[11px] font-bold text-ink-muted uppercase tracking-wider">
-                {unownedCapsuleItems.length < 15 ? `Remaining (${unownedCapsuleItems.length})` : "Full 15-Piece Total"}
+                {unownedCapsuleItems.length < 15
+                  ? (isFr ? `Pièces à acquérir (${unownedCapsuleItems.length})` : `Remaining (${unownedCapsuleItems.length})`)
+                  : (isFr ? "Total des 15 pièces" : "Full 15-Piece Total")}
               </div>
               <div className="text-sm font-bold text-ink font-mono">${unownedCapsuleTotal.toFixed(2)} CAD</div>
             </div>
@@ -311,7 +389,9 @@ export function CapsuleResult({
               disabled={unownedCapsuleItems.length === 0}
               className="py-2.5 px-4 rounded-fitting bg-accent hover:bg-navy-light text-white text-xs font-semibold tracking-wide transition-all disabled:opacity-40 cursor-pointer"
             >
-              {unownedCapsuleItems.length === 0 ? "Wardrobe Covers This" : `Add All to Cart (${unownedCapsuleItems.length})`}
+              {unownedCapsuleItems.length === 0
+                ? (isFr ? "Votre garde-robe couvre tout" : "Wardrobe Covers This")
+                : (isFr ? `Tout ajouter au panier (${unownedCapsuleItems.length})` : `Add All to Cart (${unownedCapsuleItems.length})`)}
             </button>
           </div>
         </div>
@@ -319,13 +399,13 @@ export function CapsuleResult({
         {/* Slot Filters */}
         <div className="flex flex-wrap gap-2">
           {[
-            { id: "all", label: "All 15 Pieces" },
-            { id: "starter", label: "★ Starter Set of 5" },
-            { id: "outerwear", label: "Outerwear (3)" },
-            { id: "top", label: "Tops (5)" },
-            { id: "bottom", label: "Bottoms (4)" },
-            { id: "shoes", label: "Shoes (2)" },
-            { id: "accessory", label: "Accessories (1)" },
+            { id: "all", label: isFr ? "Toutes les 15 pièces" : "All 15 Pieces" },
+            { id: "starter", label: isFr ? "★ Trousse clé (5 pièces)" : "★ Starter Set of 5" },
+            { id: "outerwear", label: isFr ? "Vestes (3)" : "Outerwear (3)" },
+            { id: "top", label: isFr ? "Hauts (5)" : "Tops (5)" },
+            { id: "bottom", label: isFr ? "Bas (4)" : "Bottoms (4)" },
+            { id: "shoes", label: isFr ? "Chaussures (2)" : "Shoes (2)" },
+            { id: "accessory", label: isFr ? "Accessoires (1)" : "Accessories (1)" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -348,6 +428,7 @@ export function CapsuleResult({
             const isOwned = ownedItemIds.includes(garment.id);
             const isInCart = cartItemIds.includes(garment.id);
             const isStarter = starterSetIds.has(garment.id);
+            const productUrl = garment.product_url || garment.retailer_url;
 
             return (
               <div
@@ -361,65 +442,116 @@ export function CapsuleResult({
                 }`}
               >
                 <div className="space-y-2.5">
-                  <div className="aspect-3/4 rounded bg-surface border border-border overflow-hidden relative">
-                    <img src={garment.image_url} alt={garment.name} className="w-full h-full object-cover" />
-                    {isStarter && (
-                      <span className="absolute top-1 left-1 text-[9px] font-bold bg-thread text-white px-1.5 py-0.5 rounded shadow-xs">
-                        Starter 5
-                      </span>
+                  <a
+                    href={productUrl || "#"}
+                    target={productUrl ? "_blank" : undefined}
+                    rel={productUrl ? "noopener noreferrer" : undefined}
+                    className="group/img block aspect-3/4 rounded bg-surface border border-border overflow-hidden relative cursor-pointer hover:border-accent hover:ring-2 hover:ring-accent/20 transition-all"
+                    title={
+                      productUrl
+                        ? (isFr
+                            ? `Voir « ${garment.name} » chez ${garment.brand} (ouvre dans un nouvel onglet)`
+                            : `View "${garment.name}" on ${garment.brand} (opens in new tab)`)
+                        : undefined
+                    }
+                  >
+                    {garment.image_url ? (
+                      <img
+                        src={garment.image_url}
+                        alt={garment.name}
+                        className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[10px] text-ink-muted bg-surface/80">
+                        {isFr ? "Image" : "No Img"}
+                      </div>
                     )}
                     <span className="absolute bottom-1 right-1 text-[9px] uppercase font-bold bg-accent text-white px-1 rounded">
                       {garment.slot}
                     </span>
-                  </div>
+                    {isStarter && (
+                      <span className="absolute top-1 left-1 text-[9px] font-bold bg-thread text-white px-1.5 py-0.5 rounded shadow-xs">
+                        {isFr ? "★ Clé" : "★ Core"}
+                      </span>
+                    )}
+                    {productUrl && (
+                      <div className="absolute inset-0 bg-ink/15 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="w-5 h-5 rounded-full bg-surface-raised/95 text-ink text-[10px] font-bold flex items-center justify-center shadow-xs">
+                          ↗
+                        </span>
+                      </div>
+                    )}
+                  </a>
 
                   <div>
                     <div className="text-[10px] uppercase font-bold text-thread tracking-wider">{garment.brand}</div>
-                    <h4 className="text-xs font-serif font-medium text-ink line-clamp-2 mt-0.5">{garment.name}</h4>
+                    <h4 className="text-xs font-serif font-medium text-ink line-clamp-1 mt-0.5">
+                      <a
+                        href={productUrl || "#"}
+                        target={productUrl ? "_blank" : undefined}
+                        rel={productUrl ? "noopener noreferrer" : undefined}
+                        className="hover:text-accent hover:underline decoration-accent/40 transition-colors inline-flex items-center gap-1 group/title cursor-pointer max-w-full"
+                        title={
+                          productUrl
+                            ? (isFr
+                                ? `Voir « ${garment.name} » chez ${garment.brand} (ouvre dans un nouvel onglet)`
+                                : `View "${garment.name}" on ${garment.brand} (opens in new tab)`)
+                            : undefined
+                        }
+                      >
+                        <span className="truncate">{garment.name}</span>
+                        {productUrl && (
+                          <span className="text-[10px] text-ink-muted/70 group-hover/title:text-accent group-hover/title:translate-x-0.5 group-hover/title:-translate-y-0.5 transition-all shrink-0">
+                            ↗
+                          </span>
+                        )}
+                      </a>
+                    </h4>
                     <div className="text-xs font-bold text-ink font-mono mt-1">
-                      ${(garment.price_cad || garment.price || 0).toFixed(2)}
+                      ${(garment.price_cad || garment.price || 0).toFixed(2)} CAD
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 pt-2.5 border-t border-border/70 space-y-2">
-                  <label className="flex items-center gap-1.5 text-[11px] text-ink-muted cursor-pointer hover:text-ink">
-                    <input
-                      type="checkbox"
-                      checked={isOwned}
-                      onChange={() => {
-                        onToggleOwned(garment.id);
-                        if (onReplanCapsule) onReplanCapsule();
-                      }}
-                      className="w-3.5 h-3.5 rounded border-border text-accent focus:ring-accent"
-                    />
-                    <span>{isOwned ? "I have this" : "I have this"}</span>
-                  </label>
+                <div className="mt-3 pt-2.5 border-t border-border/60 space-y-2">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <label className="flex items-center gap-1.5 text-ink-muted cursor-pointer hover:text-ink">
+                      <input
+                        type="checkbox"
+                        checked={isOwned}
+                        onChange={() => {
+                          onToggleOwned(garment.id);
+                          if (onReplanCapsule) onReplanCapsule();
+                        }}
+                        className="w-3.5 h-3.5 rounded border-border text-accent focus:ring-accent"
+                      />
+                      <span>{isOwned ? (isFr ? "Acquis" : "Owned") : (isFr ? "J'ai déjà" : "I have this")}</span>
+                    </label>
 
-                  <div className="flex items-center justify-between gap-1 pt-1">
                     <a
                       href={garment.retailer_url || garment.product_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[11px] text-thread hover:underline"
+                      className="text-thread hover:underline font-medium text-[10px]"
                     >
-                      Store ↗
+                      {isFr ? "Boutique ↗" : "Store ↗"}
                     </a>
-                    {!isOwned && (
-                      <button
-                        type="button"
-                        onClick={() => onAddToCart(garment)}
-                        disabled={isInCart}
-                        className={`text-[11px] px-2 py-0.5 rounded font-medium ${
-                          isInCart
-                            ? "bg-verified/15 text-verified"
-                            : "bg-surface border border-border text-ink hover:border-accent"
-                        }`}
-                      >
-                        {isInCart ? "✓" : "+ Cart"}
-                      </button>
-                    )}
                   </div>
+
+                  {!isOwned && (
+                    <button
+                      type="button"
+                      onClick={() => onAddToCart(garment)}
+                      disabled={isInCart}
+                      className={`w-full py-1 rounded text-[11px] font-medium transition-all ${
+                        isInCart
+                          ? "bg-verified/15 text-verified border border-verified/30 cursor-default"
+                          : "bg-surface border border-border text-ink hover:border-accent cursor-pointer"
+                      }`}
+                    >
+                      {isInCart ? (isFr ? "✓ Au panier" : "✓ In Cart") : (isFr ? "+ Panier" : "+ Cart")}
+                    </button>
+                  )}
                 </div>
               </div>
             );
