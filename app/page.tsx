@@ -118,10 +118,14 @@ export default function Home() {
     await fetchRecommendation(targetFormality, nudgeType, currentGarmentIds, nextIteration);
   };
 
+  const [capsuleIteration, setCapsuleIteration] = useState<number>(0);
+
   const handleReplanCapsule = async () => {
+    const nextIteration = capsuleIteration + 1;
+    setCapsuleIteration(nextIteration);
     setIsReplanning(true);
     try {
-      await fetchRecommendation();
+      await fetchRecommendation(undefined, undefined, undefined, nextIteration);
     } finally {
       setIsReplanning(false);
     }
@@ -347,6 +351,7 @@ export default function Home() {
             onBackToEdit={() => setViewState("profile")}
             onReplanCapsule={handleReplanCapsule}
             isReplanning={isReplanning}
+            capsuleAiData={recommendationData?.capsule}
           />
         )}
       </main>

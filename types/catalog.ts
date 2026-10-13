@@ -375,7 +375,26 @@ export interface RecommendApiResponse {
       relaxed_fields: RelaxedField[];
       total_candidates: number;
     };
+    capsule?: CapsuleAiData;
   };
   error?: string;
   message?: string;
 }
+
+export interface CapsuleAiLook {
+  id: string;
+  title: string;
+  subtitle: string;
+  formality: number;
+  styling_tip: string;
+  garment_ids?: string[];
+}
+
+export interface CapsuleAiData {
+  intro_editorial: string;
+  styling_philosophy?: string;
+  versatility_metric?: string;
+  looks: CapsuleAiLook[];
+  ai_model?: string;
+}
+

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Garment, GarmentSlot, UserProfile } from "../types/catalog";
+import { Garment, GarmentSlot, UserProfile, CapsuleAiData } from "../types/catalog";
 import { matchGender } from "../lib/catalog-filter";
 import {
   selectBalancedCapsule15,
@@ -23,6 +23,7 @@ interface CapsuleResultProps {
   onBackToEdit: () => void;
   onReplanCapsule?: () => void;
   isReplanning?: boolean;
+  capsuleAiData?: CapsuleAiData;
 }
 
 export function CapsuleResult({
@@ -35,6 +36,7 @@ export function CapsuleResult({
   onBackToEdit,
   onReplanCapsule,
   isReplanning,
+  capsuleAiData,
 }: CapsuleResultProps) {
   const { language, t } = useLanguage();
   const isFr = language === "fr";
@@ -104,7 +106,7 @@ export function CapsuleResult({
       weekendOutfit.shoes,
     ].filter(Boolean) as Garment[];
 
-    return [
+    const defaultLooks = [
       {
         id: "combo-1",
         title: isFr
@@ -134,7 +136,6 @@ export function CapsuleResult({
           : "Clean tonal layering allows easy movement between morning meetings and afternoon creative coworking spaces.",
       },
       {
-        id: "combo-3",
         title: isFr
           ? "Tenue 03 : Fin de semaine & Déplacements"
           : "Worked Outfit 03: Weekend Commute & Offsite",
@@ -148,7 +149,38 @@ export function CapsuleResult({
           : "Waterproof footwear and flexible casual denim keep you dry and comfortable in coastal drizzle without sacrificing style.",
       },
     ];
-  }, [capsule15, profile, isFr]);
+
+    const aiData = capsuleAiData;
+    if (aiData) {
+      const looks = aiData.looks;
+      if (looks && looks.length >= 3) {
+        return looks.slice(0, 3).map((aiLook, idx) => {
+        const defaultGarments = idx === 0 ? officeGarments : idx === 1 ? studioGarments : weekendGarments;
+        let chosenGarments = defaultGarments;
+
+        if (aiLook.garment_ids && aiLook.garment_ids.length > 0) {
+          const matched = aiLook.garment_ids
+            .map((id) => capsule15.find((g) => g.id === id))
+            .filter(Boolean) as Garment[];
+          if (matched.length >= 3) {
+            chosenGarments = matched;
+          }
+        }
+
+        return {
+          id: `combo-${idx + 1}`,
+          title: aiLook.title || defaultLooks[idx].title,
+          subtitle: aiLook.subtitle || defaultLooks[idx].subtitle,
+          formality: typeof aiLook.formality === "number" ? aiLook.formality : defaultLooks[idx].formality,
+          garments: chosenGarments,
+          styling_tip: aiLook.styling_tip || defaultLooks[idx].styling_tip,
+        };
+      });
+      }
+    }
+
+    return defaultLooks;
+  }, [capsule15, profile, isFr, capsuleAiData]);
 
   const handleReplan = () => {
     setCapsuleIteration((prev) => prev + 1);
@@ -198,9 +230,17 @@ export function CapsuleResult({
 
       {/* 1. Headline & Lifestyle Reasoning Paragraph */}
       <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-4 shadow-fitting-card">
-        <div className="flex items-center justify-between">
-          <div className="text-xs font-bold uppercase tracking-widest text-thread">
-            {isFr ? "Votre garde-robe capsule du quotidien" : "Your Everyday Capsule Wardrobe"}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-widest text-thread">
+              {isFr ? "Votre garde-robe capsule du quotidien" : "Your Everyday Capsule Wardrobe"}
+            </span>
+            {capsuleAiData?.ai_model && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-accent/10 border border-accent/25 text-accent text-[11px] font-semibold">
+                <span>✨</span>
+                <span>{isFr ? `Styliste IA • ${capsuleAiData.ai_model}` : `AI Stylist • ${capsuleAiData.ai_model}`}</span>
+              </span>
+            )}
           </div>
           <button
             type="button"
@@ -216,10 +256,17 @@ export function CapsuleResult({
           {isFr ? "La capsule de 15 pièces coordonnées" : "The 15-Piece Mix & Match Wardrobe"}
         </h1>
         <p className="font-serif text-[18px] sm:text-[19px] text-ink leading-relaxed italic">
-          {isFr
-            ? "« Conçue pour la vraie vie et la météo canadienne. Nous avons réuni 15 pièces polyvalentes aux teintes complémentaires pour que chaque haut s'accorde naturellement avec chaque bas. Fini le casse-tête du matin : un style soigné et sans effort au quotidien. »"
-            : "“Designed for real life and changing Canadian weather. We handpicked 15 versatile pieces in complementary tones so that every single top pairs naturally with every bottom. No more morning guesswork—just effortless style every day.”"}
+          {capsuleAiData?.intro_editorial ||
+            (isFr
+              ? "« Conçue pour la vraie vie et la météo canadienne. Nous avons réuni 15 pièces polyvalentes aux teintes complémentaires pour que chaque haut s'accorde naturellement avec chaque bas. Fini le casse-tête du matin : un style soigné et sans effort au quotidien. »"
+              : "“Designed for real life and changing Canadian weather. We handpicked 15 versatile pieces in complementary tones so that every single top pairs naturally with every bottom. No more morning guesswork—just effortless style every day.”")}
         </p>
+        {capsuleAiData?.versatility_metric && (
+          <div className="inline-flex items-center gap-2 text-xs font-medium text-ink-muted bg-surface/70 border border-border/80 px-3 py-1.5 rounded-fitting">
+            <span className="text-accent font-bold">⚡</span>
+            <span>{capsuleAiData.versatility_metric}</span>
+          </div>
+        )}
       </div>
 
       {/* 2. 3 Worked Outfits */}

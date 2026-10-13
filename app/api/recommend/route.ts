@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { filterCandidates } from "../../../lib/catalog-filter";
+import { filterCandidates, matchGender } from "../../../lib/catalog-filter";
 import {
   Garment,
   GarmentSlot,
@@ -12,13 +12,15 @@ import {
   SeasonOfWear,
   NudgeType,
   StyleOption,
+  CapsuleAiData,
+  CapsuleAiLook,
 } from "../../../types/catalog";
 
 import {
   getAllGarmentsFromDb,
 } from "../../../lib/db";
-import { rankCandidates, getDefaultFormalityForOccasion } from "../../../lib/garment-scorer";
-import { getAiConfig, getAiConfigAsync } from "../../../lib/ai-config";
+import { rankCandidates, getDefaultFormalityForOccasion, selectBalancedCapsule15 } from "../../../lib/garment-scorer";
+import { getAiConfig, getAiConfigAsync, AiConfig } from "../../../lib/ai-config";
 
 /**
  * Get catalog directly from Postgres database with local catalog.json fallback
@@ -647,6 +649,204 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
   return JSON.parse(jsonMatch[0]) as LLMRecommendationPayload;
 }
 
+/**
+ * Dynamic heuristic baseline for 15-piece everyday capsule insight
+ */
+function getHeuristicCapsuleInsight(
+  capsule15: Garment[],
+  body: RecommendRequestBody
+): CapsuleAiData {
+  const isFr = body.locale === "fr";
+  const profile = body.user_profile;
+  const tags = (profile?.lifestyle || profile?.lifestyle_tags || []).map((t) => t.toLowerCase());
+
+  let look1Title = isFr ? "Tenue 01 : Bureau hybride & Rencontre client" : "Worked Outfit 01: Hybrid Office & Client Standup";
+  let look1Sub = isFr ? "Coupe soignée avec un confort pensé pour toute la journée" : "Tailored structure with breathable all-day mobility";
+  let look1Tip = isFr
+    ? "Boutonnez le veston pour vos rendez-vous formels ; mariez-le avec un pantalon habillé neutre pour une élégance canadienne sans effort."
+    : "Button the blazer when entering formal rooms; pair with neutral tailored trousers for effortless Canadian polish.";
+
+  if (tags.includes("new_grad")) {
+    look1Title = isFr ? "Tenue 01 : Début de carrière & Première impression" : "Worked Outfit 01: Career Starter & Confident Poise";
+    look1Sub = isFr ? "Lignes nettes et modernes projetant assurance et professionnalisme" : "Sharp contemporary lines projecting ambition and polished ease";
+    look1Tip = isFr
+      ? "Misez sur un haut net et des souliers cirés pour un impact immédiat dès le premier regard."
+      : "Rely on a crisp collared layer and clean shoes to make a reliable first impression.";
+  }
+
+  let look2Title = isFr ? "Tenue 02 : Studio créatif & Rencontre d'équipe" : "Worked Outfit 02: Downtown Studio & Creative Standup";
+  let look2Sub = isFr ? "Lignes épurées et matières douces certifiées pour un style détendu" : "Minimalist drape paired with comfortable certified cotton layers";
+  let look2Tip = isFr
+    ? "Des superpositions douces permettent de passer aisément du bureau du matin aux espaces de cotravail de l'après-midi."
+    : "Clean tonal layering allows easy movement between morning meetings and afternoon coworking spaces.";
+
+  if (tags.includes("family")) {
+    look2Title = isFr ? "Tenue 02 : Routine familiale & Sorties de fin de semaine" : "Worked Outfit 02: Family Routine & Weekend Errand Run";
+    look2Sub = isFr ? "Confort durable et matières faciles d'entretien pour bouger librement" : "Durable fabrics and comfortable stretch designed for active weekend errands";
+    look2Tip = isFr
+      ? "Associez vos sneakers confortables et votre veste souple pour enchaîner les activités sans compromis de style."
+      : "Pair comfortable sneakers and a relaxed outer layer to transition smoothly between family errands and casual lunches.";
+  }
+
+  let look3Title = isFr ? "Tenue 03 : Fin de semaine & Déplacements" : "Worked Outfit 03: Weekend Commute & Offsite";
+  let look3Sub = isFr ? "Protection météo et allure décontractée et soignée" : "Weatherproof protection with sleek minimalist casual lines";
+  let look3Tip = isFr
+    ? "Associez les couches techniques pour affronter la météo changeante tout en restant élégant."
+    : "Layer the weather-resistant shell over the knit top to easily handle sudden Canadian temperature drops.";
+
+  if (tags.includes("outdoors") || tags.includes("transit")) {
+    look3Title = isFr ? "Tenue 03 : En transit & Météo active" : "Worked Outfit 03: Transit Commute & Weather-Ready Movement";
+    look3Sub = isFr ? "Tissus techniques coupe-vent et chaussures parées pour les déplacements" : "Technical water-repellent protection paired with all-day commuter ease";
+    look3Tip = isFr
+      ? "Une veste respirante associée à des chaussures résistantes à l'eau vous gardent au sec entre la station et votre destination."
+      : "A breathable technical jacket combined with water-resistant footwear keeps you protected between transit stops and evening destinations.";
+  }
+
+  const intro = isFr
+    ? "« Conçue pour la vraie vie et la météo canadienne. Nous avons réuni 15 pièces polyvalentes aux teintes complémentaires pour que chaque haut s'accorde naturellement avec chaque bas. Fini le casse-tête du matin : un style soigné et sans effort au quotidien. »"
+    : "“Designed for real life and changing Canadian weather. We handpicked 15 versatile pieces in complementary tones so that every single top pairs naturally with every bottom. No more morning guesswork—just effortless style every day.”";
+
+  return {
+    intro_editorial: intro,
+    versatility_metric: isFr
+      ? "Plus de 30 combinaisons possibles • Superpositions parées pour le climat canadien"
+      : "30+ outfit permutations • Canadian climate-ready layering matrix",
+    looks: [
+      { id: "combo-1", title: look1Title, subtitle: look1Sub, formality: 4, styling_tip: look1Tip },
+      { id: "combo-2", title: look2Title, subtitle: look2Sub, formality: 3, styling_tip: look2Tip },
+      { id: "combo-3", title: look3Title, subtitle: look3Sub, formality: 2, styling_tip: look3Tip },
+    ],
+    ai_model: "Deterministic Heuristic",
+  };
+}
+
+/**
+ * Generate AI-Powered Editorial Curation for the 15-Piece Everyday Capsule
+ */
+async function generateCapsuleAiInsight(
+  capsule15: Garment[],
+  body: RecommendRequestBody,
+  aiConfig: AiConfig,
+  signal: AbortSignal
+): Promise<CapsuleAiData> {
+  const isFr = body.locale === "fr";
+  const defaultInsight = getHeuristicCapsuleInsight(capsule15, body);
+  const provider = aiConfig.provider || "openrouter";
+  if (provider === "none") return defaultInsight;
+
+  let apiKey = "";
+  if (provider === "openrouter") apiKey = aiConfig.openrouter_api_key || process.env.OPENROUTER_API_KEY || "";
+  else if (provider === "openai") apiKey = aiConfig.openai_api_key || process.env.OPENAI_API_KEY || "";
+  else if (provider === "anthropic") apiKey = aiConfig.anthropic_api_key || process.env.ANTHROPIC_API_KEY || "";
+
+  if (!apiKey) return defaultInsight;
+
+  const model = aiConfig.selected_model || "openrouter/free";
+  const profile = body.user_profile;
+  const lifestyle = profile?.lifestyle || profile?.lifestyle_tags || [];
+  const style = profile?.style || "classic";
+  const season = body.season_or_climate || body.season_of_wear || "fall_winter";
+
+  try {
+    const garmentsSummary = capsule15.map((g) => ({
+      id: g.id,
+      name: g.name,
+      brand: g.brand,
+      slot: g.slot,
+      price: g.price_cad || g.price,
+    }));
+
+    const systemPrompt = `You are the Lead Stylist for "Style Advisor" specializing in versatile 15-piece Canadian Capsule Wardrobes.
+Your tone is confident, editorial, warm, and highly practical.
+You are given a curated 15-piece wardrobe.
+Create:
+1. "intro_editorial": An inspiring 2-sentence styling statement explaining how this 15-piece collection fits the user's lifestyle (${lifestyle.join(", ") || "daily routine"}) and Canadian weather (${season}).
+2. "looks": Array of 3 distinct ready-to-wear outfits tailored to their lifestyle:
+   - Look 01 (Primary daily routine)
+   - Look 02 (Secondary routine / transit / creative)
+   - Look 03 (Weekend / social / offsite)
+   For each look provide:
+     - "id": "combo-1", "combo-2", "combo-3"
+     - "title": Concise, evocative title (e.g. "${isFr ? "Tenue 01 : ..." : "Worked Outfit 01: ..."}")
+     - "subtitle": 1 short sentence on silhouette and comfort
+     - "formality": integer 1-5
+     - "styling_tip": 1 specific layering or styling advice sentence for Canadian weather
+     - "garment_ids": array of 4 garment IDs chosen ONLY from the 15 pieces (1 top, 1 bottom, 1 shoes, 1 outerwear)
+3. "versatility_metric": A short highlight (e.g. "30+ outfit permutations • Weather-ready Canadian layering").
+${isFr ? "CRITICAL: Write all text in refined, modern French (Canadian French)." : "Write in refined, modern English."}
+Return ONLY valid JSON matching this schema.`;
+
+    const userPrompt = JSON.stringify({
+      user: {
+        gender: profile?.gender_expression || profile?.gender_cut,
+        style,
+        lifestyle,
+        palette: profile?.seasonal_colour || profile?.palette_season,
+        season,
+      },
+      capsule_garments: garmentsSummary,
+    });
+
+    let endpoint = "https://openrouter.ai/api/v1/chat/completions";
+    let headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+      "X-Title": "Style Advisor Capsule",
+    };
+
+    if (provider === "openai") {
+      endpoint = "https://api.openai.com/v1/chat/completions";
+      headers = { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` };
+    }
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        model,
+        temperature: 0.7,
+        max_tokens: 1500,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      }),
+      signal,
+    });
+
+    if (!res.ok) throw new Error(`LLM Error HTTP ${res.status}`);
+    const json = await res.json();
+    const content = json.choices?.[0]?.message?.content;
+    if (!content) throw new Error("Empty response");
+
+    const match = content.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error("No JSON in response");
+
+    const parsed = JSON.parse(match[0]);
+    if (parsed.looks && Array.isArray(parsed.looks) && parsed.looks.length >= 3) {
+      return {
+        intro_editorial: parsed.intro_editorial || defaultInsight.intro_editorial,
+        styling_philosophy: parsed.styling_philosophy,
+        versatility_metric: parsed.versatility_metric || defaultInsight.versatility_metric,
+        looks: parsed.looks.slice(0, 3).map((l: any, idx: number) => ({
+          id: `combo-${idx + 1}`,
+          title: l.title || defaultInsight.looks[idx]?.title,
+          subtitle: l.subtitle || defaultInsight.looks[idx]?.subtitle,
+          formality: typeof l.formality === "number" ? l.formality : defaultInsight.looks[idx]?.formality || 3,
+          styling_tip: l.styling_tip || defaultInsight.looks[idx]?.styling_tip,
+          garment_ids: Array.isArray(l.garment_ids) && l.garment_ids.length > 0 ? l.garment_ids : undefined,
+        })),
+        ai_model: model,
+      };
+    }
+  } catch (err: any) {
+    console.warn("AI Capsule Generation fallback to heuristics:", err?.message);
+  }
+
+  return defaultInsight;
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiResponse>> {
   const overallAbortController = new AbortController();
   const overallTimeoutId = setTimeout(() => overallAbortController.abort(), OVERALL_TIMEOUT_MS);
@@ -700,7 +900,13 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
 
     let llmPayload: LLMRecommendationPayload;
 
-    if (isNoAiRequested) {
+    if (body.flow === "everyday") {
+      // Everyday Capsule uses deterministic baseline for the single outfit payload; AI is focused on capsule curation in Step 4
+      llmPayload = generateDeterministicRecommendation(filterResult, body);
+      llmPayload.interpretation_summary = body.locale === "fr"
+        ? "Garde-robe capsule du quotidien : 15 pièces modulaires équilibrées pour le climat canadien."
+        : "Everyday Capsule Wardrobe: 15 modular foundation pieces calibrated for Canadian life.";
+    } else if (isNoAiRequested) {
       console.info("⚡ User requested 'NoAI' mode: executing deterministic heuristic algorithm directly without calling any LLM models.");
       llmPayload = generateDeterministicRecommendation(filterResult, body);
       llmPayload.interpretation_summary = "Algorithm Mode: Curated directly via deterministic style, color & climate heuristics.";
@@ -810,6 +1016,30 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       (outerwearGarment?.price || 0) +
       (accessoryGarment?.price || 0);
 
+    // Step 4: If Everyday Capsule flow, generate AI Capsule Editorial & Worked Looks
+    let capsuleInsight: CapsuleAiData | undefined;
+    if (body.flow === "everyday") {
+      const gender = body.user_profile?.gender_expression || body.user_profile?.gender_cut || "unisex";
+      const matchedCatalog = catalog.filter((g) => matchGender(g.gender_cut, gender as any));
+      const activeCatalog = matchedCatalog.length >= 10 ? matchedCatalog : catalog;
+      const capsule15 = selectBalancedCapsule15(activeCatalog, {
+        targetPalette: body.user_profile?.seasonal_colour || body.user_profile?.palette_season,
+        targetStyle: body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile?.preferred_styles[0]),
+        iteration: body.iteration || 0,
+      });
+
+      const aiConfig = await getAiConfigAsync();
+      const capsuleAbortController = new AbortController();
+      const capsuleTimeoutId = setTimeout(() => capsuleAbortController.abort(), LLM_TIMEOUT_MS);
+      try {
+        capsuleInsight = await generateCapsuleAiInsight(capsule15, body, aiConfig, capsuleAbortController.signal);
+      } catch (e: any) {
+        capsuleInsight = getHeuristicCapsuleInsight(capsule15, body);
+      } finally {
+        clearTimeout(capsuleTimeoutId);
+      }
+    }
+
     const responseData = {
       calibration: {
         formality_score: llmPayload.calibration?.formality_score || 4,
@@ -834,6 +1064,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
         relaxed_fields: filterResult.relaxed_fields,
         total_candidates: filterResult.total_candidates,
       },
+      capsule: capsuleInsight,
     };
 
     // Store in Deterministic Cache
