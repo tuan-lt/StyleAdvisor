@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { getSystemSettingFromDb, saveSystemSettingToDb } from "./db";
 
 export type AiProvider = "anthropic" | "openai" | "openrouter" | "none";
 
@@ -40,7 +41,11 @@ export interface ProviderModel {
   isDefault?: boolean;
 }
 
-const CONFIG_FILE_PATH = path.join(process.cwd(), "data", "ai-config.json");
+const LOCAL_CONFIG_PATH = path.join(process.cwd(), "data", "ai-config.json");
+const TMP_CONFIG_PATH = path.join("/tmp", "ai-config.json");
+
+// In-memory cache for fast, zero-disk access in serverless environments
+let memoryConfigCache: Partial<AiConfig> | null = null;
 
 export const DEFAULT_AI_CONFIG: AiConfig = {
   selected_model: "openrouter/free",
@@ -196,25 +201,87 @@ export function isModelSelectionEnabled(): boolean {
 }
 
 /**
- * Reads AI config from data/ai-config.json, with env and default fallbacks.
+ * Helper to safely read configuration from filesystem (/tmp or data/)
  */
-export function getAiConfig(): AiConfig {
+function readConfigFromDisk(): Partial<AiConfig> | null {
+  // 1. Try reading from /tmp/ai-config.json first (contains latest runtime writes in serverless)
   try {
-    if (fs.existsSync(CONFIG_FILE_PATH)) {
-      const fileData = fs.readFileSync(CONFIG_FILE_PATH, "utf8");
-      const parsed = JSON.parse(fileData) as Partial<AiConfig>;
-      const provider = (parsed.provider as AiProvider) || "openrouter";
+    if (fs.existsSync(TMP_CONFIG_PATH)) {
+      const fileData = fs.readFileSync(TMP_CONFIG_PATH, "utf8");
+      const parsed = JSON.parse(fileData);
+      if (parsed && typeof parsed === "object") {
+        return parsed;
+      }
+    }
+  } catch (_) {}
+
+  // 2. Try reading from project data/ai-config.json
+  try {
+    if (fs.existsSync(LOCAL_CONFIG_PATH)) {
+      const fileData = fs.readFileSync(LOCAL_CONFIG_PATH, "utf8");
+      const parsed = JSON.parse(fileData);
+      if (parsed && typeof parsed === "object") {
+        return parsed;
+      }
+    }
+  } catch (_) {}
+
+  return null;
+}
+
+/**
+ * Asynchronously loads AI config:
+ * 1. PostgreSQL DB (persistent across serverless containers/deployments)
+ * 2. In-memory cache
+ * 3. Local disk / tmp
+ * 4. Default fallback
+ */
+export async function getAiConfigAsync(): Promise<AiConfig> {
+  // Check Postgres DB first
+  try {
+    const dbConfig = await getSystemSettingFromDb<Partial<AiConfig>>("ai_config");
+    if (dbConfig && typeof dbConfig === "object") {
+      memoryConfigCache = dbConfig;
+      const provider = (dbConfig.provider as AiProvider) || "openrouter";
       return {
-        selected_model: parsed.selected_model || (PROVIDER_MODELS[provider]?.[0]?.id ?? "openrouter/free"),
+        selected_model: dbConfig.selected_model || (PROVIDER_MODELS[provider]?.[0]?.id ?? "openrouter/free"),
         provider,
         openrouter_api_key: process.env.OPENROUTER_API_KEY || "",
         openai_api_key: process.env.OPENAI_API_KEY || "",
         anthropic_api_key: process.env.ANTHROPIC_API_KEY || "",
-        updated_at: parsed.updated_at || new Date().toISOString(),
+        updated_at: dbConfig.updated_at || new Date().toISOString(),
       };
     }
   } catch (err) {
-    console.warn("Could not read ai-config.json, falling back to defaults:", err);
+    console.warn("Could not load AI config from database:", err);
+  }
+
+  return getAiConfig();
+}
+
+/**
+ * Synchronous AI config reader with in-memory & disk fallback.
+ */
+export function getAiConfig(): AiConfig {
+  let parsed: Partial<AiConfig> | null = memoryConfigCache;
+
+  if (!parsed) {
+    parsed = readConfigFromDisk();
+    if (parsed) {
+      memoryConfigCache = parsed;
+    }
+  }
+
+  if (parsed) {
+    const provider = (parsed.provider as AiProvider) || "openrouter";
+    return {
+      selected_model: parsed.selected_model || (PROVIDER_MODELS[provider]?.[0]?.id ?? "openrouter/free"),
+      provider,
+      openrouter_api_key: process.env.OPENROUTER_API_KEY || "",
+      openai_api_key: process.env.OPENAI_API_KEY || "",
+      anthropic_api_key: process.env.ANTHROPIC_API_KEY || "",
+      updated_at: parsed.updated_at || new Date().toISOString(),
+    };
   }
 
   return {
@@ -226,9 +293,13 @@ export function getAiConfig(): AiConfig {
 }
 
 /**
- * Saves AI config to data/ai-config.json.
+ * Saves AI config with multi-tier resilient fallback:
+ * 1. Memory cache
+ * 2. PostgreSQL DB (persists in serverless)
+ * 3. data/ai-config.json (local dev, safely catches EROFS)
+ * 4. /tmp/ai-config.json (serverless writable fallback)
  */
-export function saveAiConfig(newConfig: Partial<AiConfig>): AiConfig {
+export async function saveAiConfig(newConfig: Partial<AiConfig>): Promise<AiConfig> {
   const current = getAiConfig();
   const merged: AiConfig = {
     ...current,
@@ -236,21 +307,43 @@ export function saveAiConfig(newConfig: Partial<AiConfig>): AiConfig {
     updated_at: new Date().toISOString(),
   };
 
+  const toSave: Partial<AiConfig> = {
+    provider: merged.provider,
+    selected_model: merged.selected_model,
+    updated_at: merged.updated_at,
+  };
+
+  // 1. Immediately update in-memory cache
+  memoryConfigCache = toSave;
+
+  // 2. Persist to PostgreSQL database (survives cold starts and redeployments on Vercel)
   try {
-    const dir = path.dirname(CONFIG_FILE_PATH);
+    await saveSystemSettingToDb("ai_config", toSave);
+  } catch (dbErr: any) {
+    console.warn("Notice: Failed to persist AI config to Postgres DB:", dbErr?.message);
+  }
+
+  // 3. Try writing to local disk (catches EROFS in read-only serverless environments)
+  let wroteLocal = false;
+  try {
+    const dir = path.dirname(LOCAL_CONFIG_PATH);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    // Only persist selected_model and provider in ai-config.json (keys stay in .env)
-    const toSave = {
-      provider: merged.provider,
-      selected_model: merged.selected_model,
-      updated_at: merged.updated_at,
-    };
-    fs.writeFileSync(CONFIG_FILE_PATH, JSON.stringify(toSave, null, 2), "utf8");
-  } catch (err) {
-    console.error("Failed to write ai-config.json:", err);
-    throw err;
+    fs.writeFileSync(LOCAL_CONFIG_PATH, JSON.stringify(toSave, null, 2), "utf8");
+    wroteLocal = true;
+  } catch (fsErr: any) {
+    // Expected on Vercel / AWS Lambda where /var/task is read-only (EROFS)
+    console.warn("Serverless environment detected (EROFS: read-only filesystem). Writing to /tmp instead.");
+  }
+
+  // 4. If local disk failed (EROFS), write to /tmp (always writable in AWS Lambda / Vercel)
+  if (!wroteLocal) {
+    try {
+      fs.writeFileSync(TMP_CONFIG_PATH, JSON.stringify(toSave, null, 2), "utf8");
+    } catch (tmpErr: any) {
+      console.warn("Could not write to /tmp/ai-config.json:", tmpErr?.message);
+    }
   }
 
   return merged;

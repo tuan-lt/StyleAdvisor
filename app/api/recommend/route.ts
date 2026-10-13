@@ -18,7 +18,7 @@ import {
   getAllGarmentsFromDb,
 } from "../../../lib/db";
 import { rankCandidates } from "../../../lib/garment-scorer";
-import { getAiConfig } from "../../../lib/ai-config";
+import { getAiConfig, getAiConfigAsync } from "../../../lib/ai-config";
 
 /**
  * Get catalog directly from Postgres database with local catalog.json fallback
@@ -692,7 +692,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       const llmAbortController = new AbortController();
       const llmTimeoutId = setTimeout(() => llmAbortController.abort(), LLM_TIMEOUT_MS);
       try {
-        const aiConfig = getAiConfig();
+        const aiConfig = await getAiConfigAsync();
         const provider = aiConfig.provider || "openrouter";
 
         if (provider === "none") {

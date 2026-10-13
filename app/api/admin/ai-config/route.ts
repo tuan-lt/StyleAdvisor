@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateAdminAuth, unauthorizedResponse } from "../../../../lib/admin-auth";
 import {
   getAiConfig,
+  getAiConfigAsync,
   saveAiConfig,
   PROVIDER_MODELS,
   isModelSelectionEnabled,
@@ -183,7 +184,7 @@ export async function GET(req: NextRequest) {
     return unauthorizedResponse(auth.error);
   }
 
-  const config = getAiConfig();
+  const config = await getAiConfigAsync();
   const modelSelectionAllowed = isModelSelectionEnabled();
 
   const openrouterKey = process.env.OPENROUTER_API_KEY?.trim() || "";
@@ -259,7 +260,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const action = body.action || "save";
-    const currentConfig = getAiConfig();
+    const currentConfig = await getAiConfigAsync();
     const modelSelectionAllowed = isModelSelectionEnabled();
 
     const targetProvider: AiProvider = (body.provider as AiProvider) || currentConfig.provider || "openrouter";
@@ -386,7 +387,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Default action: save
-    const updated = saveAiConfig({
+    const updated = await saveAiConfig({
       provider: targetProvider,
       selected_model: targetModel,
     });

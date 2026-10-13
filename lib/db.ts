@@ -82,6 +82,12 @@ export async function initDatabaseSchema(): Promise<void> {
 
     CREATE INDEX IF NOT EXISTS idx_garments_slot ON garments(slot);
     CREATE INDEX IF NOT EXISTS idx_garments_brand ON garments(brand);
+
+    CREATE TABLE IF NOT EXISTS system_settings (
+      key VARCHAR(100) PRIMARY KEY,
+      value JSONB NOT NULL,
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
   `;
 
   await db.query(createTableQuery);
@@ -336,3 +342,68 @@ export async function executeRawSql(sqlScript: string): Promise<void> {
   if (!db) throw new Error("Database is not connected.");
   await db.query(sqlScript);
 }
+
+/**
+ * Retrieve system setting by key from Postgres database
+ */
+export async function getSystemSettingFromDb<T = any>(key: string): Promise<T | null> {
+  const db = getDbPool();
+  if (!db) return null;
+  try {
+    const res = await db.query(
+      `SELECT value FROM system_settings WHERE key = $1 LIMIT 1`,
+      [key]
+    );
+    if (res.rows.length > 0) {
+      const val = res.rows[0].value;
+      return typeof val === "string" ? JSON.parse(val) : val;
+    }
+  } catch (err: any) {
+    if (err?.code === "42P01") {
+      // Table does not exist yet
+      try {
+        await initDatabaseSchema();
+      } catch (_) {}
+    }
+  }
+  return null;
+}
+
+/**
+ * Save system setting by key into Postgres database
+ */
+export async function saveSystemSettingToDb(key: string, value: any): Promise<boolean> {
+  const db = getDbPool();
+  if (!db) return false;
+  try {
+    await db.query(
+      `INSERT INTO system_settings (key, value, updated_at)
+       VALUES ($1, $2, CURRENT_TIMESTAMP)
+       ON CONFLICT (key) DO UPDATE SET
+         value = EXCLUDED.value,
+         updated_at = CURRENT_TIMESTAMP`,
+      [key, JSON.stringify(value)]
+    );
+    return true;
+  } catch (err: any) {
+    if (err?.code === "42P01") {
+      try {
+        await initDatabaseSchema();
+        await db.query(
+          `INSERT INTO system_settings (key, value, updated_at)
+           VALUES ($1, $2, CURRENT_TIMESTAMP)
+           ON CONFLICT (key) DO UPDATE SET
+             value = EXCLUDED.value,
+             updated_at = CURRENT_TIMESTAMP`,
+          [key, JSON.stringify(value)]
+        );
+        return true;
+      } catch (retryErr) {
+        console.warn("Could not save system setting to DB after retry:", retryErr);
+      }
+    }
+    console.warn("Could not save system setting to DB:", err?.message);
+    return false;
+  }
+}
+
