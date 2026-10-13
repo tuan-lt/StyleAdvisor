@@ -144,6 +144,20 @@ export default function AdminCatalogPage() {
   const [showAiKeyText, setShowAiKeyText] = useState<boolean>(false);
   const [aiMaskedKey, setAiMaskedKey] = useState<string>("");
   const [aiAvailableModels, setAiAvailableModels] = useState<any[]>([]);
+  const [aiKeyStats, setAiKeyStats] = useState<{
+    limit: number | null;
+    limit_remaining: number | null;
+    usage: number;
+    usage_daily: number;
+    usage_weekly: number;
+    usage_monthly: number;
+    free_daily_limit: number | null;
+    free_daily_used: number;
+    free_daily_remaining: number | null;
+    is_free_tier: boolean;
+    expires_at: string | null;
+  } | null>(null);
+  const [isModelSelectionEnabled, setIsModelSelectionEnabled] = useState<boolean>(true);
   const [aiTestResult, setAiTestResult] = useState<{
     success?: boolean;
     message?: string;
@@ -165,9 +179,24 @@ export default function AdminCatalogPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setAiSelectedModel(data.config.selected_model || "openrouter/free");
+        const standardIds = [
+          "openrouter/free",
+          "google/gemini-2.5-flash",
+          "anthropic/claude-3.5-sonnet",
+          "openai/gpt-4o",
+        ];
+        const loadedModel = data.config.selected_model || "openrouter/free";
+        if (standardIds.includes(loadedModel)) {
+          setAiSelectedModel(loadedModel);
+          setAiCustomModel("");
+        } else {
+          setAiSelectedModel("custom");
+          setAiCustomModel(loadedModel);
+        }
         setAiMaskedKey(data.config.openrouter_api_key_masked || "");
         setAiAvailableModels(data.available_models || []);
+        setIsModelSelectionEnabled(data.config.model_selection_enabled ?? true);
+        setAiKeyStats(data.key_stats || null);
       }
     } catch (e) {
       console.error("Failed to load AI config:", e);
@@ -198,7 +227,7 @@ export default function AdminCatalogPage() {
     } catch (err: any) {
       setAiTestResult({
         success: false,
-        error: err?.message || "Lỗi kết nối mạng khi kiểm tra AI.",
+        error: err?.message || "Network error while testing AI connection.",
       });
     } finally {
       setAiConfigTesting(false);
@@ -229,12 +258,15 @@ export default function AdminCatalogPage() {
           setAiMaskedKey(data.config.openrouter_api_key_masked);
           setAiOpenRouterKey("");
         }
-        setTimeout(() => setAiSaveSuccess(false), 3000);
+        if (data.key_stats) {
+          setAiKeyStats(data.key_stats);
+        }
+        setTimeout(() => setAiSaveSuccess(false), 3500);
       } else {
-        alert(data.error || "Không thể lưu cấu hình AI.");
+        alert(data.error || "Failed to save AI configuration.");
       }
     } catch (err: any) {
-      alert("Lỗi khi lưu cấu hình AI: " + err?.message);
+      alert("Error saving AI configuration: " + err?.message);
     } finally {
       setAiConfigSaving(false);
     }
@@ -2170,10 +2202,10 @@ export default function AdminCatalogPage() {
                 <span className="text-2xl">🤖</span>
                 <div>
                   <h2 className="text-lg font-serif font-semibold text-ink">
-                    Cấu hình AI Model (AI Model Settings)
+                    AI Settings
                   </h2>
                   <p className="text-xs text-ink-muted">
-                    Lựa chọn model và API key phục vụ tính năng tư vấn trang phục theo thời điểm.
+                    Configure AI models, key quotas, and runtime parameters for Style Advisor.
                   </p>
                 </div>
               </div>
@@ -2187,176 +2219,210 @@ export default function AdminCatalogPage() {
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 overflow-y-auto space-y-6 text-xs text-ink">
+            <div className="p-6 overflow-y-auto space-y-5 text-xs text-ink">
               {aiConfigLoading ? (
                 <div className="py-12 flex flex-col items-center justify-center gap-3 text-ink-muted">
                   <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                  <span>Đang tải cấu hình AI...</span>
+                  <span>Loading AI configuration and metrics...</span>
                 </div>
               ) : (
                 <>
-                  {/* Model Selection List */}
-                  <div className="space-y-3">
+                  {/* 1. Key Quota & Live Metrics */}
+                  <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
                       <label className="font-bold text-xs uppercase tracking-wider text-thread">
-                        1. Chọn Mô Hình AI (AI Model Selection)
+                        Key Quota &amp; Usage
                       </label>
                       <span className="text-[11px] text-ink-muted">
-                        Mặc định: <strong className="text-accent">Open(Free)</strong>
+                        Live stats from OpenRouter
                       </span>
                     </div>
 
-                    <div className="space-y-2.5">
-                      {/* (1) Open(Free) - Default */}
-                      <label
-                        className={`block p-3.5 rounded-fitting border cursor-pointer transition-all ${
-                          aiSelectedModel === "openrouter/free"
-                            ? "bg-accent/5 border-accent shadow-xs ring-1 ring-accent/20"
-                            : "bg-surface/50 border-border hover:border-accent/40 hover:bg-surface"
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="radio"
-                            name="ai_model"
-                            value="openrouter/free"
-                            checked={aiSelectedModel === "openrouter/free"}
-                            onChange={() => setAiSelectedModel("openrouter/free")}
-                            className="mt-1 w-4 h-4 text-accent focus:ring-accent"
-                          />
-                          <div className="flex-1 space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-sm text-ink">1. Open(Free)</span>
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-emerald-500/10 text-emerald-700 border-emerald-500/30">
-                                Mặc định (Free)
-                              </span>
-                            </div>
-                            <p className="text-ink-muted text-xs leading-relaxed">
-                              Tự động định tuyến các mô hình AI miễn phí qua OpenRouter. Không tốn bất kỳ chi phí credits nào, phù hợp cho vận hành dài hạn và thử nghiệm.
-                            </p>
+                    {aiKeyStats ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        {/* Remaining Balance */}
+                        <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
+                          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
+                            Remaining Balance
+                          </div>
+                          <div className="mt-1 font-mono text-base font-bold text-emerald-600">
+                            {aiKeyStats.limit_remaining !== null
+                              ? `$${aiKeyStats.limit_remaining.toFixed(2)}`
+                              : aiKeyStats.limit !== null
+                              ? `$${Math.max(0, aiKeyStats.limit - aiKeyStats.usage).toFixed(2)}`
+                              : "Unlimited"}
+                          </div>
+                          <div className="mt-1 text-[10px] text-ink-muted truncate">
+                            Limit: {aiKeyStats.limit !== null ? `$${aiKeyStats.limit.toFixed(2)}` : "Pay-as-you-go"}
                           </div>
                         </div>
-                      </label>
 
-                      {/* (2) google/gemini-2.5-flash */}
-                      <label
-                        className={`block p-3.5 rounded-fitting border cursor-pointer transition-all ${
-                          aiSelectedModel === "google/gemini-2.5-flash"
-                            ? "bg-accent/5 border-accent shadow-xs ring-1 ring-accent/20"
-                            : "bg-surface/50 border-border hover:border-accent/40 hover:bg-surface"
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="radio"
-                            name="ai_model"
-                            value="google/gemini-2.5-flash"
-                            checked={aiSelectedModel === "google/gemini-2.5-flash"}
-                            onChange={() => setAiSelectedModel("google/gemini-2.5-flash")}
-                            className="mt-1 w-4 h-4 text-accent focus:ring-accent"
-                          />
-                          <div className="flex-1 space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-sm text-ink">2. google/gemini-2.5-flash</span>
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-blue-500/10 text-blue-700 border-blue-500/30">
-                                Tốc độ cao & Thông minh
-                              </span>
-                            </div>
-                            <p className="text-ink-muted text-xs leading-relaxed">
-                              Khuyên dùng cho Style Advisor. Tốc độ &lt; 1s, thấu hiểu ngữ cảnh sự kiện chi tiết và chi phí cực thấp (chỉ ~0.001$/lần tư vấn).
-                            </p>
+                        {/* 7-Day Spend */}
+                        <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
+                          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
+                            7-Day Spend
+                          </div>
+                          <div className="mt-1 font-mono text-base font-bold text-ink">
+                            ${(aiKeyStats.usage_weekly || 0).toFixed(4)}
+                          </div>
+                          <div className="mt-1 text-[10px] text-ink-muted truncate">
+                            Today: ${(aiKeyStats.usage_daily || 0).toFixed(4)}
                           </div>
                         </div>
-                      </label>
 
-                      {/* Other Models Accordion / Options */}
-                      <div className="pt-2 border-t border-border/60">
-                        <div className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider mb-2">
-                          Mô hình nâng cao khác (Tùy chọn)
+                        {/* Daily Free Quota */}
+                        <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
+                          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
+                            Free Daily Quota
+                          </div>
+                          <div className="mt-1 font-mono text-base font-bold text-accent">
+                            {aiKeyStats.free_daily_remaining !== null
+                              ? `${aiKeyStats.free_daily_remaining} left`
+                              : aiKeyStats.is_free_tier
+                              ? "Available"
+                              : "Active"}
+                          </div>
+                          <div className="mt-1 text-[10px] text-ink-muted truncate">
+                            {aiKeyStats.free_daily_limit !== null
+                              ? `Limit: ${aiKeyStats.free_daily_limit}/day`
+                              : `Used: ${aiKeyStats.free_daily_used} reqs`}
+                          </div>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          <label
-                            className={`p-2.5 rounded border cursor-pointer transition-all flex items-center gap-2.5 ${
-                              aiSelectedModel === "anthropic/claude-3.5-sonnet"
-                                ? "bg-accent/10 border-accent font-semibold"
-                                : "bg-surface border-border hover:border-ink-muted/50"
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name="ai_model"
-                              value="anthropic/claude-3.5-sonnet"
-                              checked={aiSelectedModel === "anthropic/claude-3.5-sonnet"}
-                              onChange={() => setAiSelectedModel("anthropic/claude-3.5-sonnet")}
-                              className="w-3.5 h-3.5 text-accent"
-                            />
-                            <div>
-                              <div className="text-xs">Claude 3.5 Sonnet</div>
-                              <div className="text-[10px] text-ink-muted">Gu thẩm mỹ cao cấp</div>
-                            </div>
-                          </label>
 
-                          <label
-                            className={`p-2.5 rounded border cursor-pointer transition-all flex items-center gap-2.5 ${
-                              aiSelectedModel === "openai/gpt-4o"
-                                ? "bg-accent/10 border-accent font-semibold"
-                                : "bg-surface border-border hover:border-ink-muted/50"
-                            }`}
-                          >
-                            <input
-                              type="radio"
-                              name="ai_model"
-                              value="openai/gpt-4o"
-                              checked={aiSelectedModel === "openai/gpt-4o"}
-                              onChange={() => setAiSelectedModel("openai/gpt-4o")}
-                              className="w-3.5 h-3.5 text-accent"
-                            />
-                            <div>
-                              <div className="text-xs">OpenAI GPT-4o</div>
-                              <div className="text-[10px] text-ink-muted">Cấu trúc chuẩn xác</div>
-                            </div>
-                          </label>
+                        {/* Lifetime Spend & Expiration */}
+                        <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
+                          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
+                            Lifetime Spend
+                          </div>
+                          <div className="mt-1 font-mono text-base font-bold text-ink">
+                            ${(aiKeyStats.usage || 0).toFixed(4)}
+                          </div>
+                          <div className="mt-1 text-[10px] text-ink-muted truncate">
+                            Expires: {aiKeyStats.expires_at ? new Date(aiKeyStats.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Never"}
+                          </div>
                         </div>
                       </div>
+                    ) : (
+                      <div className="p-3 rounded-fitting bg-surface border border-dashed border-border text-[11px] text-ink-muted flex items-center justify-between">
+                        <span>Save an OpenRouter API key below to display live balance, 7-day spend, and remaining quota.</span>
+                        <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-surface-raised border border-border">No Key Synced</span>
+                      </div>
+                    )}
+                  </div>
 
-                      {/* Custom Model ID */}
-                      <div className="pt-2">
-                        <label className="flex items-center gap-2 cursor-pointer text-xs mb-1.5">
-                          <input
-                            type="radio"
-                            name="ai_model"
-                            value="custom"
-                            checked={aiSelectedModel === "custom"}
-                            onChange={() => setAiSelectedModel("custom")}
-                            className="w-3.5 h-3.5 text-accent"
-                          />
-                          <span className="font-medium">Nhập Model ID tùy chỉnh khác từ OpenRouter</span>
-                        </label>
-                        {aiSelectedModel === "custom" && (
+                  {/* 2. AI Model Selection */}
+                  <div className="space-y-2.5 pt-3 border-t border-border">
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="ai-model-select" className="font-bold text-xs uppercase tracking-wider text-thread">
+                        AI Model Selection
+                      </label>
+                      {isModelSelectionEnabled ? (
+                        <span className="text-[11px] text-emerald-700 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">
+                          Unlocked (Configurable)
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-amber-800 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                          🔒 Locked by Environment
+                        </span>
+                      )}
+                    </div>
+
+                    {!isModelSelectionEnabled && (
+                      <div className="p-2.5 rounded bg-amber-500/10 border border-amber-500/25 text-amber-900 text-[11px] flex items-center gap-2">
+                        <span>🔒</span>
+                        <span>
+                          Model selection is locked by admin environment configuration (<code>ENABLE_AI_MODEL_SELECTION=false</code>).
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Dropdown listbox */}
+                    <div className="space-y-2">
+                      <select
+                        id="ai-model-select"
+                        disabled={!isModelSelectionEnabled}
+                        value={aiSelectedModel}
+                        onChange={(e) => setAiSelectedModel(e.target.value)}
+                        className="w-full px-3 py-2 text-xs rounded-fitting bg-surface border border-border focus:border-accent focus:outline-hidden font-medium disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        <option value="openrouter/free">
+                          1. Open(Free) — Free Tier Router (Default)
+                        </option>
+                        <option value="google/gemini-2.5-flash">
+                          2. google/gemini-2.5-flash — Fast &amp; Recommended (~$0.001/call)
+                        </option>
+                        <option value="anthropic/claude-3.5-sonnet">
+                          3. anthropic/claude-3.5-sonnet — Claude 3.5 Sonnet (Editorial Taste)
+                        </option>
+                        <option value="openai/gpt-4o">
+                          4. openai/gpt-4o — OpenAI GPT-4o (Structured &amp; Reasoning)
+                        </option>
+                        <option value="custom">
+                          5. Custom Model ID... (Specify from OpenRouter)
+                        </option>
+                      </select>
+
+                      {/* Custom Model Input if 'custom' selected */}
+                      {aiSelectedModel === "custom" && (
+                        <div className="animate-fadeIn">
                           <input
                             type="text"
+                            disabled={!isModelSelectionEnabled}
                             value={aiCustomModel}
                             onChange={(e) => setAiCustomModel(e.target.value)}
-                            placeholder="Ví dụ: meta-llama/llama-3.3-70b-instruct"
-                            className="w-full px-3 py-2 text-xs rounded-fitting bg-surface border border-border focus:border-accent focus:outline-hidden font-mono"
+                            placeholder="e.g. meta-llama/llama-3.3-70b-instruct"
+                            className="w-full px-3 py-2 text-xs rounded-fitting bg-surface border border-border focus:border-accent focus:outline-hidden font-mono disabled:opacity-60"
                           />
+                          <p className="mt-1 text-[10px] text-ink-muted">
+                            Enter any valid model ID supported by OpenRouter.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Model Description */}
+                      <div className="text-[11px] text-ink-muted bg-surface/40 p-2.5 rounded border border-border/60">
+                        {aiSelectedModel === "openrouter/free" && (
+                          <span>
+                            <strong>Open(Free):</strong> Automatically routes through zero-cost community models. Consumes no credits, ideal for continuous operations.
+                          </span>
+                        )}
+                        {aiSelectedModel === "google/gemini-2.5-flash" && (
+                          <span>
+                            <strong>google/gemini-2.5-flash:</strong> Ultra-fast (&lt;1s latency), nuanced context evaluation, and cost-effective (~$0.001 per styling session).
+                          </span>
+                        )}
+                        {aiSelectedModel === "anthropic/claude-3.5-sonnet" && (
+                          <span>
+                            <strong>Claude 3.5 Sonnet:</strong> Premium aesthetic commentary and sophisticated editorial styling vocabulary.
+                          </span>
+                        )}
+                        {aiSelectedModel === "openai/gpt-4o" && (
+                          <span>
+                            <strong>OpenAI GPT-4o:</strong> Strict schema adherence and robust reasoning across dress code boundaries.
+                          </span>
+                        )}
+                        {aiSelectedModel === "custom" && (
+                          <span>
+                            <strong>Custom Model:</strong> Dispatches styling requests directly to your custom OpenRouter model identifier.
+                          </span>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  {/* API Key Configuration */}
-                  <div className="space-y-3 pt-3 border-t border-border">
-                    <label className="font-bold text-xs uppercase tracking-wider text-thread">
-                      2. Cấu hình OpenRouter API Key
-                    </label>
-
-                    {aiMaskedKey && (
-                      <div className="p-2.5 rounded bg-surface border border-border flex items-center justify-between text-xs">
-                        <span className="text-ink-muted">Key đang lưu trong hệ thống:</span>
-                        <code className="font-mono font-semibold text-accent">{aiMaskedKey}</code>
-                      </div>
-                    )}
+                  {/* 3. OpenRouter API Key */}
+                  <div className="space-y-2.5 pt-3 border-t border-border">
+                    <div className="flex items-center justify-between">
+                      <label className="font-bold text-xs uppercase tracking-wider text-thread">
+                        OpenRouter API Key
+                      </label>
+                      {aiMaskedKey && (
+                        <span className="text-[11px] text-ink-muted flex items-center gap-1.5 font-mono">
+                          <span>Active:</span>
+                          <strong className="text-accent">{aiMaskedKey}</strong>
+                        </span>
+                      )}
+                    </div>
 
                     <div className="space-y-1">
                       <div className="relative">
@@ -2364,7 +2430,7 @@ export default function AdminCatalogPage() {
                           type={showAiKeyText ? "text" : "password"}
                           value={aiOpenRouterKey}
                           onChange={(e) => setAiOpenRouterKey(e.target.value)}
-                          placeholder="Nhập OpenRouter API Key mới (sk-or-v1-...)"
+                          placeholder="Enter new OpenRouter API Key (sk-or-v1-...)"
                           className="w-full px-3 py-2 pr-16 text-xs rounded-fitting bg-surface border border-border focus:border-accent focus:outline-hidden font-mono"
                         />
                         <button
@@ -2372,27 +2438,27 @@ export default function AdminCatalogPage() {
                           onClick={() => setShowAiKeyText(!showAiKeyText)}
                           className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 text-[10px] text-ink-muted hover:text-ink font-semibold"
                         >
-                          {showAiKeyText ? "Ẩn" : "Hiện"}
+                          {showAiKeyText ? "Hide" : "Show"}
                         </button>
                       </div>
-                      <p className="text-[11px] text-ink-muted">
-                        * Để trống nếu bạn muốn tiếp tục sử dụng Key hiện tại. Lấy key tại:{" "}
+                      <div className="flex items-center justify-between text-[11px] text-ink-muted">
+                        <span>Leave blank to retain current system key.</span>
                         <a
                           href="https://openrouter.ai/settings/keys"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-accent underline"
+                          className="text-accent hover:underline flex items-center gap-0.5"
                         >
                           openrouter.ai/settings/keys ↗
                         </a>
-                      </p>
+                      </div>
                     </div>
                   </div>
 
                   {/* Test Connection Result Box */}
                   {aiTestResult && (
                     <div
-                      className={`p-3.5 rounded-fitting border text-xs space-y-1 animate-fadeIn ${
+                      className={`p-3 rounded-fitting border text-xs space-y-1 animate-fadeIn ${
                         aiTestResult.success
                           ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-800"
                           : "bg-red-500/10 border-red-500/30 text-red-700"
@@ -2400,9 +2466,9 @@ export default function AdminCatalogPage() {
                     >
                       <div className="flex items-center gap-2 font-bold">
                         <span>{aiTestResult.success ? "✓" : "⚠"}</span>
-                        <span>{aiTestResult.success ? "Kiểm tra kết nối thành công!" : "Kiểm tra kết nối thất bại"}</span>
+                        <span>{aiTestResult.success ? "Connection Test Passed" : "Connection Test Failed"}</span>
                         {aiTestResult.latency_ms && (
-                          <span className="font-mono text-[10px] font-normal px-1.5 py-0.2 rounded bg-surface border border-border">
+                          <span className="font-mono text-[10px] font-normal px-1.5 py-0.5 rounded bg-surface border border-border">
                             {aiTestResult.latency_ms}ms
                           </span>
                         )}
@@ -2415,7 +2481,7 @@ export default function AdminCatalogPage() {
 
                   {aiSaveSuccess && (
                     <div className="p-3 rounded-fitting bg-emerald-500/15 border border-emerald-500/40 text-emerald-800 text-xs font-semibold animate-fadeIn">
-                      ✓ Đã lưu cấu hình AI Model thành công! Cài đặt đã có hiệu lực ngay cho toàn bộ ứng dụng.
+                      ✓ AI settings saved successfully and active immediately across the app.
                     </div>
                   )}
                 </>
@@ -2433,12 +2499,12 @@ export default function AdminCatalogPage() {
                 {aiConfigTesting ? (
                   <>
                     <div className="w-3.5 h-3.5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                    <span>Đang kiểm tra...</span>
+                    <span>Testing...</span>
                   </>
                 ) : (
                   <>
                     <span>⚡</span>
-                    <span>Kiểm tra kết nối (Test)</span>
+                    <span>Test Connection</span>
                   </>
                 )}
               </button>
@@ -2449,7 +2515,7 @@ export default function AdminCatalogPage() {
                   onClick={() => setIsAiConfigModalOpen(false)}
                   className="px-4 py-2 rounded-fitting bg-surface border border-border hover:border-ink-muted text-ink font-medium transition-colors cursor-pointer"
                 >
-                  Đóng
+                  Close
                 </button>
                 <button
                   type="button"
@@ -2460,12 +2526,12 @@ export default function AdminCatalogPage() {
                   {aiConfigSaving ? (
                     <>
                       <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Đang lưu...</span>
+                      <span>Saving...</span>
                     </>
                   ) : (
                     <>
                       <span>💾</span>
-                      <span>Lưu Cấu Hình (Save)</span>
+                      <span>Save Settings</span>
                     </>
                   )}
                 </button>

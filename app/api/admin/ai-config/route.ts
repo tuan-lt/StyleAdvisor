@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateAdminAuth, unauthorizedResponse } from "../../../../lib/admin-auth";
-import { getAiConfig, saveAiConfig, AVAILABLE_AI_MODELS } from "../../../../lib/ai-config";
+import {
+  getAiConfig,
+  saveAiConfig,
+  AVAILABLE_AI_MODELS,
+  isModelSelectionEnabled,
+  KeyUsageStats,
+} from "../../../../lib/ai-config";
 
 // Standard CORS headers
 const CORS_HEADERS: Record<string, string> = {
@@ -34,8 +40,45 @@ function maskApiKey(key?: string): string {
 }
 
 /**
+ * Fetch live key usage stats directly from OpenRouter API
+ */
+async function fetchKeyStats(apiKey: string): Promise<KeyUsageStats | null> {
+  if (!apiKey || apiKey.trim().length === 0) return null;
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/auth/key", {
+      headers: {
+        Authorization: `Bearer ${apiKey.trim()}`,
+      },
+      signal: AbortSignal.timeout(4000),
+    });
+
+    if (!res.ok) return null;
+    const json = await res.json();
+    const d = json?.data;
+    if (!d) return null;
+
+    return {
+      limit: typeof d.limit === "number" ? d.limit : null,
+      limit_remaining: typeof d.limit_remaining === "number" ? d.limit_remaining : null,
+      usage: typeof d.usage === "number" ? d.usage : 0,
+      usage_daily: typeof d.usage_daily === "number" ? d.usage_daily : 0,
+      usage_weekly: typeof d.usage_weekly === "number" ? d.usage_weekly : 0,
+      usage_monthly: typeof d.usage_monthly === "number" ? d.usage_monthly : 0,
+      free_daily_limit: d.free_model_daily_requests?.limit ?? null,
+      free_daily_used: d.free_model_daily_requests?.used ?? 0,
+      free_daily_remaining: d.free_model_daily_requests?.remaining ?? null,
+      is_free_tier: Boolean(d.is_free_tier),
+      expires_at: d.expires_at || null,
+    };
+  } catch (e) {
+    console.warn("Could not query OpenRouter key stats:", e);
+    return null;
+  }
+}
+
+/**
  * GET /api/admin/ai-config
- * Retrieves current AI model configuration and available models.
+ * Retrieves current AI model configuration, available models, and live key stats.
  */
 export async function GET(req: NextRequest) {
   const auth = validateAdminAuth(req);
@@ -44,6 +87,9 @@ export async function GET(req: NextRequest) {
   }
 
   const config = getAiConfig();
+  const apiKey = config.openrouter_api_key || process.env.OPENROUTER_API_KEY || "";
+  const keyStats = await fetchKeyStats(apiKey);
+  const modelSelectionAllowed = isModelSelectionEnabled();
 
   return corsJson({
     success: true,
@@ -51,9 +97,11 @@ export async function GET(req: NextRequest) {
       selected_model: config.selected_model,
       provider: config.provider,
       openrouter_api_key_masked: maskApiKey(config.openrouter_api_key),
-      has_openrouter_key: Boolean(config.openrouter_api_key && config.openrouter_api_key.trim().length > 0),
+      has_openrouter_key: Boolean(apiKey && apiKey.trim().length > 0),
       updated_at: config.updated_at,
+      model_selection_enabled: modelSelectionAllowed,
     },
+    key_stats: keyStats,
     available_models: AVAILABLE_AI_MODELS,
   });
 }
@@ -73,7 +121,13 @@ export async function POST(req: NextRequest) {
     const action = body.action || "save";
 
     const currentConfig = getAiConfig();
-    const targetModel = body.selected_model || currentConfig.selected_model || "openrouter/free";
+    const modelSelectionAllowed = isModelSelectionEnabled();
+
+    // Respect environment lock if model selection is disabled
+    const targetModel = modelSelectionAllowed
+      ? (body.selected_model || currentConfig.selected_model || "openrouter/free")
+      : currentConfig.selected_model;
+
     const apiKey = (body.openrouter_api_key && body.openrouter_api_key.trim().length > 0)
       ? body.openrouter_api_key.trim()
       : currentConfig.openrouter_api_key || process.env.OPENROUTER_API_KEY || "";
@@ -81,7 +135,7 @@ export async function POST(req: NextRequest) {
     if (action === "test") {
       if (!apiKey) {
         return corsJson(
-          { success: false, error: "Vui lòng nhập OpenRouter API Key để kiểm tra kết nối." },
+          { success: false, error: "Please provide an OpenRouter API Key to test the connection." },
           { status: 400 }
         );
       }
@@ -97,7 +151,7 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           model: targetModel,
-          max_tokens: 50,
+          max_tokens: 30,
           messages: [
             { role: "system", content: "You are an assistant. Respond with 'OK'." },
             { role: "user", content: "ping" },
@@ -111,7 +165,7 @@ export async function POST(req: NextRequest) {
         const errorText = await testResponse.text();
         return corsJson({
           success: false,
-          error: `OpenRouter trả về mã lỗi ${testResponse.status}: ${errorText}`,
+          error: `OpenRouter returned HTTP ${testResponse.status}: ${errorText}`,
           latency_ms: latency,
         });
       }
@@ -124,7 +178,7 @@ export async function POST(req: NextRequest) {
         latency_ms: latency,
         model_used: result.model || targetModel,
         reply,
-        message: `Kết nối thành công tới ${targetModel} (${latency}ms)!`,
+        message: `Connected successfully to ${targetModel} in ${latency}ms!`,
       });
     }
 
@@ -137,16 +191,20 @@ export async function POST(req: NextRequest) {
         : {}),
     });
 
+    const keyStats = await fetchKeyStats(updated.openrouter_api_key || process.env.OPENROUTER_API_KEY || "");
+
     return corsJson({
       success: true,
-      message: `Đã lưu cấu hình AI Model: ${targetModel}`,
+      message: `AI Model configuration saved: ${targetModel}`,
       config: {
         selected_model: updated.selected_model,
         provider: updated.provider,
         openrouter_api_key_masked: maskApiKey(updated.openrouter_api_key),
-        has_openrouter_key: Boolean(updated.openrouter_api_key && updated.openrouter_api_key.trim().length > 0),
+        has_openrouter_key: Boolean(apiKey && apiKey.trim().length > 0),
         updated_at: updated.updated_at,
+        model_selection_enabled: modelSelectionAllowed,
       },
+      key_stats: keyStats,
     });
   } catch (err: any) {
     return corsJson(

@@ -10,6 +10,20 @@ export interface AiConfig {
   updated_at?: string;
 }
 
+export interface KeyUsageStats {
+  limit: number | null;
+  limit_remaining: number | null;
+  usage: number;
+  usage_daily: number;
+  usage_weekly: number;
+  usage_monthly: number;
+  free_daily_limit: number | null;
+  free_daily_used: number;
+  free_daily_remaining: number | null;
+  is_free_tier: boolean;
+  expires_at: string | null;
+}
+
 const CONFIG_FILE_PATH = path.join(process.cwd(), "data", "ai-config.json");
 
 export const DEFAULT_AI_CONFIG: AiConfig = {
@@ -24,9 +38,9 @@ export const AVAILABLE_AI_MODELS = [
     id: "openrouter/free",
     name: "Open(Free)",
     fullName: "Open(Free) — OpenRouter Free Tier",
-    badge: "Mặc định (Free)",
-    badgeColor: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-    description: "Tự động định tuyến các mô hình AI miễn phí qua OpenRouter. Không tốn chi phí credits.",
+    badge: "Default (Free)",
+    badgeColor: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+    description: "Automatically routes to zero-cost models. No credits consumed.",
     provider: "openrouter",
     isDefault: true,
   },
@@ -34,9 +48,9 @@ export const AVAILABLE_AI_MODELS = [
     id: "google/gemini-2.5-flash",
     name: "google/gemini-2.5-flash",
     fullName: "Google Gemini 2.5 Flash",
-    badge: "Tốc độ cao & Thông minh",
-    badgeColor: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-    description: "Khuyên dùng cho Style Advisor. Tốc độ < 1s, thấu hiểu ngữ cảnh thời trang sâu sắc và chi phí siêu tiết kiệm.",
+    badge: "Fast & Recommended",
+    badgeColor: "bg-blue-500/10 text-blue-700 border-blue-500/20",
+    description: "Sub-second response time, deep context comprehension, ultra cost-effective (~$0.001/call).",
     provider: "openrouter",
     isDefault: false,
   },
@@ -44,9 +58,9 @@ export const AVAILABLE_AI_MODELS = [
     id: "anthropic/claude-3.5-sonnet",
     name: "Claude 3.5 Sonnet",
     fullName: "Anthropic Claude 3.5 Sonnet",
-    badge: "Gu thẩm mỹ cao cấp",
-    badgeColor: "bg-amber-500/10 text-amber-700 border-amber-500/20",
-    description: "Văn phong biên tập thời trang đỉnh cao, phân tích tinh tế từng chi tiết trang phục.",
+    badge: "Editorial Taste",
+    badgeColor: "bg-amber-500/10 text-amber-800 border-amber-500/20",
+    description: "Sophisticated styling commentary and refined Newsreader editorial prose.",
     provider: "openrouter",
     isDefault: false,
   },
@@ -54,13 +68,25 @@ export const AVAILABLE_AI_MODELS = [
     id: "openai/gpt-4o",
     name: "OpenAI GPT-4o",
     fullName: "OpenAI GPT-4o",
-    badge: "Logic & Đa nhiệm",
-    badgeColor: "bg-purple-500/10 text-purple-600 border-purple-500/20",
-    description: "Xử lý cấu trúc chuẩn xác tuyệt đối, cân bằng hoàn hảo giữa logic và sáng tạo.",
+    badge: "Structured & Multimodal",
+    badgeColor: "bg-purple-500/10 text-purple-700 border-purple-500/20",
+    description: "Strict schema adherence and robust reasoning for complex wardrobe rules.",
     provider: "openrouter",
     isDefault: false,
   },
 ];
+
+/**
+ * Checks whether AI model selection is enabled via environment variables.
+ * Default: true. Set ENABLE_AI_MODEL_SELECTION=false to lock.
+ */
+export function isModelSelectionEnabled(): boolean {
+  const envVal = process.env.ENABLE_AI_MODEL_SELECTION;
+  if (envVal !== undefined && envVal !== null) {
+    return envVal.trim().toLowerCase() !== "false";
+  }
+  return true;
+}
 
 /**
  * Reads AI config from data/ai-config.json, with env and default fallbacks.
