@@ -50,6 +50,76 @@ export function OccasionResult({
   // Subtotal of unowned items
   const unownedSubtotal = unownedGarments.reduce((sum, g) => sum + (g.price_cad || g.price || 0), 0);
 
+  // Stylist Advice & Relaxation Notices Guard
+  const adviceMessages: string[] = [];
+
+  // 1. Occasion Override Advice
+  if (typeof override_applied === "string" && override_applied.trim().length > 0) {
+    if (isFr && override_applied.toLowerCase().includes("funeral")) {
+      adviceMessages.push(
+        "Pour des obsèques, nous avons conservé une coupe soignée tout en privilégiant des tons sobres et discrets."
+      );
+    } else if (isFr && override_applied.toLowerCase().includes("court")) {
+      adviceMessages.push(
+        "Pour une audience au tribunal, nous avons privilégié une coupe structurée et des tons sobres pour une tenue respectueuse."
+      );
+    } else {
+      adviceMessages.push(override_applied.trim());
+    }
+  } else if (override_applied) {
+    adviceMessages.push(
+      isFr
+        ? "Nous avons accordé vos préférences de style avec des couleurs soignées et adaptées à l'occasion."
+        : "We balanced your personal style with subtle, confident colors suited for the event."
+    );
+  }
+
+  // 2. Filter Relaxation Advice (covers all relaxed fields)
+  const relaxed = filter_metadata?.relaxed_field;
+  if (relaxed === "palette") {
+    adviceMessages.push(
+      isFr
+        ? "Nous avons élargi le choix vers des tons neutres polyvalents pour que les pièces s'agencent facilement."
+        : "We expanded your colors to classic versatile neutrals so all items match easily."
+    );
+  } else if (relaxed === "style") {
+    adviceMessages.push(
+      isFr
+        ? "Nous avons intégré des essentiels intemporels pour assurer un ensemble harmonieux."
+        : "We incorporated timeless classic staples to ensure a cohesive and balanced look."
+    );
+  } else if (relaxed === "body_type") {
+    adviceMessages.push(
+      isFr
+        ? "Nous avons choisi des coupes équilibrées et universelles pour assurer une silhouette soignée et confortable."
+        : "We selected versatile, universally flattering cuts to ensure a polished and comfortable silhouette."
+    );
+  } else if (relaxed === "size") {
+    adviceMessages.push(
+      isFr
+        ? "Nous avons privilégié des coupes souples et des matières confortables offrant une aisance idéale."
+        : "We prioritized adaptable cuts and comfortable fabrics offering optimal ease and fit."
+    );
+  } else if (relaxed === "occasion" || relaxed === "lifestyle") {
+    adviceMessages.push(
+      isFr
+        ? "Nous avons sélectionné des pièces polyvalentes et soignées qui s'adaptent avec élégance à votre événement."
+        : "We selected refined, versatile pieces that transition smoothly and appropriately to your event."
+    );
+  } else if (relaxed === "budget") {
+    adviceMessages.push(
+      isFr
+        ? "Nous avons ajusté légèrement la sélection pour vous présenter des pièces de haute qualité et durables."
+        : "We slightly expanded adjacent price tiers to present the highest quality and most durable pieces."
+    );
+  } else if (relaxed === "season") {
+    adviceMessages.push(
+      isFr
+        ? "Nous avons sélectionné des pièces de superposition polyvalentes, adaptées au climat canadien en toute saison."
+        : "We selected versatile all-season Canadian layering pieces suitable for fluctuating temperatures."
+    );
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8 pb-20">
       {/* Top Bar Navigation */}
@@ -97,34 +167,16 @@ export function OccasionResult({
         </div>
 
         {/* 2. Occasion Overrides & Filter Relaxation Notice */}
-        {(override_applied || filter_metadata?.relaxed_field) && (
+        {adviceMessages.length > 0 && (
           <div className="bg-caution/10 border border-caution/30 rounded-fitting p-4 flex items-start gap-3">
             <span className="text-caution font-bold text-base leading-none mt-0.5">💡</span>
             <div className="text-xs text-caution leading-relaxed space-y-1">
               <span className="font-bold">{isFr ? "Conseil du styliste : " : "Stylist Advice: "}</span>
-              {typeof override_applied === "string" ? (
-                <span>{override_applied}</span>
-              ) : override_applied ? (
-                <span>
-                  {isFr
-                    ? "Nous avons accordé vos préférences de style avec des couleurs soignées et adaptées à l'occasion."
-                    : "We balanced your personal style with subtle, confident colors suited for the event."}
+              {adviceMessages.map((msg, idx) => (
+                <span key={idx} className={idx > 0 ? "block mt-1" : "inline ml-1"}>
+                  {msg}
                 </span>
-              ) : null}
-              {filter_metadata?.relaxed_field === "palette" && (
-                <div>
-                  {isFr
-                    ? "Nous avons élargi le choix vers des tons neutres polyvalents pour que les pièces s'agencent facilement."
-                    : "We expanded your colors to classic versatile neutrals so all items match easily."}
-                </div>
-              )}
-              {filter_metadata?.relaxed_field === "style" && (
-                <div>
-                  {isFr
-                    ? "Nous avons intégré des essentiels intemporels pour assurer un ensemble harmonieux."
-                    : "We incorporated timeless staples to ensure a balanced look."}
-                </div>
-              )}
+              ))}
             </div>
           </div>
         )}
