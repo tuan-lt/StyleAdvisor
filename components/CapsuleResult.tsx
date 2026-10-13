@@ -253,14 +253,40 @@ export function CapsuleResult({
 
         {/* Active Worked Outfit Breakdown */}
         <div className="p-6 space-y-6">
-          <div className="space-y-1">
-            <h3 className="text-lg font-serif font-medium text-ink">{activeCombo.title}</h3>
-            <p className="text-xs text-ink-muted">{activeCombo.subtitle}</p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <h3 className="text-lg font-serif font-medium text-ink">{activeCombo.title}</h3>
+              <p className="text-xs text-ink-muted">{activeCombo.subtitle}</p>
+            </div>
+            {(() => {
+              const unownedComboGarments = activeCombo.garments.filter(
+                (g) => !ownedItemIds.includes(g.id) && !cartItemIds.includes(g.id)
+              );
+              return unownedComboGarments.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => onAddAllToCart(unownedComboGarments)}
+                  className="self-start sm:self-auto px-3.5 py-1.5 bg-accent text-white rounded text-xs font-medium hover:bg-accent/90 transition-colors cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
+                >
+                  <span>+</span>
+                  <span>
+                    {isFr
+                      ? `Ajouter le Look au panier (${unownedComboGarments.length})`
+                      : `Add Look to Cart (${unownedComboGarments.length})`}
+                  </span>
+                </button>
+              ) : (
+                <span className="self-start sm:self-auto text-xs font-medium text-verified flex items-center gap-1">
+                  ✓ {isFr ? "Look complet au panier" : "Look items in cart / owned"}
+                </span>
+              );
+            })()}
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {activeCombo.garments.map((garment) => {
               const isOwned = ownedItemIds.includes(garment.id);
+              const isInCart = cartItemIds.includes(garment.id);
               const productUrl = garment.product_url || garment.retailer_url;
 
               return (
@@ -326,18 +352,48 @@ export function CapsuleResult({
                     </div>
                   </div>
 
-                  <label className="mt-3 pt-2 border-t border-border/60 flex items-center gap-1.5 text-[11px] text-ink-muted cursor-pointer hover:text-ink">
-                    <input
-                      type="checkbox"
-                      checked={isOwned}
-                      onChange={() => {
-                        onToggleOwned(garment.id);
-                        if (onReplanCapsule) onReplanCapsule();
-                      }}
-                      className="w-3.5 h-3.5 rounded border-border text-accent focus:ring-accent"
-                    />
-                    <span>{isOwned ? (isFr ? "Déjà acquis" : "Owned") : (isFr ? "J'ai cette pièce" : "I have this")}</span>
-                  </label>
+                  <div className="mt-3 pt-2 border-t border-border/60 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-1.5 text-[11px] text-ink-muted cursor-pointer hover:text-ink">
+                        <input
+                          type="checkbox"
+                          checked={isOwned}
+                          onChange={() => {
+                            onToggleOwned(garment.id);
+                            if (onReplanCapsule) onReplanCapsule();
+                          }}
+                          className="w-3.5 h-3.5 rounded border-border text-accent focus:ring-accent"
+                        />
+                        <span>{isOwned ? (isFr ? "Déjà acquis" : "Owned") : (isFr ? "J'ai cette pièce" : "I have this")}</span>
+                      </label>
+
+                      {productUrl && (
+                        <a
+                          href={productUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-thread hover:underline font-medium text-[10px]"
+                        >
+                          {isFr ? "Boutique ↗" : "Store ↗"}
+                        </a>
+                      )}
+                    </div>
+
+                    {!isOwned && (
+                      <button
+                        type="button"
+                        onClick={() => onAddToCart(garment)}
+                        disabled={isInCart}
+                        className={`w-full py-1.5 rounded text-[11px] font-medium transition-all ${
+                          isInCart
+                            ? "bg-verified/15 text-verified border border-verified/30 cursor-default"
+                            : "bg-surface border border-border text-ink hover:border-accent hover:bg-accent/5 cursor-pointer"
+                        }`}
+                      >
+                        {isInCart ? (isFr ? "✓ Au panier" : "✓ In Cart") : (isFr ? "+ Panier" : "+ Cart")}
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}
