@@ -18,6 +18,7 @@ import {
   getAllGarmentsFromDb,
 } from "../../../lib/db";
 import { rankCandidates } from "../../../lib/garment-scorer";
+import { getAiConfig } from "../../../lib/ai-config";
 
 /**
  * Get catalog directly from Postgres database with local catalog.json fallback
@@ -519,11 +520,12 @@ async function callOpenRouterEngine(
   body: RecommendRequestBody,
   signal: AbortSignal
 ): Promise<LLMRecommendationPayload> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const aiConfig = getAiConfig();
+  const apiKey = aiConfig.openrouter_api_key || process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
     throw new Error("NO_API_KEY");
   }
-  const model = process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-001";
+  const model = aiConfig.selected_model || process.env.OPENROUTER_MODEL || "openrouter/free";
 
   const occasion = body.occasion || "pitch";
   const style = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]) || "classic";
@@ -542,12 +544,13 @@ async function callOpenRouterEngine(
   }
 
   const candidatePoolPrompt = prepareCandidatePoolPrompt(candidatesBySlot, body);
+  const isFr = body.locale === "fr";
 
   const systemPrompt = `You are the AI Styling Engine for "Style Advisor" (Canadian Climate & High-Stakes Dressing).
 ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
 - You MUST select EXACTLY ONE garment ID per slot (outerwear, top, bottom, shoes, and optional accessory) ONLY from the provided candidate list.
 - NEVER invent or hallucinate new garment IDs, prices, or links.
-- Write editorial styling reasoning in a confident Newsreader serif tone.
+- Write editorial styling reasoning in a confident Newsreader serif tone.${isFr ? "\n- CRITICAL: Write all reasoning and interpretation_summary in conversational, polite, and natural French (Canadian French)." : ""}
 - Return ONLY valid JSON containing: calibration (formality_score, signal, notes), interpretation_summary, selected_garment_ids (outerwear, top, bottom, shoes, accessory), reasoning, override_applied.
 ${overrideCheck ? `OCCASION OVERRIDE NOTICE: ${overrideCheck}` : ""}
 ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
@@ -598,6 +601,7 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
     body: JSON.stringify({
       model,
       temperature: 0.7,
+      max_tokens: 2048,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
@@ -681,9 +685,10 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
     } else {
       const llmAbortController = new AbortController();
       const llmTimeoutId = setTimeout(() => llmAbortController.abort(), LLM_TIMEOUT_MS);
-
       try {
-        if (process.env.OPENROUTER_API_KEY) {
+        const aiConfig = getAiConfig();
+        const openrouterKey = aiConfig.openrouter_api_key || process.env.OPENROUTER_API_KEY;
+        if (openrouterKey) {
           llmPayload = await callOpenRouterEngine(filterResult.candidates_by_slot, body, llmAbortController.signal);
         } else if (process.env.OPENAI_API_KEY) {
           llmPayload = await callOpenAIEngine(filterResult.candidates_by_slot, body, llmAbortController.signal);
