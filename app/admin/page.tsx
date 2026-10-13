@@ -133,31 +133,21 @@ export default function AdminCatalogPage() {
   const [isDownloadingExtension, setIsDownloadingExtension] = useState<boolean>(false);
   const [copiedExtensionUrl, setCopiedExtensionUrl] = useState<boolean>(false);
 
-  // AI Model Configuration State
+  // AI Model Configuration
   const [isAiConfigModalOpen, setIsAiConfigModalOpen] = useState<boolean>(false);
   const [aiConfigLoading, setAiConfigLoading] = useState<boolean>(false);
   const [aiConfigSaving, setAiConfigSaving] = useState<boolean>(false);
   const [aiConfigTesting, setAiConfigTesting] = useState<boolean>(false);
+  const [aiProvider, setAiProvider] = useState<"anthropic" | "openai" | "openrouter" | "none">("openrouter");
   const [aiSelectedModel, setAiSelectedModel] = useState<string>("openrouter/free");
   const [aiCustomModel, setAiCustomModel] = useState<string>("");
-  const [aiOpenRouterKey, setAiOpenRouterKey] = useState<string>("");
-  const [showAiKeyText, setShowAiKeyText] = useState<boolean>(false);
-  const [aiMaskedKey, setAiMaskedKey] = useState<string>("");
-  const [aiAvailableModels, setAiAvailableModels] = useState<any[]>([]);
-  const [aiKeyStats, setAiKeyStats] = useState<{
-    limit: number | null;
-    limit_remaining: number | null;
-    usage: number;
-    usage_daily: number;
-    usage_weekly: number;
-    usage_monthly: number;
-    free_daily_limit: number | null;
-    free_daily_used: number;
-    free_daily_remaining: number | null;
-    is_free_tier: boolean;
-    expires_at: string | null;
-  } | null>(null);
   const [isModelSelectionEnabled, setIsModelSelectionEnabled] = useState<boolean>(true);
+  const [aiProviders, setAiProviders] = useState<Record<string, any>>({
+    anthropic: { id: "anthropic", name: "ANTHROPIC", enabled: false, masked_key: "", models: [] },
+    openai: { id: "openai", name: "OPENAI", enabled: false, masked_key: "", models: [] },
+    openrouter: { id: "openrouter", name: "OPENROUTE", enabled: false, masked_key: "", models: [] },
+    none: { id: "none", name: "None", enabled: true, masked_key: "None", models: [] },
+  });
   const [aiTestResult, setAiTestResult] = useState<{
     success?: boolean;
     message?: string;
@@ -179,30 +169,39 @@ export default function AdminCatalogPage() {
       });
       const data = await res.json();
       if (data.success) {
-        const standardIds = [
-          "openrouter/free",
-          "google/gemini-2.5-flash",
-          "anthropic/claude-3.5-sonnet",
-          "openai/gpt-4o",
-        ];
-        const loadedModel = data.config.selected_model || "openrouter/free";
-        if (standardIds.includes(loadedModel)) {
+        if (data.providers) {
+          setAiProviders(data.providers);
+        }
+        const activeProv = (data.config.provider as "anthropic" | "openai" | "openrouter" | "none") || "openrouter";
+        setAiProvider(activeProv);
+
+        const providerModels = data.providers?.[activeProv]?.models || [];
+        const loadedModel = data.config.selected_model || providerModels[0]?.id || "none";
+        const isKnownModel = providerModels.some((m: any) => m.id === loadedModel);
+        if (isKnownModel) {
           setAiSelectedModel(loadedModel);
           setAiCustomModel("");
         } else {
           setAiSelectedModel("custom");
           setAiCustomModel(loadedModel);
         }
-        setAiMaskedKey(data.config.openrouter_api_key_masked || "");
-        setAiAvailableModels(data.available_models || []);
+
         setIsModelSelectionEnabled(data.config.model_selection_enabled ?? true);
-        setAiKeyStats(data.key_stats || null);
       }
     } catch (e) {
       console.error("Failed to load AI config:", e);
     } finally {
       setAiConfigLoading(false);
     }
+  };
+
+  const handleSelectProvider = (provId: "anthropic" | "openai" | "openrouter" | "none") => {
+    setAiProvider(provId);
+    setAiTestResult(null);
+    const provModels = aiProviders[provId]?.models || [];
+    const defaultModel = provModels[0]?.id || "none";
+    setAiSelectedModel(defaultModel);
+    setAiCustomModel("");
   };
 
   const handleTestAiConnection = async () => {
@@ -218,8 +217,8 @@ export default function AdminCatalogPage() {
         },
         body: JSON.stringify({
           action: "test",
+          provider: aiProvider,
           selected_model: targetModel,
-          openrouter_api_key: aiOpenRouterKey.trim() || undefined,
         }),
       });
       const data = await res.json();
@@ -247,20 +246,13 @@ export default function AdminCatalogPage() {
         },
         body: JSON.stringify({
           action: "save",
+          provider: aiProvider,
           selected_model: targetModel,
-          openrouter_api_key: aiOpenRouterKey.trim() || undefined,
         }),
       });
       const data = await res.json();
       if (data.success) {
         setAiSaveSuccess(true);
-        if (data.config?.openrouter_api_key_masked) {
-          setAiMaskedKey(data.config.openrouter_api_key_masked);
-          setAiOpenRouterKey("");
-        }
-        if (data.key_stats) {
-          setAiKeyStats(data.key_stats);
-        }
         setTimeout(() => setAiSaveSuccess(false), 3500);
       } else {
         alert(data.error || "Failed to save AI configuration.");
@@ -2227,98 +2219,79 @@ export default function AdminCatalogPage() {
                 </div>
               ) : (
                 <>
-                  {/* 1. Key Quota & Live Metrics */}
-                  <div className="space-y-2.5">
+                  {/* 1. Provider Selection (4 options: ANTHROPIC, OPENAI, OPENROUTE, None) */}
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="font-bold text-xs uppercase tracking-wider text-thread">
-                        Key Quota &amp; Usage
+                        1. Provider Selection
                       </label>
                       <span className="text-[11px] text-ink-muted">
-                        Live stats from OpenRouter
+                        Select 1 of 4 providers
                       </span>
                     </div>
 
-                    {aiKeyStats ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                        {/* Remaining Balance */}
-                        <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
-                          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
-                            Remaining Balance
-                          </div>
-                          <div className="mt-1 font-mono text-base font-bold text-emerald-600">
-                            {aiKeyStats.limit_remaining !== null
-                              ? `$${aiKeyStats.limit_remaining.toFixed(2)}`
-                              : aiKeyStats.limit !== null
-                              ? `$${Math.max(0, aiKeyStats.limit - aiKeyStats.usage).toFixed(2)}`
-                              : "Unlimited"}
-                          </div>
-                          <div className="mt-1 text-[10px] text-ink-muted truncate">
-                            Limit: {aiKeyStats.limit !== null ? `$${aiKeyStats.limit.toFixed(2)}` : "Pay-as-you-go"}
-                          </div>
-                        </div>
-
-                        {/* 7-Day Spend */}
-                        <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
-                          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
-                            7-Day Spend
-                          </div>
-                          <div className="mt-1 font-mono text-base font-bold text-ink">
-                            ${(aiKeyStats.usage_weekly || 0).toFixed(4)}
-                          </div>
-                          <div className="mt-1 text-[10px] text-ink-muted truncate">
-                            Today: ${(aiKeyStats.usage_daily || 0).toFixed(4)}
-                          </div>
-                        </div>
-
-                        {/* Daily Free Quota */}
-                        <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
-                          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
-                            Free Daily Quota
-                          </div>
-                          <div className="mt-1 font-mono text-base font-bold text-accent">
-                            {aiKeyStats.free_daily_remaining !== null
-                              ? `${aiKeyStats.free_daily_remaining} left`
-                              : aiKeyStats.is_free_tier
-                              ? "Available"
-                              : "Active"}
-                          </div>
-                          <div className="mt-1 text-[10px] text-ink-muted truncate">
-                            {aiKeyStats.free_daily_limit !== null
-                              ? `Limit: ${aiKeyStats.free_daily_limit}/day`
-                              : `Used: ${aiKeyStats.free_daily_used} reqs`}
-                          </div>
-                        </div>
-
-                        {/* Lifetime Spend & Expiration */}
-                        <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
-                          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
-                            Lifetime Spend
-                          </div>
-                          <div className="mt-1 font-mono text-base font-bold text-ink">
-                            ${(aiKeyStats.usage || 0).toFixed(4)}
-                          </div>
-                          <div className="mt-1 text-[10px] text-ink-muted truncate">
-                            Expires: {aiKeyStats.expires_at ? new Date(aiKeyStats.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Never"}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="p-3 rounded-fitting bg-surface border border-dashed border-border text-[11px] text-ink-muted flex items-center justify-between">
-                        <span>Save an OpenRouter API key below to display live balance, 7-day spend, and remaining quota.</span>
-                        <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-surface-raised border border-border">No Key Synced</span>
-                      </div>
-                    )}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {[
+                        { id: "anthropic", label: "ANTHROPIC", envVar: "ANTHROPIC_API_KEY" },
+                        { id: "openai", label: "OPENAI", envVar: "OPENAI_API_KEY" },
+                        { id: "openrouter", label: "OPENROUTE", envVar: "OPENROUTER_API_KEY" },
+                        { id: "none", label: "None", envVar: null },
+                      ].map((prov) => {
+                        const pData = aiProviders[prov.id];
+                        const isEnabled = pData?.enabled ?? false;
+                        const isSelected = aiProvider === prov.id;
+                        return (
+                          <button
+                            type="button"
+                            key={prov.id}
+                            disabled={!isEnabled}
+                            onClick={() => handleSelectProvider(prov.id as any)}
+                            className={`p-3 rounded-fitting border text-left flex flex-col justify-between transition-all ${
+                              isSelected
+                                ? "bg-accent/10 border-accent ring-1 ring-accent/30 shadow-xs"
+                                : isEnabled
+                                ? "bg-surface/60 border-border hover:border-accent/40 hover:bg-surface cursor-pointer"
+                                : "bg-surface/30 border-border/40 opacity-45 cursor-not-allowed"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <span className="font-bold text-xs text-ink">{prov.label}</span>
+                              <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center border text-[9px] ${
+                                isSelected ? "border-accent bg-accent text-white" : "border-border bg-surface"
+                              }`}>
+                                {isSelected ? "✓" : ""}
+                              </span>
+                            </div>
+                            <div className="mt-2 flex items-center gap-1">
+                              {isEnabled ? (
+                                <span className="text-[10px] text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 rounded font-medium">
+                                  Enabled
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-ink-muted bg-surface border border-border px-1.5 py-0.2 rounded">
+                                  Disabled (No Key)
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* 2. AI Model Selection */}
                   <div className="space-y-2.5 pt-3 border-t border-border">
                     <div className="flex items-center justify-between">
                       <label htmlFor="ai-model-select" className="font-bold text-xs uppercase tracking-wider text-thread">
-                        AI Model Selection
+                        2. AI Model Selection
                       </label>
-                      {isModelSelectionEnabled ? (
+                      {aiProvider === "none" ? (
+                        <span className="text-[11px] text-ink-muted bg-surface border border-border px-2 py-0.5 rounded-full">
+                          Heuristic Rules
+                        </span>
+                      ) : isModelSelectionEnabled ? (
                         <span className="text-[11px] text-emerald-700 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">
-                          Unlocked (Configurable)
+                          Unlocked
                         </span>
                       ) : (
                         <span className="text-[11px] text-amber-800 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
@@ -2327,7 +2300,7 @@ export default function AdminCatalogPage() {
                       )}
                     </div>
 
-                    {!isModelSelectionEnabled && (
+                    {!isModelSelectionEnabled && aiProvider !== "none" && (
                       <div className="p-2.5 rounded bg-amber-500/10 border border-amber-500/25 text-amber-900 text-[11px] flex items-center gap-2">
                         <span>🔒</span>
                         <span>
@@ -2336,123 +2309,262 @@ export default function AdminCatalogPage() {
                       </div>
                     )}
 
-                    {/* Dropdown listbox */}
+                    {/* Dropdown listbox based on selected provider */}
                     <div className="space-y-2">
                       <select
                         id="ai-model-select"
-                        disabled={!isModelSelectionEnabled}
+                        disabled={!isModelSelectionEnabled || aiProvider === "none"}
                         value={aiSelectedModel}
                         onChange={(e) => setAiSelectedModel(e.target.value)}
                         className="w-full px-3 py-2 text-xs rounded-fitting bg-surface border border-border focus:border-accent focus:outline-hidden font-medium disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                       >
-                        <option value="openrouter/free">
-                          1. Open(Free) — Free Tier Router (Default)
-                        </option>
-                        <option value="google/gemini-2.5-flash">
-                          2. google/gemini-2.5-flash — Fast &amp; Recommended (~$0.001/call)
-                        </option>
-                        <option value="anthropic/claude-3.5-sonnet">
-                          3. anthropic/claude-3.5-sonnet — Claude 3.5 Sonnet (Editorial Taste)
-                        </option>
-                        <option value="openai/gpt-4o">
-                          4. openai/gpt-4o — OpenAI GPT-4o (Structured &amp; Reasoning)
-                        </option>
-                        <option value="custom">
-                          5. Custom Model ID... (Specify from OpenRouter)
-                        </option>
+                        {(aiProviders[aiProvider]?.models || []).map((m: any, idx: number) => (
+                          <option key={m.id} value={m.id}>
+                            {`${idx + 1}. ${m.name} — ${m.badge || m.fullName}`}
+                          </option>
+                        ))}
+                        {aiProvider !== "none" && (
+                          <option value="custom">Custom Model ID...</option>
+                        )}
                       </select>
 
                       {/* Custom Model Input if 'custom' selected */}
-                      {aiSelectedModel === "custom" && (
+                      {aiSelectedModel === "custom" && aiProvider !== "none" && (
                         <div className="animate-fadeIn">
                           <input
                             type="text"
                             disabled={!isModelSelectionEnabled}
                             value={aiCustomModel}
                             onChange={(e) => setAiCustomModel(e.target.value)}
-                            placeholder="e.g. meta-llama/llama-3.3-70b-instruct"
+                            placeholder="e.g. meta-llama/llama-3.3-70b-instruct or custom model id"
                             className="w-full px-3 py-2 text-xs rounded-fitting bg-surface border border-border focus:border-accent focus:outline-hidden font-mono disabled:opacity-60"
                           />
                           <p className="mt-1 text-[10px] text-ink-muted">
-                            Enter any valid model ID supported by OpenRouter.
+                            Enter any valid model ID supported by the chosen provider.
                           </p>
                         </div>
                       )}
 
                       {/* Model Description */}
                       <div className="text-[11px] text-ink-muted bg-surface/40 p-2.5 rounded border border-border/60">
-                        {aiSelectedModel === "openrouter/free" && (
-                          <span>
-                            <strong>Open(Free):</strong> Automatically routes through zero-cost community models. Consumes no credits, ideal for continuous operations.
-                          </span>
-                        )}
-                        {aiSelectedModel === "google/gemini-2.5-flash" && (
-                          <span>
-                            <strong>google/gemini-2.5-flash:</strong> Ultra-fast (&lt;1s latency), nuanced context evaluation, and cost-effective (~$0.001 per styling session).
-                          </span>
-                        )}
-                        {aiSelectedModel === "anthropic/claude-3.5-sonnet" && (
-                          <span>
-                            <strong>Claude 3.5 Sonnet:</strong> Premium aesthetic commentary and sophisticated editorial styling vocabulary.
-                          </span>
-                        )}
-                        {aiSelectedModel === "openai/gpt-4o" && (
-                          <span>
-                            <strong>OpenAI GPT-4o:</strong> Strict schema adherence and robust reasoning across dress code boundaries.
-                          </span>
-                        )}
-                        {aiSelectedModel === "custom" && (
-                          <span>
-                            <strong>Custom Model:</strong> Dispatches styling requests directly to your custom OpenRouter model identifier.
-                          </span>
-                        )}
+                        {(() => {
+                          const currentModelObj = aiProviders[aiProvider]?.models?.find(
+                            (m: any) => m.id === aiSelectedModel
+                          );
+                          if (currentModelObj) {
+                            return (
+                              <span>
+                                <strong>{currentModelObj.name}:</strong> {currentModelObj.description}
+                              </span>
+                            );
+                          }
+                          if (aiSelectedModel === "custom") {
+                            return (
+                              <span>
+                                <strong>Custom Model:</strong> Dispatches styling requests directly to your custom model identifier.
+                              </span>
+                            );
+                          }
+                          if (aiProvider === "none") {
+                            return (
+                              <span>
+                                <strong>Offline Heuristics:</strong> Generates styling combinations via pure algorithmic rules without calling external LLM APIs.
+                              </span>
+                            );
+                          }
+                          return <span>Select a model from the list above.</span>;
+                        })()}
                       </div>
                     </div>
                   </div>
 
-                  {/* 3. OpenRouter API Key */}
-                  <div className="space-y-2.5 pt-3 border-t border-border">
+                  {/* 3. API KEY (Read-only from environment, no manual editing) */}
+                  <div className="space-y-2 pt-3 border-t border-border">
                     <div className="flex items-center justify-between">
                       <label className="font-bold text-xs uppercase tracking-wider text-thread">
-                        OpenRouter API Key
+                        3. API KEY
                       </label>
-                      {aiMaskedKey && (
-                        <span className="text-[11px] text-ink-muted flex items-center gap-1.5 font-mono">
-                          <span>Active:</span>
-                          <strong className="text-accent">{aiMaskedKey}</strong>
-                        </span>
-                      )}
+                      <span className="text-[11px] text-ink-muted">
+                        Environment Variable (.env)
+                      </span>
                     </div>
 
                     <div className="space-y-1">
-                      <div className="relative">
-                        <input
-                          type={showAiKeyText ? "text" : "password"}
-                          value={aiOpenRouterKey}
-                          onChange={(e) => setAiOpenRouterKey(e.target.value)}
-                          placeholder="Enter new OpenRouter API Key (sk-or-v1-...)"
-                          className="w-full px-3 py-2 pr-16 text-xs rounded-fitting bg-surface border border-border focus:border-accent focus:outline-hidden font-mono"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowAiKeyText(!showAiKeyText)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 text-[10px] text-ink-muted hover:text-ink font-semibold"
-                        >
-                          {showAiKeyText ? "Hide" : "Show"}
-                        </button>
+                      <div className="p-2.5 rounded bg-surface border border-border flex items-center justify-between text-xs">
+                        <span className="text-ink-muted font-medium">
+                          {aiProvider === "anthropic"
+                            ? "ANTHROPIC_API_KEY:"
+                            : aiProvider === "openai"
+                            ? "OPENAI_API_KEY:"
+                            : aiProvider === "openrouter"
+                            ? "OPENROUTER_API_KEY:"
+                            : "Local Execution:"}
+                        </span>
+                        <code className="font-mono font-semibold text-accent text-xs">
+                          {aiProviders[aiProvider]?.masked_key || "Not configured in .env"}
+                        </code>
                       </div>
-                      <div className="flex items-center justify-between text-[11px] text-ink-muted">
-                        <span>Leave blank to retain current system key.</span>
-                        <a
-                          href="https://openrouter.ai/settings/keys"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-accent hover:underline flex items-center gap-0.5"
-                        >
-                          openrouter.ai/settings/keys ↗
-                        </a>
-                      </div>
+                      <p className="text-[10px] text-ink-muted">
+                        Key is loaded securely from server environment variables. Manual editing in UI is disabled.
+                      </p>
                     </div>
+                  </div>
+
+                  {/* 4. KEY QUOTA & USAGE */}
+                  <div className="space-y-2.5 pt-3 border-t border-border">
+                    <div className="flex items-center justify-between">
+                      <label className="font-bold text-xs uppercase tracking-wider text-thread">
+                        4. KEY QUOTA &amp; USAGE
+                      </label>
+                      <span className="text-[11px] text-ink-muted">
+                        Real-time status &amp; metrics
+                      </span>
+                    </div>
+
+                    {(() => {
+                      const pData = aiProviders[aiProvider];
+                      const stats = pData?.key_stats;
+
+                      // Error state
+                      if (stats?.status === "error" || (stats?.error && stats?.status !== "not_configured")) {
+                        return (
+                          <div className="p-3 rounded-fitting bg-red-500/10 border border-red-500/30 text-red-700 space-y-1 animate-fadeIn">
+                            <div className="flex items-center gap-2 font-bold text-xs">
+                              <span>⚠</span>
+                              <span>API Key Error</span>
+                            </div>
+                            <p className="text-[11px] leading-relaxed">
+                              {stats?.error || "Authentication failed or API key is invalid."}
+                            </p>
+                            <p className="text-[10px] text-red-600 mt-1">
+                              Please verify the API key set in your server .env file.
+                            </p>
+                          </div>
+                        );
+                      }
+
+                      // OpenRouter live metrics
+                      if (aiProvider === "openrouter" && stats?.status === "active") {
+                        return (
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 animate-fadeIn">
+                            {/* Remaining Balance */}
+                            <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
+                              <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
+                                Remaining Balance
+                              </div>
+                              <div className="mt-1 font-mono text-base font-bold text-emerald-600">
+                                {stats.limit_remaining !== null
+                                  ? `$${stats.limit_remaining.toFixed(2)}`
+                                  : stats.limit !== null
+                                  ? `$${Math.max(0, stats.limit - (stats.usage || 0)).toFixed(2)}`
+                                  : "Unlimited"}
+                              </div>
+                              <div className="mt-1 text-[10px] text-ink-muted truncate">
+                                Limit: {stats.limit !== null ? `$${stats.limit.toFixed(2)}` : "Pay-as-you-go"}
+                              </div>
+                            </div>
+
+                            {/* 7-Day Spend */}
+                            <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
+                              <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
+                                7-Day Spend
+                              </div>
+                              <div className="mt-1 font-mono text-base font-bold text-ink">
+                                ${(stats.usage_weekly || 0).toFixed(4)}
+                              </div>
+                              <div className="mt-1 text-[10px] text-ink-muted truncate">
+                                Today: ${(stats.usage_daily || 0).toFixed(4)}
+                              </div>
+                            </div>
+
+                            {/* Free Daily Quota */}
+                            <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
+                              <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
+                                Free Daily Quota
+                              </div>
+                              <div className="mt-1 font-mono text-base font-bold text-accent">
+                                {stats.free_daily_remaining !== null
+                                  ? `${stats.free_daily_remaining} left`
+                                  : stats.is_free_tier
+                                  ? "Available"
+                                  : "Active"}
+                              </div>
+                              <div className="mt-1 text-[10px] text-ink-muted truncate">
+                                {stats.free_daily_limit !== null
+                                  ? `Limit: ${stats.free_daily_limit}/day`
+                                  : `Used: ${stats.free_daily_used || 0} reqs`}
+                              </div>
+                            </div>
+
+                            {/* Lifetime Spend & Expiration */}
+                            <div className="p-3 rounded-fitting bg-surface/60 border border-border flex flex-col justify-between">
+                              <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
+                                Lifetime Spend
+                              </div>
+                              <div className="mt-1 font-mono text-base font-bold text-ink">
+                                ${(stats.usage || 0).toFixed(4)}
+                              </div>
+                              <div className="mt-1 text-[10px] text-ink-muted truncate">
+                                Expires: {stats.expires_at ? new Date(stats.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Never"}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // OpenAI or Anthropic Active State
+                      if ((aiProvider === "openai" || aiProvider === "anthropic") && stats?.status === "active") {
+                        return (
+                          <div className="p-3.5 rounded-fitting bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 flex items-center justify-between animate-fadeIn">
+                            <div>
+                              <div className="font-bold text-xs flex items-center gap-1.5">
+                                <span>✓</span>
+                                <span>API Key Active &amp; Authorized</span>
+                              </div>
+                              <p className="text-[11px] text-emerald-700 mt-0.5">
+                                {stats?.message || "Successfully validated with provider endpoint."}
+                              </p>
+                            </div>
+                            <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-800 border border-emerald-500/30">
+                              READY
+                            </span>
+                          </div>
+                        );
+                      }
+
+                      // None / Local Heuristics
+                      if (aiProvider === "none") {
+                        return (
+                          <div className="p-3.5 rounded-fitting bg-surface/60 border border-border text-ink flex items-center justify-between animate-fadeIn">
+                            <div>
+                              <div className="font-bold text-xs flex items-center gap-1.5">
+                                <span>⚙</span>
+                                <span>Deterministic Rules Engine</span>
+                              </div>
+                              <p className="text-[11px] text-ink-muted mt-0.5">
+                                Outfits are curated using deterministic color &amp; climate algorithms. No API key or credits consumed.
+                              </p>
+                            </div>
+                            <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded bg-surface border border-border text-ink">
+                              OFFLINE
+                            </span>
+                          </div>
+                        );
+                      }
+
+                      // Key Not Configured State
+                      return (
+                        <div className="p-3 rounded-fitting bg-amber-500/10 border border-amber-500/30 text-amber-800 animate-fadeIn">
+                          <div className="font-bold text-xs flex items-center gap-1.5">
+                            <span>⚠</span>
+                            <span>API Key Not Configured</span>
+                          </div>
+                          <p className="text-[11px] text-amber-700 mt-0.5">
+                            {stats?.error || "Key is not configured in .env file."}
+                          </p>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Test Connection Result Box */}

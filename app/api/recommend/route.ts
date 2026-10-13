@@ -413,6 +413,9 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
     },
   });
 
+  const aiConfig = getAiConfig();
+  const modelToUse = aiConfig.selected_model && aiConfig.selected_model !== "custom" ? aiConfig.selected_model : "gpt-4o";
+
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -420,7 +423,7 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o",
+      model: modelToUse,
       response_format: { type: "json_object" },
       temperature: 0.7,
       messages: [
@@ -481,6 +484,9 @@ ${overrideCheck ? `OCCASION OVERRIDE NOTICE: ${overrideCheck}` : ""}`;
   })}
 Respond with JSON object containing: calibration (formality_score, signal, notes), interpretation_summary, selected_garment_ids (outerwear, top, bottom, shoes, accessory), reasoning, override_applied.`;
 
+  const aiConfig = getAiConfig();
+  const modelToUse = aiConfig.selected_model && aiConfig.selected_model !== "custom" ? aiConfig.selected_model : "claude-3-5-sonnet-20241022";
+
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -489,7 +495,7 @@ Respond with JSON object containing: calibration (formality_score, signal, notes
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-3-5-sonnet-20241022",
+      model: modelToUse,
       max_tokens: 1024,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
@@ -687,14 +693,19 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       const llmTimeoutId = setTimeout(() => llmAbortController.abort(), LLM_TIMEOUT_MS);
       try {
         const aiConfig = getAiConfig();
-        const openrouterKey = aiConfig.openrouter_api_key || process.env.OPENROUTER_API_KEY;
-        if (openrouterKey) {
-          llmPayload = await callOpenRouterEngine(filterResult.candidates_by_slot, body, llmAbortController.signal);
-        } else if (process.env.OPENAI_API_KEY) {
-          llmPayload = await callOpenAIEngine(filterResult.candidates_by_slot, body, llmAbortController.signal);
-        } else if (process.env.ANTHROPIC_API_KEY) {
+        const provider = aiConfig.provider || "openrouter";
+
+        if (provider === "none") {
+          console.info("⚡ AI Provider configured as 'None': utilizing deterministic heuristic stylist.");
+          llmPayload = generateDeterministicRecommendation(filterResult, body);
+        } else if (provider === "anthropic" && process.env.ANTHROPIC_API_KEY) {
           llmPayload = await callAnthropicEngine(filterResult.candidates_by_slot, body, llmAbortController.signal);
+        } else if (provider === "openai" && process.env.OPENAI_API_KEY) {
+          llmPayload = await callOpenAIEngine(filterResult.candidates_by_slot, body, llmAbortController.signal);
+        } else if (provider === "openrouter" && (aiConfig.openrouter_api_key || process.env.OPENROUTER_API_KEY)) {
+          llmPayload = await callOpenRouterEngine(filterResult.candidates_by_slot, body, llmAbortController.signal);
         } else {
+          console.warn(`Provider '${provider}' has no configured API key in .env, falling back to heuristics.`);
           llmPayload = generateDeterministicRecommendation(filterResult, body);
         }
       } catch (llmError: any) {
