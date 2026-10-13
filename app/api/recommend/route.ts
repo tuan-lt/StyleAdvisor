@@ -17,7 +17,7 @@ import {
 import {
   getAllGarmentsFromDb,
 } from "../../../lib/db";
-import { rankCandidates } from "../../../lib/garment-scorer";
+import { rankCandidates, getDefaultFormalityForOccasion } from "../../../lib/garment-scorer";
 import { getAiConfig, getAiConfigAsync } from "../../../lib/ai-config";
 
 /**
@@ -128,8 +128,8 @@ function generateDeterministicRecommendation(
   const style = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]) || "classic";
   const targetPalette = body.user_profile?.seasonal_colour || body.user_profile?.palette_season;
 
-  let targetFormality = body.formality_target || (occasion === "court" || occasion === "funeral" ? 5 : 4);
-  let signal = "considered_not_corporate";
+  let targetFormality = body.formality_target || getDefaultFormalityForOccasion(occasion);
+  let signal = occasion === "date" ? "relaxed_charm" : "considered_not_corporate";
   let nudgeReasoning = "";
 
   if (body.nudge === "too_formal") {
@@ -204,6 +204,12 @@ function generateDeterministicRecommendation(
       reasoning = `Pour un cadre officiel, le respect des codes et une coupe irréprochable sont indispensables. L'ensemble s'articule autour de ${
         outerwearGarment ? outerwearGarment.name : "la veste formelle"
       } et ${bottomGarment ? bottomGarment.name : "du pantalon classique"}.`;
+    } else if (occasion === "date") {
+      reasoning = `Pour une soirée ou un souper en ville, l'équilibre entre charme naturel et aisance est parfait. L'association de ${
+        topGarment ? topGarment.name : "ce haut soigné"
+      } avec ${bottomGarment ? bottomGarment.name : "un bas confortable"}${
+        outerwearGarment ? ` et ${outerwearGarment.name}` : ""
+      } crée une silhouette élégante sans en faire trop.`;
     } else {
       reasoning = `Sélection de ${topGarment ? topGarment.name : "haut élégant"} associé à ${
         bottomGarment ? bottomGarment.name : "pantalon soigné"
@@ -230,6 +236,12 @@ function generateDeterministicRecommendation(
       reasoning = `For a high-stakes job interview, competence and cultural fit are communicated through sharp, unwrinkled lines. The ${
         topGarment ? topGarment.name : "tailored shirt"
       } combined with the ${outerwearGarment ? outerwearGarment.name : "blazer"} establishes poise.`;
+    } else if (occasion === "date") {
+      reasoning = `For date night or dinner out, effortless charm and comfortable confidence take center stage. We paired ${
+        topGarment ? topGarment.name : "the versatile top"
+      } with ${bottomGarment ? bottomGarment.name : "clean tailored bottoms"}${
+        outerwearGarment ? ` and anchored with ${outerwearGarment.name}` : ""
+      } for an approachable, naturally stylish evening silhouette.`;
     } else {
       reasoning = `Selected ${topGarment ? topGarment.name : "smart top"} paired with ${
         bottomGarment ? bottomGarment.name : "tailored trousers"
@@ -251,6 +263,8 @@ function generateDeterministicRecommendation(
       interpretationSummary = "Cérémonie de recueillement. Sobriété, respect et dignité.";
     } else if (occasion === "court") {
       interpretationSummary = "Cadre officiel institutionnel. Tenue impeccable et mesurée.";
+    } else if (occasion === "date") {
+      interpretationSummary = "Soirée ou restaurant. Allure charmante, détendue et soignée sans en faire trop.";
     } else {
       interpretationSummary = `Cadre ${occasion}. Tenue harmonieuse et adaptée.`;
     }
@@ -261,6 +275,8 @@ function generateDeterministicRecommendation(
       interpretationSummary = "Solemn gathering, respectful protocol. Aiming for quiet, understated decorum.";
     } else if (occasion === "court") {
       interpretationSummary = "Institutional setting. Aiming for crisp, disciplined propriety.";
+    } else if (occasion === "date") {
+      interpretationSummary = "Dinner out or date night. Aiming for effortless charm and relaxed style.";
     } else {
       interpretationSummary = `${audience}. Aiming for ${signal.replace(/_/g, " ")}.`;
     }
@@ -297,7 +313,7 @@ function prepareCandidatePoolPrompt(
   candidatesBySlot: Record<GarmentSlot, Garment[]>,
   body: RecommendRequestBody
 ) {
-  const targetFormality = body.formality_target || 4;
+  const targetFormality = body.formality_target || getDefaultFormalityForOccasion(body.occasion);
   const targetPalette = body.user_profile?.seasonal_colour || body.user_profile?.palette_season;
   const targetStyle = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]);
   const targetOccasion = body.occasion;
@@ -723,7 +739,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
     let overrideApplied = llmPayload.override_applied || checkOccasionOverride(body.occasion || "pitch", body.user_profile.style);
 
     const scoringOpts = {
-      targetFormality: body.formality_target || 4,
+      targetFormality: body.formality_target || getDefaultFormalityForOccasion(body.occasion),
       targetPalette: body.user_profile?.seasonal_colour || body.user_profile?.palette_season,
       targetStyle: body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]),
       targetOccasion: body.occasion,

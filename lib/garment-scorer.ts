@@ -55,14 +55,20 @@ export function scoreGarment(garment: Garment, options: ScoreGarmentOptions): nu
     }
   }
 
-  // 4. Occasion Match Bonus (+3)
+  // 4. Occasion Match Bonus (+4 for direct, +2 for related)
   if (options.targetOccasion && garment.occasions) {
     const occ = options.targetOccasion.toLowerCase();
     const gOccs = garment.occasions.map((o) => o.toLowerCase());
-    if (gOccs.includes(occ)) {
-      score += 3;
+    if (
+      gOccs.includes(occ) ||
+      ((occ === "date" || occ === "date-night") && (gOccs.includes("date") || gOccs.includes("date-night")))
+    ) {
+      score += 4;
     } else if (
-      (occ === "pitch" && (gOccs.includes("work") || gOccs.includes("smart-casual"))) ||
+      ((occ === "date" || occ === "date-night") && (gOccs.includes("dinner-out") || gOccs.includes("smart-casual"))) ||
+      (occ === "pitch" && (gOccs.includes("work") || gOccs.includes("smart-casual") || gOccs.includes("interview"))) ||
+      (occ === "interview" && (gOccs.includes("work") || gOccs.includes("formal") || gOccs.includes("pitch"))) ||
+      (occ === "family" && (gOccs.includes("casual") || gOccs.includes("smart-casual"))) ||
       (occ === "casual" && gOccs.includes("smart-casual")) ||
       (occ === "work" && gOccs.includes("smart-casual"))
     ) {
@@ -299,3 +305,18 @@ export function assembleWorkedOutfit(
 
   return { top, bottom, shoes, outerwear, accessory };
 }
+
+/**
+ * Get natural contextual default formality (1-5) calibrated for each occasion
+ */
+export function getDefaultFormalityForOccasion(occasion?: string): number {
+  if (!occasion) return 3.5;
+  const occ = occasion.toLowerCase().replace(/[^a-z]/g, "");
+  if (occ === "court" || occ === "funeral") return 5;
+  if (occ === "pitch" || occ === "interview") return 4;
+  if (occ === "date" || occ === "datenight") return 3;
+  if (occ === "family") return 3;
+  if (occ === "casual") return 2;
+  return 3.5;
+}
+

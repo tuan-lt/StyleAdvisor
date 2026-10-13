@@ -2101,7 +2101,8 @@
       "travel",
       "lounge",
       "smart-casual",
-      "date-night"
+      "date-night",
+      "date"
     ],
     "palette_seasons": [
       "summer"
@@ -2132,7 +2133,9 @@
     "verified_date": "2026-09-28",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   },
   {
@@ -2308,7 +2311,9 @@
       "smart-casual",
       "casual",
       "travel",
-      "outdoor"
+      "outdoor",
+      "date-night",
+      "date"
     ],
     "palette_seasons": [
       "summer",
@@ -2341,7 +2346,10 @@
     "verified_date": "2026-09-28",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual",
+      "trendy"
     ]
   },
   {
@@ -2358,7 +2366,9 @@
     "occasions": [
       "casual",
       "travel",
-      "outdoor"
+      "outdoor",
+      "date-night",
+      "date"
     ],
     "palette_seasons": [
       "winter",
@@ -2393,7 +2403,9 @@
     "verified_date": "2026-09-28",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   },
   {
@@ -2510,7 +2522,8 @@
       "travel",
       "outdoor",
       "date-night",
-      "business-casual"
+      "business-casual",
+      "date"
     ],
     "palette_seasons": [
       "winter",
@@ -2543,7 +2556,10 @@
     "verified_date": "2026-09-28",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual",
+      "trendy"
     ]
   },
   {
@@ -2561,7 +2577,9 @@
       "casual",
       "travel",
       "outdoor",
-      "lounge"
+      "lounge",
+      "date-night",
+      "date"
     ],
     "palette_seasons": [
       "winter",
@@ -2595,7 +2613,10 @@
     "verified_date": "2026-09-28",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual",
+      "trendy"
     ]
   },
   {
@@ -2613,7 +2634,9 @@
       "smart-casual",
       "casual",
       "business-casual",
-      "lounge"
+      "lounge",
+      "date-night",
+      "date"
     ],
     "palette_seasons": [
       "autumn",
@@ -2646,7 +2669,9 @@
     "verified_date": "2026-09-28",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   },
   {
@@ -2716,7 +2741,9 @@
       "casual",
       "travel",
       "outdoor",
-      "smart-casual"
+      "smart-casual",
+      "date-night",
+      "date"
     ],
     "palette_seasons": [
       "autumn",
@@ -2749,7 +2776,9 @@
     "verified_date": "2026-09-28",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   },
   {
@@ -2924,7 +2953,9 @@
       "smart-casual",
       "casual",
       "travel",
-      "outdoor"
+      "outdoor",
+      "date-night",
+      "date"
     ],
     "palette_seasons": [
       "autumn",
@@ -2959,7 +2990,9 @@
     "verified_date": "2026-09-28",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   },
   {
@@ -3030,7 +3063,8 @@
       "travel",
       "business-casual",
       "date-night",
-      "lounge"
+      "lounge",
+      "date"
     ],
     "palette_seasons": [
       "autumn",
@@ -3064,7 +3098,10 @@
     "verified_date": "2026-09-28",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual",
+      "trendy"
     ]
   },
   {
@@ -3449,7 +3486,8 @@
       "outdoor",
       "smart-casual",
       "lounge",
-      "date-night"
+      "date-night",
+      "date"
     ],
     "palette_seasons": [
       "autumn",
@@ -3482,7 +3520,9 @@
     "verified_date": "2026-09-28",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "trendy",
+      "sporty"
     ]
   },
   {
@@ -3554,7 +3594,8 @@
       "work",
       "smart-casual",
       "date-night",
-      "casual"
+      "casual",
+      "date"
     ],
     "palette_seasons": [
       "autumn",
@@ -3587,7 +3628,9 @@
     "verified_date": "2026-09-28",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   },
   {
@@ -3882,7 +3925,10 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "date-night",
+      "date",
+      "outdoor"
     ],
     "palette_seasons": [
       "autumn",
@@ -3915,7 +3961,9 @@
     "verified_date": "2026-09-26",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   },
   {
@@ -4032,7 +4080,9 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "outdoor",
+      "travel"
     ],
     "palette_seasons": [
       "autumn",
@@ -4065,7 +4115,9 @@
     "verified_date": "2026-09-26",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   },
   {
@@ -4382,7 +4434,9 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "date-night",
+      "date"
     ],
     "palette_seasons": [
       "autumn",
@@ -4415,7 +4469,8 @@
     "verified_date": "2026-09-26",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "casual"
     ]
   },
   {
@@ -4582,7 +4637,10 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "date-night",
+      "date",
+      "outdoor"
     ],
     "palette_seasons": [
       "autumn",
@@ -4615,7 +4673,9 @@
     "verified_date": "2026-09-26",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   },
   {
@@ -4682,7 +4742,10 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "date-night",
+      "date",
+      "outdoor"
     ],
     "palette_seasons": [
       "autumn",
@@ -4715,7 +4778,9 @@
     "verified_date": "2026-09-26",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   },
   {
@@ -4782,7 +4847,9 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "date-night",
+      "date"
     ],
     "palette_seasons": [
       "autumn",
@@ -4815,7 +4882,9 @@
     "verified_date": "2026-09-26",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   },
   {
@@ -4982,7 +5051,10 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "date-night",
+      "date",
+      "outdoor"
     ],
     "palette_seasons": [
       "autumn",
@@ -5015,7 +5087,9 @@
     "verified_date": "2026-09-26",
     "styles": [
       "classic",
-      "minimalist"
+      "minimalist",
+      "sporty",
+      "casual"
     ]
   }
 ]

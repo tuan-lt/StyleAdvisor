@@ -154,11 +154,21 @@ export function matchOccasion(
 
   return targets.some((target) => {
     if (gOccs.includes(target)) return true;
-    // Synonyms
-    if (target === "pitch" && (gOccs.includes("work") || gOccs.includes("interview"))) return true;
+    // Synonyms and semantic equivalents
+    if (
+      (target === "date" || target === "date-night") &&
+      (gOccs.includes("date") ||
+        gOccs.includes("date-night") ||
+        gOccs.includes("dinner-out") ||
+        gOccs.includes("smart-casual"))
+    ) {
+      return true;
+    }
+    if (target === "pitch" && (gOccs.includes("work") || gOccs.includes("interview") || gOccs.includes("business-casual"))) return true;
+    if (target === "interview" && (gOccs.includes("work") || gOccs.includes("pitch") || gOccs.includes("formal"))) return true;
     if (target === "court" && (gOccs.includes("interview") || gOccs.includes("formal"))) return true;
     if (target === "funeral" && (gOccs.includes("formal") || gOccs.includes("court"))) return true;
-    if (target === "family" && (gOccs.includes("casual") || gOccs.includes("smart-casual"))) return true;
+    if (target === "family" && (gOccs.includes("casual") || gOccs.includes("smart-casual") || gOccs.includes("dinner-out"))) return true;
     return false;
   });
 }
