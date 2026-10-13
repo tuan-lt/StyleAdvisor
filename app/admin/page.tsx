@@ -1307,28 +1307,72 @@ export default function AdminCatalogPage() {
                         {/* Item Thumbnail & Name */}
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
-                            <div className="relative w-12 h-14 rounded-fitting overflow-hidden bg-surface border border-border shrink-0 flex items-center justify-center">
-                              {garment.image_url ? (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img
-                                  src={garment.image_url}
-                                  alt={garment.name}
-                                  className="w-full h-full object-cover"
+                            {garment.product_url ? (
+                              <a
+                                href={garment.product_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title={`Open ${garment.name} product page in new tab`}
+                                className="relative w-12 h-14 rounded-fitting overflow-hidden bg-surface border border-border shrink-0 flex items-center justify-center hover:border-accent hover:shadow-xs group/thumb transition-all cursor-pointer"
+                              >
+                                {garment.image_url ? (
+                                  /* eslint-disable-next-line @next/next/no-img-element */
+                                  <img
+                                    src={garment.image_url}
+                                    alt={garment.name}
+                                    className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform"
+                                  />
+                                ) : (
+                                  <div className="text-[10px] text-ink-muted font-medium uppercase text-center px-1">
+                                    No Img
+                                  </div>
+                                )}
+                                <div
+                                  className="absolute bottom-1 right-1 w-3 h-3 rounded-full border border-surface shadow-xs"
+                                  style={{ backgroundColor: garment.hex_color || "#2C2C2C" }}
+                                  title={`Color: ${garment.color || "Classic"}`}
                                 />
-                              ) : (
-                                <div className="text-[10px] text-ink-muted font-medium uppercase text-center px-1">
-                                  No Img
-                                </div>
-                              )}
-                              <div
-                                className="absolute bottom-1 right-1 w-3 h-3 rounded-full border border-surface shadow-xs"
-                                style={{ backgroundColor: garment.hex_color || "#2C2C2C" }}
-                                title={`Color: ${garment.color || "Classic"}`}
-                              />
-                            </div>
+                              </a>
+                            ) : (
+                              <div className="relative w-12 h-14 rounded-fitting overflow-hidden bg-surface border border-border shrink-0 flex items-center justify-center">
+                                {garment.image_url ? (
+                                  /* eslint-disable-next-line @next/next/no-img-element */
+                                  <img
+                                    src={garment.image_url}
+                                    alt={garment.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="text-[10px] text-ink-muted font-medium uppercase text-center px-1">
+                                    No Img
+                                  </div>
+                                )}
+                                <div
+                                  className="absolute bottom-1 right-1 w-3 h-3 rounded-full border border-surface shadow-xs"
+                                  style={{ backgroundColor: garment.hex_color || "#2C2C2C" }}
+                                  title={`Color: ${garment.color || "Classic"}`}
+                                />
+                              </div>
+                            )}
+
                             <div className="min-w-0 max-w-[240px]">
                               <div className="font-semibold text-ink truncate flex items-center gap-1.5">
-                                <span title={garment.name}>{garment.name}</span>
+                                {garment.product_url ? (
+                                  <a
+                                    href={garment.product_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title={`Open ${garment.name} product page in new tab`}
+                                    className="hover:text-accent hover:underline cursor-pointer truncate transition-colors inline-flex items-center gap-1 group/title"
+                                  >
+                                    <span className="truncate">{garment.name}</span>
+                                    <span className="text-[10px] opacity-0 group-hover/title:opacity-100 transition-opacity text-accent shrink-0">
+                                      ↗
+                                    </span>
+                                  </a>
+                                ) : (
+                                  <span title={garment.name}>{garment.name}</span>
+                                )}
                                 {isNewIngest && (
                                   <span className="px-1.5 py-0.2 rounded bg-accent text-white text-[9px] font-bold tracking-wider shrink-0 uppercase">
                                     New Ingest
