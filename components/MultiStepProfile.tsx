@@ -121,8 +121,8 @@ export function MultiStepProfile({
       icon: "✨",
       label: isFr ? "Mode féminine" : "Womenswear",
       desc: isFr
-        ? "Vestons ajustés, pantalons fluides, robes et silhouettes féminines"
-        : "Tailored blazers, fluid trousers, dresses, and feminine silhouettes",
+        ? "Vestons ajustés, robes, pantalons et coupes féminines."
+        : "Tailored blazers, dresses, trousers, and feminine cuts.",
     },
     {
       id: "Neutral",
@@ -130,8 +130,8 @@ export function MultiStepProfile({
       icon: "🌿",
       label: isFr ? "Unisexe / Neutre" : "Neutral",
       desc: isFr
-        ? "Lignes minimalistes, coupes décontractées et essentiels faciles à agencer"
-        : "Clean minimal lines, relaxed boxy fits, and versatile everyday cuts",
+        ? "Lignes épurées, coupes décontractées et essentiels faciles à agencer."
+        : "Clean minimalist lines, relaxed fits, and versatile everyday cuts.",
     },
     {
       id: "Male",
@@ -139,8 +139,8 @@ export function MultiStepProfile({
       icon: "👔",
       label: isFr ? "Mode masculine" : "Menswear",
       desc: isFr
-        ? "Épaules structurées, chinos classiques, chemises nettes et tricots doux"
-        : "Structured shoulders, classic chinos, clean button-ups, and knitwear",
+        ? "Vestons structurés, chemises classiques, chinos et coupes masculines."
+        : "Structured blazers, classic shirts, chinos, and masculine cuts.",
     },
   ];
 
@@ -149,8 +149,8 @@ export function MultiStepProfile({
       id: "classic",
       label: isFr ? "Classique & Soigné" : "Classic & Sharp",
       desc: isFr
-        ? "Coupes intemporelles, chemises nettes, lignes épurées et souliers cirés"
-        : "Timeless tailoring, crisp shirts, clean lines, and polished shoes",
+        ? "Coupes intemporelles, chemises nettes et allure soignée."
+        : "Timeless tailoring, clean shirts, and sharp essentials.",
       images: {
         male: "/images/styles/menswear_classic.jpg",
         female: "/images/styles/womenswear_classic.jpg",
@@ -161,8 +161,8 @@ export function MultiStepProfile({
       id: "casual",
       label: isFr ? "Facile & Décontracté" : "Easygoing & Relaxed",
       desc: isFr
-        ? "Chinos confortables, cotons doux, baskets simples et allure détendue"
-        : "Comfy chinos, soft cotton layers, simple sneakers, and clean everyday vibes",
+        ? "Pantalons confortables, cotons doux et baskets simples."
+        : "Relaxed chinos, soft cotton tees, and easy sneakers.",
       images: {
         male: "/images/styles/menswear_casual.jpg",
         female: "/images/styles/womenswear_casual.jpg",
@@ -173,8 +173,8 @@ export function MultiStepProfile({
       id: "trendy",
       label: isFr ? "Moderne & Tendance" : "Modern & Streetwise",
       desc: isFr
-        ? "Coupes amples, plis fluides, matières actuelles et silhouettes fraîches"
-        : "Boxy cuts, relaxed pleats, contemporary streetwear textures, and fresh silhouettes",
+        ? "Coupes modernes, silhouettes amples et style urbain actuel."
+        : "Modern cuts, relaxed silhouettes, and contemporary street style.",
       images: {
         male: "/images/styles/menswear_trendy.jpg",
         female: "/images/styles/womenswear_trendy.jpg",
@@ -185,8 +185,8 @@ export function MultiStepProfile({
       id: "sporty",
       label: isFr ? "Actif & Urbain" : "Active & Commuter",
       desc: isFr
-        ? "Matières extensibles techniques, vestes imperméables et confort sportif"
-        : "Stretch performance fabrics, sleek water-repellent layers, and athletic comfort",
+        ? "Tissus techniques extensibles, vestes légères et confort actif."
+        : "Technical stretch fabrics, weather-ready layers, and active comfort.",
       images: {
         male: "/images/styles/menswear_sporty.jpg",
         female: "/images/styles/womenswear_sporty.jpg",
@@ -197,8 +197,8 @@ export function MultiStepProfile({
       id: "nerdy",
       label: isFr ? "Minimaliste & Réfléchi" : "Smart & Minimalist",
       desc: isFr
-        ? "Basiques soignés, cols roulés fins, mailles douces et simplicité élégante"
-        : "Thoughtful basics, fine turtlenecks, tasteful knitwear, and founder-chic simplicity",
+        ? "Basiques minimalistes, mailles douces et simplicité soignée."
+        : "Smart minimalist basics, fine knitwear, and effortless simplicity.",
       images: {
         male: "/images/styles/menswear_nerdy.jpg",
         female: "/images/styles/womenswear_nerdy.jpg",
@@ -209,8 +209,8 @@ export function MultiStepProfile({
       id: "fabulous",
       label: isFr ? "Élégant & Haut de gamme" : "Elevated & Luxurious",
       desc: isFr
-        ? "Mélanges laine et cachemire, textures subtiles et luxe discret"
-        : "Fine wool-cashmere blends, subtle textures, and understated quiet luxury",
+        ? "Belles matières en laine ou cachemire et luxe discret."
+        : "Premium wool-cashmere textures and understated quiet luxury.",
       images: {
         male: "/images/styles/menswear_fabulous.jpg",
         female: "/images/styles/womenswear_fabulous.jpg",
@@ -225,8 +225,8 @@ export function MultiStepProfile({
       label: isFr ? "Rectangle / Droit" : "Rectangle / Straight",
       tag: isFr ? "Silhouette droite" : "Straight Frame",
       sub: isFr
-        ? "Épaules et hanches de largeur similaire ; parfait pour les vestes superposées et coupes droites"
-        : "Shoulders and hips are about the same width; great for layered jackets and neat tailoring",
+        ? "Épaules et hanches alignées. Idéal pour coupes droites et vestes."
+        : "Shoulders and hips match. Great for straight cuts and jackets.",
       images: {
         female: "/images/body-shapes/rectangle.png",
         male: "/images/body-shapes/male_rectangle.png",
@@ -238,8 +238,8 @@ export function MultiStepProfile({
       label: isFr ? "Poire / Triangle" : "Pear / Triangle",
       tag: isFr ? "Silhouette en A" : "A-Frame",
       sub: isFr
-        ? "Hanches un peu plus larges que les épaules ; harmonisé avec des hauts travaillés et pantalons fluides"
-        : "Hips are slightly wider than shoulders; balanced with eye-catching tops and easy wide-leg pants",
+        ? "Hanches plus larges. Idéal avec hauts marqués et pantalons fluides."
+        : "Hips wider than shoulders. Best with structured tops and wide pants.",
       images: {
         female: "/images/body-shapes/pear.png",
         male: "/images/body-shapes/male_triangle.png",
@@ -251,8 +251,8 @@ export function MultiStepProfile({
       label: isFr ? "Ovale / Ronde" : "Oval / Round",
       tag: isFr ? "Silhouette douce" : "Soft Frame",
       sub: isFr
-        ? "Buste ou taille plus généreux ; superbe avec vestes ouvertes, tombés fluides et coupes confortables"
-        : "Fuller midsection; looks great with open jackets, soft vertical drapes, and relaxed fits",
+        ? "Buste plus généreux. Idéal avec vestes ouvertes et lignes fluides."
+        : "Fuller midsection. Looks great with open jackets and clean lines.",
       images: {
         female: "/images/body-shapes/oval.png",
         male: "/images/body-shapes/male_oval.png",
@@ -264,8 +264,8 @@ export function MultiStepProfile({
       label: isFr ? "Triangle inversé" : "Inverted Triangle",
       tag: isFr ? "Silhouette en V" : "V-Frame",
       sub: isFr
-        ? "Épaules larges et hanches plus étroites ; mis en valeur par des bas droits ou amples et vestes déstructurées"
-        : "Broad shoulders tapering down to narrower hips; looks best with relaxed pants and softer shoulders",
+        ? "Épaules larges, hanches fines. Idéal avec pantalons amples."
+        : "Broader shoulders, slim hips. Best with relaxed pants and soft jackets.",
       images: {
         female: "/images/body-shapes/inverted_triangle.png",
         male: "/images/body-shapes/male_inverted_triangle.png",
@@ -277,8 +277,8 @@ export function MultiStepProfile({
       label: isFr ? "Sablier" : "Hourglass",
       tag: isFr ? "Silhouette cintrée" : "Curved Frame",
       sub: isFr
-        ? "Buste et hanches équilibrés avec taille marquée ; sublimé par des coupes cintrées et manteaux ceinturés"
-        : "Balanced bust and hips with a defined waist; highlighted by fitted styles and belted coats",
+        ? "Buste et hanches équilibrés, taille marquée. Idéal pour coupes cintrées."
+        : "Balanced bust and hips, defined waist. Best with fitted styles.",
       images: {
         female: "/images/body-shapes/hourglass.png",
         male: "/images/body-shapes/male_hourglass.png",
@@ -290,8 +290,8 @@ export function MultiStepProfile({
       label: isFr ? "Trapèze / Régulier" : "Trapezoid / Regular",
       tag: isFr ? "Coupe classique" : "Classic Fit",
       sub: isFr
-        ? "Proportions équilibrées convenant à la plupart des coupes canadiennes de prêt-à-porter standard"
-        : "Proportional build that works well with most standard off-the-rack Canadian cuts",
+        ? "Proportions équilibrées. Convient aux tailles standards."
+        : "Evenly proportioned build. Fits standard sizing with ease.",
       images: {
         female: "/images/body-shapes/standard.png",
         male: "/images/body-shapes/male_trapezoid.png",
@@ -308,8 +308,8 @@ export function MultiStepProfile({
       undertone: isFr ? "Frais & Fort contraste" : "Cool & High Contrast",
       accentBg: "bg-blue-500/10 text-blue-500 border-blue-500/20",
       desc: isFr
-        ? "Net, intense & froid : Bleu marine profond, noir pur, blanc éclatant, bordeaux & vert pin"
-        : "Crisp, bold & cool: Deep Navy, Pure Black, Stark White, Crimson Burgundy & Pine Green",
+        ? "Tons froids et contrastés comme bleu marine, noir pur et blanc."
+        : "Crisp, cool tones like deep navy, pure black, and winter white.",
       swatches: ["#0B0F19", "#FFFFFF", "#1E3A8A", "#BE123C", "#0D9488", "#581C87", "#0284C7", "#9D174D"],
     },
     {
@@ -319,8 +319,8 @@ export function MultiStepProfile({
       undertone: isFr ? "Chaud & Éclat doré" : "Warm & Radiant Glow",
       accentBg: "bg-amber-500/10 text-amber-500 border-amber-500/20",
       desc: isFr
-        ? "Frais, chaleureux & lumineux : Camel doré, corail, ambre miel, blé & turquoise"
-        : "Fresh, warm & sunny: Warm Camel, Coral Pink, Honey Amber, Golden Wheat & Turquoise",
+        ? "Nuances chaudes et lumineuses comme camel, corail et miel."
+        : "Warm, luminous shades like camel, coral pink, and honey amber.",
       swatches: ["#D97706", "#EA580C", "#0D9488", "#CA8A04", "#F59E0B", "#FEF3C7", "#14B8A6", "#FB923C"],
     },
     {
@@ -330,8 +330,8 @@ export function MultiStepProfile({
       undertone: isFr ? "Chaud & Terres riches" : "Warm & Earthy Rich",
       accentBg: "bg-orange-500/10 text-orange-500 border-orange-500/20",
       desc: isFr
-        ? "Profond, boisé & chaleureux : Rouille, vert forêt, ocre épicé, chocolat noir & cannelle"
-        : "Deep, earthy & spicy: Rich Rust, Forest Green, Spicy Ochre, Dark Chocolate & Cinnamon",
+        ? "Teintes riches et boisées comme vert forêt, rouille et chocolat."
+        : "Rich, earthy hues like forest green, rust, terracotta, and dark chocolate.",
       swatches: ["#9A3412", "#15803D", "#A16207", "#78350F", "#C2410C", "#FDE68A", "#4D7C0F", "#B45309"],
     },
     {
@@ -341,8 +341,8 @@ export function MultiStepProfile({
       undertone: isFr ? "Frais & Doux poudré" : "Cool & Soft Muted",
       accentBg: "bg-pink-500/10 text-pink-500 border-pink-500/20",
       desc: isFr
-        ? "Doux, apaisant & poudré : Gris ardoise, vieux rose, bleu poudré, lavande & avoine douce"
-        : "Soft, gentle & muted: Slate Grey, Dusty Rose, Powder Blue, Muted Lavender & Soft Oatmeal",
+        ? "Couleurs douces et fraîches comme gris ardoise, vieux rose et bleu poudré."
+        : "Soft, muted colors like slate grey, dusty rose, and powder blue.",
       swatches: ["#334155", "#64748B", "#94A3B8", "#A855F7", "#F1F5F9", "#BE185D", "#475569", "#7C3AED"],
     },
   ];
@@ -352,8 +352,8 @@ export function MultiStepProfile({
       id: "pitch" as Occasion,
       label: isFr ? "Présentation / Réunion d'affaires" : "Pitching or Big Meeting",
       context: isFr
-        ? "Rencontre de partenaires ou clients — crédible sans paraître trop guindé"
-        : "Meeting partners, pitching clients or presenting — look credible without feeling overdressed",
+        ? "Crédible et soigné pour vos réunions, sans paraître trop guindé"
+        : "Look sharp and credible for meetings without feeling overdressed",
       image: "/images/occasions/pitch.jpg",
     },
     {
@@ -433,139 +433,182 @@ export function MultiStepProfile({
     },
   ];
 
+  const tocSections = [
+    {
+      step: 0,
+      label: isFr ? "1. Votre style" : "1. Your Style",
+    },
+    {
+      step: 1,
+      label: isFr ? "2. Choix de l'occasion" : "2. Occasion Selection",
+    },
+    {
+      step: 2,
+      label: isFr ? "3. Style préféré" : "3. Preferred Style",
+    },
+    {
+      step: 3,
+      label: isFr ? "4. Morphologie" : "4. Body Shape",
+    },
+    {
+      step: 4,
+      label: isFr ? "5. Couleurs" : "5. Colour",
+    },
+    {
+      step: 5,
+      label: isFr ? "6. Pratique" : "6. Practical",
+    },
+  ];
+
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8 pb-20">
-      {/* Step Progress Tracker & Guiding Header */}
-      <div className="bg-surface-raised border border-border rounded-fitting-lg p-5 sm:p-6 shadow-fitting-card space-y-4">
-        <div className="flex items-center justify-between text-xs font-semibold">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full bg-thread/15 text-thread uppercase tracking-wider font-bold">
-              {isFr ? `Étape 0${currentStep + 1} sur 0${TOTAL_STEPS}` : `Step 0${currentStep + 1} of 0${TOTAL_STEPS}`}
-            </span>
-            <span className="text-ink-muted hidden sm:inline-block">
-              {currentStep === 0 && (isFr ? "Objectif & Silhouette" : "Styling Goal & Fit")}
-              {currentStep === 1 && (flow === "occasion" ? (isFr ? "Où allez-vous ?" : "Where are you heading?") : (isFr ? "Votre quotidien" : "Your Weekly Routine"))}
-              {currentStep === 2 && (isFr ? "Votre style" : "Your Style Vibe")}
-              {currentStep === 3 && (isFr ? "Votre morphologie" : "Your Body Shape")}
-              {currentStep === 4 && (isFr ? "Vos meilleures couleurs" : "Your Best Colors")}
-              {currentStep === 5 && (isFr ? "Tailles, Météo & Budget" : "Sizes, Weather & Budget")}
-            </span>
-          </div>
+    <div className="w-full flex flex-col md:flex-row items-start gap-8 lg:gap-10 pb-4 sm:pb-6">
+      {/* LEFT SIDEBAR: Personalisation */}
+      <aside className="w-full md:w-64 lg:w-72 shrink-0 md:sticky md:top-24">
+        <div className="bg-surface-raised border border-border rounded-fitting-lg p-5 sm:p-6 shadow-fitting-card">
+          <h2 className="text-base sm:text-lg font-serif font-bold text-ink tracking-tight mb-5">
+            {isFr ? "Personnalisation" : "Personalisation"}
+          </h2>
 
-          {currentStep > 0 && (
-            <button
-              type="button"
-              onClick={handlePrev}
-              className="text-ink-muted hover:text-ink transition-colors flex items-center gap-1 cursor-pointer"
-            >
-              <span>←</span> {t.common.back}
-            </button>
-          )}
+          <nav aria-label="Table of Contents" className="space-y-4 sm:space-y-5">
+            {tocSections.map((item, idx) => {
+              const isCompleted = idx < currentStep;
+              const isCurrent = idx === currentStep;
+              const isPending = idx > currentStep;
+
+              return (
+                <div key={item.step} className="relative flex items-center gap-3">
+                  {/* Vertical connecting line to next item */}
+                  {idx < tocSections.length - 1 && (
+                    <div
+                      className={`absolute left-[7px] top-[16px] w-[2px] h-[calc(100%+16px)] sm:h-[calc(100%+20px)] transition-colors duration-300 ${
+                        idx < currentStep ? "bg-verified" : "bg-border"
+                      }`}
+                    />
+                  )}
+
+                  {/* Dot */}
+                  <div className="relative z-10 w-4 h-4 flex items-center justify-center shrink-0">
+                    {isCompleted ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCurrentStep(idx);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className="w-3 h-3 rounded-full bg-verified hover:scale-125 transition-transform cursor-pointer ring-2 ring-surface-raised"
+                        title={`Go to ${item.label}`}
+                      />
+                    ) : isCurrent ? (
+                      <div className="w-3.5 h-3.5 rounded-full bg-verified ring-4 ring-verified/25" />
+                    ) : (
+                      <div className="w-3 h-3 rounded-full bg-border" />
+                    )}
+                  </div>
+
+                  {/* Label / Pill */}
+                  <div className="flex-1 min-w-0">
+                    {isCurrent ? (
+                      <div className="inline-block bg-verified text-white px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-fitting font-semibold text-xs sm:text-sm tracking-tight shadow-xs whitespace-nowrap">
+                        {item.label}
+                      </div>
+                    ) : isCompleted ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCurrentStep(idx);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className="text-left text-xs sm:text-sm font-semibold text-verified hover:underline transition-colors cursor-pointer py-1 block truncate"
+                        title={item.label}
+                      >
+                        {item.label}
+                      </button>
+                    ) : (
+                      <span className="text-xs sm:text-sm font-medium text-ink/80 py-1 block truncate">
+                        {item.label}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </nav>
         </div>
+      </aside>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-surface h-2 rounded-full overflow-hidden border border-border">
-          <div
-            className="bg-accent h-full transition-all duration-300 ease-out"
-            style={{ width: `${((currentStep + 1) / TOTAL_STEPS) * 100}%` }}
-          />
-        </div>
-      </div>
-
-      {/* ============================================================ */}
-      {/* STEP 01: GOAL SELECTION & SIZING FIT */}
-      {/* ============================================================ */}
-      {currentStep === 0 && (
-        <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-8 shadow-fitting-card animate-fadeIn">
-          {/* Header */}
-          <div className="text-center space-y-2 border-b border-border pb-6">
-            <div className="text-xs font-bold uppercase tracking-wider text-thread">
-              {isFr ? "Étape 01 • Objectif & Silhouette" : "Step 01 • Styling Goal & Fit"}
+      {/* RIGHT COLUMN: Form Content */}
+      <div className="flex-1 min-w-0 w-full space-y-8">
+        {/* ============================================================ */}
+        {/* STEP 01: GOAL SELECTION & SIZING FIT */}
+        {/* ============================================================ */}
+        {currentStep === 0 && (
+          <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-8 shadow-fitting-card animate-fadeIn">
+            {/* Header */}
+            <div className="border-b border-border pb-4">
+              <h1 className="text-2xl font-serif text-ink font-medium">
+                {isFr ? "Que préparons-nous aujourd'hui ?" : "What are we styling today?"}
+              </h1>
+              <p className="text-xs sm:text-sm text-ink-muted mt-1">
+                {isFr
+                  ? "Choisissez votre objectif, puis la coupe avec laquelle vous vous sentez le plus à l'aise."
+                  : "Pick your goal, then choose the clothing cut you feel most comfortable wearing."}
+              </p>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-serif text-ink font-normal">
-              {isFr ? "Que préparons-nous aujourd'hui ?" : "What are we styling today?"}
-            </h1>
-            <p className="text-sm sm:text-base text-ink-muted max-w-lg mx-auto">
-              {isFr
-                ? "Choisissez votre objectif, puis la coupe avec laquelle vous vous sentez le plus à l'aise."
-                : "Pick your goal, then choose the clothing cut you feel most comfortable wearing."}
-            </p>
-          </div>
 
-          {/* Goal selection */}
-          <div className="space-y-3">
-            <div className="text-xs font-bold uppercase tracking-wider text-ink">
-              {isFr ? "1. Choisissez votre objectif" : "1. Choose your styling goal"}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* FLOW A CARD */}
-              <div
-                onClick={() => onFlowChange("occasion")}
-                className={`group rounded-fitting border p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between ${
-                  flow === "occasion"
-                    ? "border-accent ring-2 ring-accent/30 bg-surface/90 shadow-xs"
-                    : "border-border hover:border-thread/50 bg-surface/30 hover:bg-surface/50"
-                }`}
-              >
-                <div className="space-y-2.5">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xl shrink-0 leading-none">🎯</span>
+            {/* Goal selection */}
+            <div className="space-y-3">
+              <div className="text-xs font-bold uppercase tracking-wider text-ink">
+                {isFr ? "1. Choisissez votre objectif" : "1. Choose your styling goal"}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* FLOW A CARD */}
+                <div
+                  onClick={() => onFlowChange("occasion")}
+                  className={`group rounded-fitting border p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between ${
+                    flow === "occasion"
+                      ? "border-accent ring-2 ring-accent/30 bg-surface/90 shadow-xs"
+                      : "border-border hover:border-thread/50 bg-surface/30 hover:bg-surface/50"
+                  }`}
+                >
+                  <div className="space-y-2">
                     <h3 className="text-base sm:text-lg font-serif font-bold text-ink group-hover:text-accent transition-colors">
-                      {isFr ? "Une tenue parfaite pour une occasion" : "One Perfect Outfit for an Event"}
+                      {isFr ? "Occasion spéciale" : "High-Stakes Occasion"}
                     </h3>
+                    <p className="text-xs text-ink-muted leading-relaxed">
+                      {isFr
+                        ? "Exactement 1 tenue complète calibrée selon les enjeux de l'événement."
+                        : "Exactly 1 complete outfit calibrated for room stakes"}
+                    </p>
                   </div>
-                  <p className="text-xs text-ink-muted leading-relaxed">
-                    {isFr
-                      ? "Un entretien, une présentation, un rendez-vous ou une fête de famille ? Obtenez 1 tenue complète de la tête aux pieds spécialement pensée pour l'occasion."
-                      : "Have an upcoming interview, big meeting, date, or family gathering? Get 1 complete head-to-toe outfit tailored specifically for the occasion."}
-                  </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs">
-                  <span className={flow === "occasion" ? "font-bold text-accent" : "text-ink-muted"}>
-                    {flow === "occasion"
-                      ? (isFr ? "✓ Sélectionné" : "✓ Selected")
-                      : (isFr ? "Toucher pour choisir" : "Tap to select")}
-                  </span>
-                </div>
-              </div>
 
-              {/* FLOW B CARD */}
-              <div
-                onClick={() => onFlowChange("everyday")}
-                className={`group rounded-fitting border p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between ${
-                  flow === "everyday"
-                    ? "border-accent ring-2 ring-accent/30 bg-surface/90 shadow-xs"
-                    : "border-border hover:border-thread/50 bg-surface/30 hover:bg-surface/50"
-                }`}
-              >
-                <div className="space-y-2.5">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xl shrink-0 leading-none">🔄</span>
+                {/* FLOW B CARD */}
+                <div
+                  onClick={() => onFlowChange("everyday")}
+                  className={`group rounded-fitting border p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between ${
+                    flow === "everyday"
+                      ? "border-accent ring-2 ring-accent/30 bg-surface/90 shadow-xs"
+                      : "border-border hover:border-thread/50 bg-surface/30 hover:bg-surface/50"
+                  }`}
+                >
+                  <div className="space-y-2">
                     <h3 className="text-base sm:text-lg font-serif font-bold text-ink group-hover:text-thread transition-colors">
-                      {isFr ? "Garde-robe capsule du quotidien" : "Everyday Mix-and-Match Capsule"}
+                      {isFr ? "Garde-robe capsule du quotidien" : "Everyday Capsule Wardrobe"}
                     </h3>
+                    <p className="text-xs text-ink-muted leading-relaxed">
+                      {isFr
+                        ? "Matrice coordonnée de 15 pièces & 3 tenues complètes prêtes à porter."
+                        : "Coordinated 15-piece matrix & 3 worked outfits"}
+                    </p>
                   </div>
-                  <p className="text-xs text-ink-muted leading-relaxed">
-                    {isFr
-                      ? "Fatigué(e) d'un placard plein sans rien à vous mettre ? Créez une capsule de 15 pièces modulables où chaque pièce s'agence naturellement avec les autres."
-                      : "Tired of a full closet with nothing to wear? Build a versatile 15-piece wardrobe where every top, bottom, and layer matches naturally."}
-                  </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs">
-                  <span className={flow === "everyday" ? "font-bold text-thread" : "text-ink-muted"}>
-                    {flow === "everyday"
-                      ? (isFr ? "✓ Sélectionné" : "✓ Selected")
-                      : (isFr ? "Toucher pour choisir" : "Tap to select")}
-                  </span>
                 </div>
               </div>
             </div>
-          </div>
 
           {/* Gender / Sizing Fit Section */}
           <div className="space-y-3 pt-2 border-t border-border">
             <div className="text-xs font-bold uppercase tracking-wider text-ink">
-              {isFr ? "2. Rayon vestimentaire" : "2. Department"}
+              {isFr ? "2. Ligne de mode" : "2. Fashion Line"}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {genderOptions.map((g) => {
@@ -581,7 +624,7 @@ export function MultiStepProfile({
                         : "border-border hover:border-thread/50 bg-surface/30 hover:bg-surface/50"
                     }`}
                   >
-                    <div className="space-y-2.5">
+                    <div className="space-y-2">
                       <div className="flex items-center gap-2.5">
                         <span className="text-xl shrink-0 leading-none">{g.icon}</span>
                         <h3 className="text-base font-bold text-ink group-hover:text-accent transition-colors">
@@ -591,13 +634,6 @@ export function MultiStepProfile({
                       <p className="text-xs text-ink-muted leading-relaxed">
                         {g.desc}
                       </p>
-                    </div>
-                    <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs">
-                      <span className={isSelected ? "font-bold text-accent" : "text-ink-muted"}>
-                        {isSelected
-                          ? (isFr ? "✓ Sélectionné" : "✓ Selected")
-                          : (isFr ? "Toucher pour choisir" : "Tap to select")}
-                      </span>
                     </div>
                   </div>
                 );
@@ -612,9 +648,7 @@ export function MultiStepProfile({
               onClick={handleNext}
               className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer shadow-xs"
             >
-              {isFr
-                ? `Continuer vers ${flow === "occasion" ? "l'événement" : "le quotidien"} →`
-                : `Continue to ${flow === "occasion" ? "The Event" : "Weekly Routine"} →`}
+              {isFr ? "Continuer →" : "Continue →"}
             </button>
           </div>
         </div>
@@ -629,10 +663,7 @@ export function MultiStepProfile({
             /* FLOW A: 6 Occasion Photo Tiles + Audience Free-Text */
             <div className="space-y-6">
               <div className="border-b border-border pb-4">
-                <div className="text-xs font-bold uppercase tracking-wider text-thread">
-                  {isFr ? "Étape 02 • L'Événement" : "Step 02 • The Event"}
-                </div>
-                <h2 className="text-2xl font-serif text-ink font-medium mt-1">
+                <h2 className="text-2xl font-serif text-ink font-medium">
                   {isFr ? "Où allez-vous ?" : "Where are you heading?"}
                 </h2>
                 <p className="text-xs sm:text-sm text-ink-muted mt-1">
@@ -722,10 +753,7 @@ export function MultiStepProfile({
             /* FLOW B: 4 Lifestyle Tiles */
             <div className="space-y-6">
               <div className="border-b border-border pb-4">
-                <div className="text-xs font-bold uppercase tracking-wider text-thread">
-                  {isFr ? "Étape 02 • Rythme de la semaine" : "Step 02 • Weekly Routine"}
-                </div>
-                <h2 className="text-2xl font-serif text-ink font-medium mt-1">
+                <h2 className="text-2xl font-serif text-ink font-medium">
                   {isFr ? "À quoi ressemble votre semaine ?" : "What does your week look like?"}
                 </h2>
                 <p className="text-xs sm:text-sm text-ink-muted mt-1">
@@ -760,13 +788,20 @@ export function MultiStepProfile({
             </div>
           )}
 
-          <div className="flex justify-end pt-4">
+          <div className="flex items-center justify-between pt-4 border-t border-border">
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="text-xs sm:text-sm font-medium text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors cursor-pointer py-2 px-3 rounded hover:bg-surface"
+            >
+              <span>←</span> {t.common.back}
+            </button>
             <button
               type="button"
               onClick={handleNext}
               className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer shadow-xs"
             >
-              {isFr ? "Continuer vers le style personnel →" : "Continue to Personal Style →"}
+              {isFr ? "Continuer →" : "Continue →"}
             </button>
           </div>
         </div>
@@ -778,10 +813,7 @@ export function MultiStepProfile({
       {currentStep === 2 && (
         <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-6 shadow-fitting-card animate-fadeIn">
           <div className="border-b border-border pb-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-thread">
-              {isFr ? "Étape 03 • Style personnel" : "Step 03 • Personal Style"}
-            </div>
-            <h2 className="text-2xl font-serif text-ink font-medium mt-1">
+            <h2 className="text-2xl font-serif text-ink font-medium">
               {isFr ? "Quel est votre style préféré ?" : "What's your preferred style vibe?"}
             </h2>
             <p className="text-xs sm:text-sm text-ink-muted mt-1">
@@ -830,13 +862,20 @@ export function MultiStepProfile({
             })}
           </div>
 
-          <div className="flex justify-end pt-4">
+          <div className="flex items-center justify-between pt-4 border-t border-border">
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="text-xs sm:text-sm font-medium text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors cursor-pointer py-2 px-3 rounded hover:bg-surface"
+            >
+              <span>←</span> {t.common.back}
+            </button>
             <button
               type="button"
               onClick={handleNext}
               className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer shadow-xs"
             >
-              {isFr ? "Continuer vers la morphologie →" : "Continue to Body Shape →"}
+              {isFr ? "Continuer →" : "Continue →"}
             </button>
           </div>
         </div>
@@ -849,10 +888,7 @@ export function MultiStepProfile({
         <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-6 shadow-fitting-card animate-fadeIn">
           <div className="border-b border-border pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-thread">
-                {isFr ? "Étape 04 • Morphologie & Coupe" : "Step 04 • Body Fit & Shape"}
-              </div>
-              <h2 className="text-2xl font-serif text-ink font-medium mt-1">
+              <h2 className="text-2xl font-serif text-ink font-medium">
                 {isFr ? "Quelle est votre morphologie ?" : "What's your body shape?"}
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted mt-1">
@@ -894,19 +930,19 @@ export function MultiStepProfile({
                   }`}
                 >
                   <div>
-                    <div className="aspect-[4/5] relative overflow-hidden bg-white p-3 flex items-center justify-center border-b border-border">
+                    <div className="h-36 sm:h-40 relative overflow-hidden bg-white p-2.5 flex items-center justify-center border-b border-border">
                       <img
                         src={bodyImg}
                         alt={b.label}
                         className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute top-3 left-3 bg-surface-raised/95 backdrop-blur-xs text-ink text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded border border-border shadow-xs">
+                      <div className="absolute top-2 left-2 bg-surface-raised/95 backdrop-blur-xs text-ink-muted text-[8.5px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border border-border shadow-2xs">
                         {b.tag}
                       </div>
                     </div>
-                    <div className="p-4 space-y-1.5">
-                      <h4 className="text-sm font-bold text-ink group-hover:text-accent transition-colors">{b.label}</h4>
-                      <p className="text-xs text-ink-muted leading-relaxed">{b.sub}</p>
+                    <div className="p-3 space-y-0.5">
+                      <h4 className="text-xs sm:text-sm font-bold text-ink group-hover:text-accent transition-colors">{b.label}</h4>
+                      <p className="text-[11px] text-ink-muted leading-snug">{b.sub}</p>
                     </div>
                   </div>
                 </div>
@@ -914,13 +950,20 @@ export function MultiStepProfile({
             })}
           </div>
 
-          <div className="flex justify-end pt-4">
+          <div className="flex items-center justify-between pt-4 border-t border-border">
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="text-xs sm:text-sm font-medium text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors cursor-pointer py-2 px-3 rounded hover:bg-surface"
+            >
+              <span>←</span> {t.common.back}
+            </button>
             <button
               type="button"
               onClick={handleNext}
               className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer shadow-xs"
             >
-              {isFr ? "Continuer vers la palette de couleurs →" : "Continue to Color Palette →"}
+              {isFr ? "Continuer →" : "Continue →"}
             </button>
           </div>
         </div>
@@ -934,10 +977,7 @@ export function MultiStepProfile({
           {/* Header */}
           <div className="border-b border-border pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-thread">
-                {isFr ? "Étape 05 • Palette de couleurs" : "Step 05 • Color Palette"}
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-serif text-ink font-medium mt-1">
+              <h2 className="text-2xl font-serif text-ink font-medium">
                 {isFr ? "Quelles couleurs vous mettent en valeur ?" : "What colors look best on you?"}
               </h2>
               <p className="text-xs sm:text-sm text-ink-muted mt-1">
@@ -958,8 +998,8 @@ export function MultiStepProfile({
             </button>
           </div>
 
-          {/* 4 Seasonal Palette Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* 4 Seasonal Palette Cards Grid (Fixed 2x2 Block) */}
+          <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
             {seasonalPalettes.map((p) => {
               const isSelected =
                 profile.palette_season === p.id ||
@@ -976,14 +1016,14 @@ export function MultiStepProfile({
                   }`}
                 >
                   <div className="space-y-3.5">
-                    <div>
-                      <div className="flex items-center gap-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
                         <span className="text-xl shrink-0 leading-none">{p.icon}</span>
-                        <h4 className="text-base font-serif font-bold text-ink group-hover:text-accent transition-colors">
+                        <h4 className="text-base font-serif font-bold text-ink group-hover:text-accent transition-colors truncate">
                           {p.name}
                         </h4>
                       </div>
-                      <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full border mt-2 ${p.accentBg}`}>
+                      <span className={`shrink-0 text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full border ${p.accentBg}`}>
                         {p.undertone}
                       </span>
                     </div>
@@ -1007,14 +1047,6 @@ export function MultiStepProfile({
                       {p.desc}
                     </p>
                   </div>
-
-                  <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs">
-                    <span className={isSelected ? "font-bold text-accent" : "text-ink-muted"}>
-                      {isSelected
-                        ? (isFr ? "✓ Sélectionné" : "✓ Selected")
-                        : (isFr ? "Toucher pour choisir" : "Tap to select")}
-                    </span>
-                  </div>
                 </div>
               );
             })}
@@ -1024,7 +1056,7 @@ export function MultiStepProfile({
           <div className="pt-3 border-t border-border space-y-2.5">
             <div className="flex items-center justify-between">
               <div className="text-xs font-semibold text-ink-muted uppercase tracking-wider">
-                {isFr ? "Guide rapide : Selon votre teint" : "Quick Guide: Match with Skin Tone"}
+                {isFr ? "Votre teint" : "Your Skin Tone"}
               </div>
               <span className="text-[11px] text-ink-muted">
                 {isFr ? "Sélectionne automatiquement votre meilleure palette" : "Auto-selects your best palette"}
@@ -1034,11 +1066,11 @@ export function MultiStepProfile({
               {(["Light", "Medium", "Dark"] as const).map((comp) => {
                 const label = isFr
                   ? comp === "Light"
-                    ? "Teint clair"
+                    ? "Clair"
                     : comp === "Medium"
-                    ? "Teint moyen"
-                    : "Teint foncé"
-                  : `${comp} Complexion`;
+                    ? "Moyen"
+                    : "Foncé"
+                  : comp;
                 return (
                   <button
                     key={comp}
@@ -1057,14 +1089,21 @@ export function MultiStepProfile({
             </div>
           </div>
 
-          {/* Continue Button */}
-          <div className="flex justify-end pt-4 border-t border-border">
+          {/* Navigation Buttons */}
+          <div className="flex items-center justify-between pt-4 border-t border-border">
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="text-xs sm:text-sm font-medium text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors cursor-pointer py-2 px-3 rounded hover:bg-surface"
+            >
+              <span>←</span> {t.common.back}
+            </button>
             <button
               type="button"
               onClick={handleNext}
               className="py-3 px-6 rounded-fitting bg-accent hover:bg-navy-light text-white font-serif text-sm font-medium tracking-wide transition-all cursor-pointer shadow-xs"
             >
-              {isFr ? "Continuer vers tailles & budget →" : "Continue to Sizes & Budget →"}
+              {isFr ? "Continuer →" : "Continue →"}
             </button>
           </div>
         </div>
@@ -1076,10 +1115,7 @@ export function MultiStepProfile({
       {currentStep === 5 && (
         <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-8 shadow-fitting-card animate-fadeIn">
           <div className="border-b border-border pb-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-thread">
-              {isFr ? "Étape 06 • Détails pratiques" : "Step 06 • Practical Details"}
-            </div>
-            <h2 className="text-2xl font-serif text-ink font-medium mt-1">
+            <h2 className="text-2xl font-serif text-ink font-medium">
               {isFr ? "Météo, Taille & Budget" : "Weather, Sizing & Budget"}
             </h2>
             <p className="text-xs sm:text-sm text-ink-muted mt-1">
@@ -1220,13 +1256,20 @@ export function MultiStepProfile({
             </div>
           </div>
 
-          {/* Final Submit CTA */}
-          <div className="pt-6 border-t border-border">
+          {/* Final Submit CTA with Back button */}
+          <div className="pt-6 border-t border-border flex items-center justify-between gap-4">
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="text-xs sm:text-sm font-medium text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors cursor-pointer py-2 px-3 rounded hover:bg-surface shrink-0"
+            >
+              <span>←</span> {t.common.back}
+            </button>
             <button
               type="button"
               onClick={onSubmit}
               disabled={isLoading}
-              className="w-full py-4 px-6 bg-accent hover:bg-navy-light text-white font-serif text-lg tracking-wide rounded-fitting shadow-fitting-raised transition-all flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer"
+              className="flex-1 py-4 px-6 bg-accent hover:bg-navy-light text-white font-serif text-lg tracking-wide rounded-fitting shadow-fitting-raised transition-all flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? (
                 <>
@@ -1244,6 +1287,7 @@ export function MultiStepProfile({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

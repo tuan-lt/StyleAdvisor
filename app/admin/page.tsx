@@ -13,6 +13,7 @@ import {
   SeasonOfWear,
 } from "../../types/catalog";
 import { LanguageSwitcher } from "../../components/LanguageSwitcher";
+import { BrandLogo } from "../../components/BrandLogo";
 
 interface UrlHealth {
   status?: number;
@@ -1004,12 +1005,7 @@ export default function AdminCatalogPage() {
       <header className="sticky top-0 z-30 bg-surface/90 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="text-xs font-semibold text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors mr-2"
-            >
-              <span>←</span> Fitting Room
-            </Link>
+            <BrandLogo href="/" className="mr-3" />
             <span className="text-border font-light">|</span>
             <div>
               <h1 className="text-base font-serif font-semibold text-ink leading-tight flex items-center gap-2">

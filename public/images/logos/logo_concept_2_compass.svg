@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&amp;family=Instrument+Sans:wght@400;500;600;700&amp;display=swap');
+      .title { font-family: 'Newsreader', serif; font-size: 38px; font-weight: 600; fill: #0F172A; letter-spacing: 0.08em; }
+      .tagline { font-family: 'Instrument Sans', sans-serif; font-size: 13px; font-weight: 600; fill: #3F6B4F; letter-spacing: 0.28em; text-transform: uppercase; }
+      .concept-tag { font-family: 'Instrument Sans', sans-serif; font-size: 11px; font-weight: 700; fill: #C4704B; letter-spacing: 0.15em; text-transform: uppercase; }
+    </style>
+    <linearGradient id="mossGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4D7C0F" />
+      <stop offset="50%" stop-color="#3F6B4F" />
+      <stop offset="100%" stop-color="#2D4A37" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="50%" stop-color="#C4704B" />
+      <stop offset="100%" stop-color="#9A3412" />
+    </linearGradient>
+    <filter id="subtleShadow2" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <!-- Background Artboard: Warm Canvas Linen -->
+  <rect width="800" height="600" fill="#FDFBF7" />
+  
+  <!-- Subtle Framing Container -->
+  <rect x="40" y="40" width="720" height="520" rx="16" fill="#FFFFFF" stroke="#E2DDD5" stroke-width="1.5" filter="url(#subtleShadow2)" />
+
+  <!-- Concept Badge Top Left -->
+  <g transform="translate(80, 75)">
+    <rect x="0" y="0" width="185" height="26" rx="13" fill="#FBF3EC" stroke="#C4704B" stroke-width="1" stroke-opacity="0.25"/>
+    <text x="92.5" y="17" text-anchor="middle" class="concept-tag">CONCEPT 02 • NORTH STAR</text>
+  </g>
+
+  <!-- EMBLEM: THE FITTING COMPASS & TUXEDO LAPEL DIAMOND -->
+  <g transform="translate(400, 235)">
+    <!-- Outer Octagonal Calibration Boundary (Tailor's Chalk Line) -->
+    <polygon points="0,-82 58,-58 82,0 58,58 0,82 -58,58 -82,0 -58,-58" 
+             fill="none" 
+             stroke="#E2DDD5" 
+             stroke-width="1.5" 
+             stroke-dasharray="4 4"/>
+
+    <!-- Tuxedo V-Lapel Silhouette (Geometric Facets) -->
+    <path d="M0 -76 L62 0 L0 76 L-62 0 Z" fill="#FDFBF7" stroke="#0F172A" stroke-width="3" stroke-linejoin="round"/>
+    
+    <!-- Faceted Shadow Wing on Left Lapel -->
+    <path d="M0 -76 L0 76 L-62 0 Z" fill="#0F172A" fill-opacity="0.05"/>
+
+    <!-- The 4-Point Stylist North Star (Guidance) -->
+    <!-- Vertical Spire (Precision needle) -->
+    <path d="M0 -92 L5 -12 L0 0 L-5 -12 Z" fill="url(#goldGrad)"/>
+    <path d="M0 92 L5 12 L0 0 L-5 12 Z" fill="url(#goldGrad)"/>
+    
+    <!-- Horizontal Spire (Balance & Proportion) -->
+    <path d="M-92 0 L-12 5 L0 0 L-12 -5 Z" fill="url(#goldGrad)"/>
+    <path d="M92 0 L12 5 L0 0 L12 -5 Z" fill="url(#goldGrad)"/>
+
+    <!-- Internal Star Diamond Core -->
+    <polygon points="0,-22 22,0 0,22 -22,0" fill="#3F6B4F" stroke="#FFFFFF" stroke-width="2.5"/>
+    
+    <!-- Central Guidance Dot -->
+    <circle cx="0" cy="0" r="4.5" fill="#FFFFFF"/>
+    <circle cx="0" cy="0" r="2" fill="#0F172A"/>
+
+    <!-- 4 Cardinal Tailor Pins -->
+    <circle cx="0" cy="-76" r="2.5" fill="#C4704B"/>
+    <circle cx="0" cy="76" r="2.5" fill="#C4704B"/>
+    <circle cx="-62" cy="0" r="2.5" fill="#C4704B"/>
+    <circle cx="62" cy="0" r="2.5" fill="#C4704B"/>
+  </g>
+
+  <!-- LOGOTYPE LOCKUP -->
+  <g transform="translate(400, 415)">
+    <!-- Primary Brand Wordmark in Newsreader Serif -->
+    <text x="0" y="0" text-anchor="middle" class="title">STYLE ADVISOR</text>
+    
+    <!-- Architectural Divider Line with Center Compass Star -->
+    <line x1="-130" y1="20" x2="-20" y2="20" stroke="#3F6B4F" stroke-width="1" stroke-opacity="0.4"/>
+    <polygon points="0,15 3,20 0,25 -3,20" fill="#3F6B4F"/>
+    <polygon points="-5,20 0,17 5,20 0,23" fill="#C4704B"/>
+    <line x1="20" y1="20" x2="130" y2="20" stroke="#3F6B4F" stroke-width="1" stroke-opacity="0.4"/>
+
+    <!-- Subtitle / Brand Descriptor -->
+    <text x="0" y="44" text-anchor="middle" class="tagline">ZERO-HALLUCINATION STYLING INTELLIGENCE</text>
+  </g>
+</svg>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Footer } from "./Footer";
+import { BrandLogo } from "./BrandLogo";
 
 interface LandingPageViewProps {
   onEnterFittingRoom: (flow?: "occasion" | "everyday") => void;
@@ -17,11 +18,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
     <div className="min-h-screen bg-surface text-ink flex flex-col selection:bg-thread/20">
       {/* 1. TOP EDITORIAL HEADER */}
       <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-15 sm:h-16 flex items-center justify-between">
           <div className="flex items-center">
-            <span className="text-xl sm:text-2xl font-serif text-ink font-bold tracking-tight">
-              {t.common.brandName}
-            </span>
+            <BrandLogo onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
           </div>
 
           <nav className="flex items-center gap-5 sm:gap-6 text-sm font-medium">
@@ -162,10 +161,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
           </div>
         </div>
       </section>
-
-
-
-
 
       {/* UNIFIED FOOTER */}
       <Footer />

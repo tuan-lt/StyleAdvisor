@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&amp;family=Instrument+Sans:wght@400;500;600;700&amp;display=swap');
+      .title { font-family: 'Newsreader', serif; font-size: 38px; font-weight: 600; fill: #0F172A; letter-spacing: 0.08em; }
+      .tagline { font-family: 'Instrument Sans', sans-serif; font-size: 13px; font-weight: 600; fill: #854D0E; letter-spacing: 0.28em; text-transform: uppercase; }
+      .concept-tag { font-family: 'Instrument Sans', sans-serif; font-size: 11px; font-weight: 700; fill: #3F6B4F; letter-spacing: 0.15em; text-transform: uppercase; }
+    </style>
+    <!-- Cognac Gold Gradient -->
+    <linearGradient id="cognacGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D97706" />
+      <stop offset="50%" stop-color="#C4704B" />
+      <stop offset="100%" stop-color="#9A3412" />
+    </linearGradient>
+    <!-- Ink Navy Gradient -->
+    <linearGradient id="inkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <!-- Background Artboard: Warm Canvas Linen -->
+  <rect width="800" height="600" fill="#FDFBF7" />
+  
+  <!-- Subtle Framing Container -->
+  <rect x="40" y="40" width="720" height="520" rx="16" fill="#FFFFFF" stroke="#E2DDD5" stroke-width="1.5" filter="url(#subtleShadow)" />
+
+  <!-- Concept Badge Top Left -->
+  <g transform="translate(80, 75)">
+    <rect x="0" y="0" width="165" height="26" rx="13" fill="#EBF4EE" stroke="#3F6B4F" stroke-width="1" stroke-opacity="0.25"/>
+    <text x="82.5" y="17" text-anchor="middle" class="concept-tag">CONCEPT 01 • MONOGRAM</text>
+  </g>
+
+  <!-- EMBLEM: THE SARTORIAL MONOGRAM (S + A + Tailor's Needle Stitch) -->
+  <g transform="translate(400, 240)">
+    <!-- Elegant Circular Base Ring (Needle Thread Loop) -->
+    <circle cx="0" cy="0" r="88" fill="none" stroke="#E2DDD5" stroke-width="1.5" stroke-dasharray="3 3"/>
+    
+    <!-- Outer Tailoring Dial Guides -->
+    <line x1="0" y1="-96" x2="0" y2="-88" stroke="#C4704B" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="88" x2="0" y2="96" stroke="#C4704B" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-96" y1="0" x2="-88" y2="0" stroke="#C4704B" stroke-width="2" stroke-linecap="round"/>
+    <line x1="88" y1="0" x2="96" y2="0" stroke="#C4704B" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- 'A' Architectural Silhouette (Sharply Tailored) -->
+    <path d="M-42 62 L0 -58 L42 62" fill="none" stroke="url(#inkGrad)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- 'A' Crossbar (Stylized Measuring Rule / Tailor's Horizontal Cut) -->
+    <path d="M-28 20 L28 20" fill="none" stroke="#3F6B4F" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- 'S' Fluid Sartorial Silk Thread Intertwined with A -->
+    <path d="M22 -32 C12 -54 -24 -52 -26 -26 C-28 -4 26 4 24 30 C22 52 -12 56 -26 42" 
+          fill="none" 
+          stroke="url(#cognacGrad)" 
+          stroke-width="5" 
+          stroke-linecap="round"/>
+
+    <!-- Needle Eye Stitch Accent at Apex -->
+    <circle cx="0" cy="-58" r="3.5" fill="#C4704B" />
+    <circle cx="0" cy="20" r="2.5" fill="#FFFFFF" stroke="#0F172A" stroke-width="2"/>
+  </g>
+
+  <!-- LOGOTYPE LOCKUP -->
+  <g transform="translate(400, 415)">
+    <!-- Primary Brand Wordmark in Newsreader Serif -->
+    <text x="0" y="0" text-anchor="middle" class="title">STYLE ADVISOR</text>
+    
+    <!-- Architectural Divider Line with Center Diamond -->
+    <line x1="-120" y1="20" x2="-15" y2="20" stroke="#C4704B" stroke-width="1" stroke-opacity="0.5"/>
+    <polygon points="0,17 4,20 0,23 -4,20" fill="#C4704B"/>
+    <line x1="15" y1="20" x2="120" y2="20" stroke="#C4704B" stroke-width="1" stroke-opacity="0.5"/>
+
+    <!-- Subtitle / Brand Descriptor -->
+    <text x="0" y="44" text-anchor="middle" class="tagline">THE FITTING ROOM • CANADIAN BESPOKE</text>
+  </g>
+</svg>

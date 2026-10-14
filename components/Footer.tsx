@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <footer className="py-2 sm:py-2.5 bg-surface-dark text-white/70 text-xs border-t border-white/10 mt-auto">
+    <footer className="py-4 sm:py-5 bg-surface-dark text-white/70 text-xs border-t border-white/10 mt-auto">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
         <div className="flex items-center gap-3">
           <Link href="/" className="text-white font-serif font-bold text-base hover:text-thread transition-colors">

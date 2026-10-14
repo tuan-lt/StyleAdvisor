@@ -47,6 +47,11 @@ export const metadata: Metadata = {
     description:
       "Tells you exactly what to wear for high-stakes moments, explains why it works, and connects you to Canadian products you can buy today.",
   },
+  icons: {
+    icon: "/images/logos/sartorial_monogram_icon.svg",
+    shortcut: "/images/logos/sartorial_monogram_icon.svg",
+    apple: "/images/logos/sartorial_monogram_icon.svg",
+  },
 };
 
 export default function RootLayout({

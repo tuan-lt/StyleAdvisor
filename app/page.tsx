@@ -14,6 +14,7 @@ import { Garment, Occasion, RecommendApiResponse, NudgeType } from "../types/cat
 import { useLanguage } from "../lib/LanguageContext";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { Footer } from "../components/Footer";
+import { BrandLogo } from "../components/BrandLogo";
 
 type ViewState = "landing" | "profile" | "result";
 
@@ -204,59 +205,17 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-surface text-ink selection:bg-thread/20">
       {/* Top Navigation Header */}
       <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setViewState("landing")}
-              className="text-left group cursor-pointer flex items-center gap-2"
-              title="Return to Home"
-            >
-              <span className="text-xs text-thread font-bold group-hover:-translate-x-0.5 transition-transform">{t.header.returnHome}</span>
-              <span className="text-border font-light">|</span>
-              <span className="text-lg font-serif text-ink font-semibold group-hover:text-accent transition-colors">
-                {t.common.brandName}
-              </span>
-            </button>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-15 sm:h-16 flex items-center justify-between">
+          <div className="flex items-center">
+            <BrandLogo
+              onClick={() => {
+                setViewState("landing");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            />
           </div>
 
           <div className="flex items-center gap-3">
-            {viewState === "profile" && (
-              <div className="hidden sm:flex items-center bg-surface-raised border border-border rounded-fitting p-0.5 text-[11px] font-medium">
-                <button
-                  type="button"
-                  onClick={() => setProfileMode("wizard")}
-                  className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${
-                    profileMode === "wizard"
-                      ? "bg-accent text-white font-semibold shadow-xs"
-                      : "text-ink-muted hover:text-ink"
-                  }`}
-                >
-                  {t.header.stepWizard}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setProfileMode("single")}
-                  className={`px-2.5 py-1 rounded transition-colors cursor-pointer ${
-                    profileMode === "single"
-                      ? "bg-accent text-white font-semibold shadow-xs"
-                      : "text-ink-muted hover:text-ink"
-                  }`}
-                >
-                  {t.header.singlePage}
-                </button>
-              </div>
-            )}
-
-            {viewState === "result" && (
-              <button
-                type="button"
-                onClick={() => setViewState("profile")}
-                className="text-xs font-semibold text-ink-muted hover:text-ink transition-colors cursor-pointer"
-              >
-                {t.header.editProfile}
-              </button>
-            )}
 
             {/* Cart Trigger */}
             <button
@@ -280,7 +239,7 @@ export default function Home() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-8 pb-16">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-6">
         {/* Progressive Loading Feedback */}
         {isLoading && (
           <div className="fixed inset-0 z-50 bg-surface/85 backdrop-blur-xs flex flex-col items-center justify-center space-y-4">
