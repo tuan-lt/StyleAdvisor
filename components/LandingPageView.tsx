@@ -127,9 +127,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
             )}
           </p>
 
-          {/* Tagline: Unlock your confidence */}
+          {/* Tagline: Unlock your confidence. No guesswork, no wasted */}
           <p className="text-base sm:text-lg md:text-xl font-serif italic text-accent font-medium pt-1">
-            {language === "fr" ? "Libérez votre confiance" : "Unlock your confidence"}
+            {language === "fr" ? "Libérez votre confiance. Zéro doute, zéro gaspillage." : "Unlock your confidence. No guesswork, no wasted"}
           </p>
 
           {/* Metric Highlights (3 ô - Mở rộng độ rộng, 2 dòng rõ ràng) */}
