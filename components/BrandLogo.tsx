@@ -89,25 +89,13 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         </svg>
       </div>
 
-      {/* 2. Brand Typography Lockup on the Right: STYLE ADVISOR + THE FITTING ROOM */}
+      {/* 2. Brand Typography Lockup on the Right: STYLE ADVISOR */}
       <div className="flex flex-col justify-center select-none text-left">
         <span
           className={`${titleSizes[size]} font-serif font-bold tracking-[0.08em] text-ink uppercase leading-none group-hover:text-accent transition-colors`}
         >
           STYLE ADVISOR
         </span>
-
-        {showTagline && (
-          <div className="flex items-center gap-1.5 mt-1 sm:mt-1.5">
-            <span className="text-[9px] sm:text-[10px] font-sans font-bold uppercase tracking-[0.22em] text-thread leading-none">
-              THE FITTING ROOM
-            </span>
-            <span className="w-1 h-1 rounded-full bg-accent/70 shrink-0" />
-            <span className="text-[8.5px] sm:text-[9px] font-sans font-semibold uppercase tracking-[0.16em] text-ink-muted leading-none hidden sm:inline">
-              CANADIAN BESPOKE
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );

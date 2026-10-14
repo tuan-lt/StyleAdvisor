@@ -100,8 +100,8 @@ export default function AboutPage() {
             </span>
             <h2 className="text-3xl sm:text-4xl font-serif font-semibold text-ink">
               {language === "fr"
-                ? "L'Histoire Derrière Notre Monogramme & Notre Slogan"
-                : "The Story Behind Our Monogram & Slogan"}
+                ? "L'Histoire Derrière Notre Monogramme & Notre Philosophie"
+                : "The Story Behind Our Monogram & Philosophy"}
             </h2>
             <p className="text-sm sm:text-base text-ink-muted leading-relaxed">
               {language === "fr"
@@ -199,7 +199,7 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* Card 2: The Slogan Meaning */}
+            {/* Card 2: The Philosophy Meaning */}
             <div className="bg-surface-raised border border-border rounded-fitting-lg p-6 sm:p-8 space-y-6 shadow-fitting-card hover:border-accent/40 transition-all">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 shrink-0 rounded-fitting bg-thread/10 border border-thread/30 flex items-center justify-center text-thread font-serif text-2xl font-bold">
@@ -207,10 +207,10 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-thread block">
-                    {language === "fr" ? "Le Slogan & La Promesse" : "The Slogan & Brand Promise"}
+                    {language === "fr" ? "Philosophie & Promesse" : "Our Philosophy & Brand Promise"}
                   </span>
                   <h3 className="text-xl font-serif font-bold text-ink">
-                    “The Fitting Room · Canadian Bespoke”
+                    Bespoke Intelligence for Real Living
                   </h3>
                 </div>
               </div>
@@ -218,8 +218,8 @@ export default function AboutPage() {
               <div className="space-y-4 text-xs sm:text-sm text-ink-muted leading-relaxed">
                 <p>
                   {language === "fr"
-                    ? "Notre slogan n'est pas une simple phrase esthétique; il définit notre philosophie de service et notre engagement envers chaque utilisateur."
-                    : "Our slogan is not a mere tagline; it represents our operational manifesto and styling philosophy for modern living."}
+                    ? "Notre démarche dépasse le simple catalogue de mode; elle définit notre engagement envers chaque utilisateur dans sa quête d'assurance vestimentaire."
+                    : "Our philosophy goes beyond standard algorithmic recommendations; it represents a commitment to personal elegance, timeless proportions, and decisive daily clarity."}
                 </p>
 
                 <div className="space-y-3.5 pt-3 border-t border-border/80">

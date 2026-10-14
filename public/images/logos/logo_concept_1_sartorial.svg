@@ -64,16 +64,8 @@
   </g>
 
   <!-- LOGOTYPE LOCKUP -->
-  <g transform="translate(400, 415)">
+  <g transform="translate(400, 435)">
     <!-- Primary Brand Wordmark in Newsreader Serif -->
     <text x="0" y="0" text-anchor="middle" class="title">STYLE ADVISOR</text>
-    
-    <!-- Architectural Divider Line with Center Diamond -->
-    <line x1="-120" y1="20" x2="-15" y2="20" stroke="#C4704B" stroke-width="1" stroke-opacity="0.5"/>
-    <polygon points="0,17 4,20 0,23 -4,20" fill="#C4704B"/>
-    <line x1="15" y1="20" x2="120" y2="20" stroke="#C4704B" stroke-width="1" stroke-opacity="0.5"/>
-
-    <!-- Subtitle / Brand Descriptor -->
-    <text x="0" y="44" text-anchor="middle" class="tagline">THE FITTING ROOM • CANADIAN BESPOKE</text>
   </g>
 </svg>
