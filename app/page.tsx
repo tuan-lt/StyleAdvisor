@@ -13,6 +13,7 @@ import { LandingPageView } from "../components/LandingPageView";
 import { Garment, Occasion, RecommendApiResponse, NudgeType } from "../types/catalog";
 import { useLanguage } from "../lib/LanguageContext";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
+import { Footer } from "../components/Footer";
 
 type ViewState = "landing" | "profile" | "result";
 
@@ -168,7 +169,12 @@ export default function Home() {
   if (viewState === "landing") {
     return (
       <>
-        <LandingPageView onEnterFittingRoom={() => setViewState("profile")} />
+        <LandingPageView
+          onEnterFittingRoom={(chosenFlow) => {
+            if (chosenFlow) setFlow(chosenFlow);
+            setViewState("profile");
+          }}
+        />
 
         {/* Shared Slide-over Cart (De-duplicated) */}
         <SharedCart
@@ -212,10 +218,6 @@ export default function Home() {
                 {t.common.brandName}
               </span>
             </button>
-            <span className="hidden sm:inline-block text-border font-light">|</span>
-            <span className="hidden sm:inline-block text-xs text-ink-muted">
-              {t.header.fittingRoom}
-            </span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -377,25 +379,8 @@ export default function Home() {
         initialEmail={profile.email}
       />
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-surface-raised/60 py-6 text-center text-xs text-ink-muted">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© 2026 Style Advisor · ProductBC Build-a-Thon Demo</p>
-          <div className="flex items-center gap-4 text-ink-muted/80">
-            <span>Aritzia</span>
-            <span>·</span>
-            <span>RW&CO</span>
-            <span>·</span>
-            <span>Lululemon</span>
-            <span>·</span>
-            <span>Kotn</span>
-            <span>·</span>
-            <span>Vessi</span>
-            <span>·</span>
-            <span>Frank And Oak</span>
-          </div>
-        </div>
-      </footer>
+      {/* UNIFIED FOOTER */}
+      <Footer />
     </div>
   );
 }

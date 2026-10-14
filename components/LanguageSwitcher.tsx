@@ -20,43 +20,36 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
       role="group"
       aria-label="Language selection"
     >
-      {/* English Option: Features Canadian Flag 🇨🇦 per user requirement */}
+      {/* English Option */}
       <button
         type="button"
         onClick={() => setLanguage("en")}
         aria-pressed={language === "en"}
-        className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs font-medium cursor-pointer ${
+        className={`px-3 py-1 rounded transition-all text-xs font-semibold cursor-pointer ${
           language === "en"
-            ? "bg-accent text-white font-semibold shadow-xs"
+            ? "bg-accent text-white shadow-xs"
             : "text-ink-muted hover:text-ink hover:bg-surface/60"
         }`}
-        title="English (Canada)"
+        title="English"
       >
-        <span className="text-sm leading-none" role="img" aria-label="Canadian Flag">
-          🇨🇦
-        </span>
-        <span className="tracking-tight">EN</span>
-        <span className="hidden sm:inline-block text-[10px] opacity-80">(CA)</span>
+        EN
       </button>
 
-      <span className="text-border/60 mx-0.5 select-none">|</span>
+      <span className="text-border/60 mx-0.5 select-none text-xs">|</span>
 
-      {/* French Option: French Canada */}
+      {/* French Option */}
       <button
         type="button"
         onClick={() => setLanguage("fr")}
         aria-pressed={language === "fr"}
-        className={`flex items-center gap-1.5 px-2.5 py-1 rounded transition-all text-xs font-medium cursor-pointer ${
+        className={`px-3 py-1 rounded transition-all text-xs font-semibold cursor-pointer ${
           language === "fr"
-            ? "bg-accent text-white font-semibold shadow-xs"
+            ? "bg-accent text-white shadow-xs"
             : "text-ink-muted hover:text-ink hover:bg-surface/60"
         }`}
-        title="Français (Canada)"
+        title="Français"
       >
-        <span className="text-sm leading-none" role="img" aria-label="Fleur-de-lis">
-          ⚜️
-        </span>
-        <span className="tracking-tight">FR</span>
+        FR
       </button>
     </div>
   );

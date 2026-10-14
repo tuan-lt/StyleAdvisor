@@ -44,11 +44,14 @@ export interface Translations {
     howItWorks: string;
     popularBrands: string;
     adminDashboard: string;
+    about: string;
   };
   landing: {
     heroTitle: string;
     heroTitleHighlight: string;
     heroTitleEnd: string;
+    cardSpecialTitle: string;
+    cardEveryTitle: string;
     heroSubtitle: string;
     heroSubtitleHighlight: string;
     heroSubtitleEnd: string;
@@ -330,11 +333,14 @@ export const translations: Record<Language, Translations> = {
       howItWorks: "How It Works",
       popularBrands: "Popular Brands",
       adminDashboard: "Admin",
+      about: "About",
     },
     landing: {
       heroTitle: "Look great and feel confident,",
-      heroTitleHighlight: "every single day",
-      heroTitleEnd: ". No guesswork, no wasted shopping.",
+      heroTitleHighlight: "for every occasion",
+      heroTitleEnd: "",
+      cardSpecialTitle: "Special",
+      cardEveryTitle: "Every",
       heroSubtitle: "Your personal style advisor tailored to your body shape, best colors, and Canadian weather—recommending only",
       heroSubtitleHighlight: "100% real, in-stock clothes",
       heroSubtitleEnd: "from trusted Canadian brands.",
@@ -380,7 +386,7 @@ export const translations: Record<Language, Translations> = {
       ctaTitle: "Ready to Love What You Wear?",
       ctaDesc: "Hop into the Fitting Room. Your personalized outfit suggestions are only a few clicks away.",
       ctaButton: "Start Styling Now →",
-      footerRights: "© 2026 Style Advisor. All rights reserved.",
+      footerRights: "© 2026 Style Advisor · ProductBC Build-a-Thon Demo",
       footerPrivacy: "Privacy Friendly",
       footerWeather: "Weather & Climate Ready",
     },
@@ -614,11 +620,14 @@ export const translations: Record<Language, Translations> = {
       howItWorks: "Comment ça marche",
       popularBrands: "Marques populaires",
       adminDashboard: "Admin",
+      about: "À propos",
     },
     landing: {
       heroTitle: "Ayez fière allure et sentez-vous bien,",
-      heroTitleHighlight: "chaque jour",
-      heroTitleEnd: ". Sans casse-tête, sans achats inutiles.",
+      heroTitleHighlight: "en toute occasion",
+      heroTitleEnd: "",
+      cardSpecialTitle: "Spécial",
+      cardEveryTitle: "Quotidien",
       heroSubtitle: "Votre conseiller de style personnel adapté à votre morphologie, vos couleurs idéales et la météo canadienne — avec uniquement des",
       heroSubtitleHighlight: "vêtements 100% réels et en stock",
       heroSubtitleEnd: "chez des marques canadiennes de confiance.",
@@ -664,7 +673,7 @@ export const translations: Record<Language, Translations> = {
       ctaTitle: "Prêt(e) à aimer ce que vous portez ?",
       ctaDesc: "Entrez dans la cabine d'essayage. Vos recommandations personnalisées sont à portée de clic.",
       ctaButton: "Trouver mon style maintenant →",
-      footerRights: "© 2026 Style Advisor. Tous droits réservés.",
+      footerRights: "© 2026 Style Advisor · Démo ProductBC Build-a-Thon",
       footerPrivacy: "Respect de la vie privée",
       footerWeather: "Adapté au climat et aux saisons",
     },
