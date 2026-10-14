@@ -48,9 +48,12 @@ async function getLatestCatalog(): Promise<Garment[]> {
 const cache = new Map<string, { timestamp: number; data: any }>();
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24 hours
 
+// Set max serverless function execution time for Vercel
+export const maxDuration = 45;
+
 // Hard Timeout Limits per PRD Section 7.3 & 8.2
-const OVERALL_TIMEOUT_MS = 14000;
-const LLM_TIMEOUT_MS = 8000; // LLM timeout before automated fallback to heuristic engine
+const OVERALL_TIMEOUT_MS = 35000;
+const LLM_TIMEOUT_MS = 30000; // LLM timeout before automated fallback to heuristic engine (30s)
 
 interface RecommendRequestBody {
   user_profile: UserProfile;
@@ -1083,7 +1086,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
         {
           success: false,
           error: "TIMEOUT_RETRY",
-          message: "Recommendation generation exceeded 15 seconds. Please retry.",
+          message: "Recommendation generation exceeded 35 seconds. Please retry.",
         },
         { status: 504 }
       );
