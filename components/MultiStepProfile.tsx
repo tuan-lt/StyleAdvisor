@@ -51,10 +51,20 @@ export function MultiStepProfile({
   // 4 -> Step 05: Color Palette & Complexion
   // 5 -> Step 06: Weather, Sizing & Budget -> Final Submit
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [step0Completed, setStep0Completed] = useState<boolean>(false);
+  const [step1Completed, setStep1Completed] = useState<boolean>(false);
+  const [step2Completed, setStep2Completed] = useState<boolean>(false);
+  const [step3Completed, setStep3Completed] = useState<boolean>(false);
+  const [step4Completed, setStep4Completed] = useState<boolean>(false);
 
   const TOTAL_STEPS = 6;
 
   const handleNext = () => {
+    if (currentStep === 0) setStep0Completed(true);
+    if (currentStep === 1) setStep1Completed(true);
+    if (currentStep === 2) setStep2Completed(true);
+    if (currentStep === 3) setStep3Completed(true);
+    if (currentStep === 4) setStep4Completed(true);
     if (currentStep < TOTAL_STEPS - 1) {
       setCurrentStep((prev) => prev + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -350,11 +360,11 @@ export function MultiStepProfile({
   const occasionOptions = [
     {
       id: "pitch" as Occasion,
-      label: isFr ? "Présentation / Réunion d'affaires" : "Pitching or Big Meeting",
+      label: isFr ? "Mariage" : "Wedding",
       context: isFr
-        ? "Crédible et soigné pour vos réunions, sans paraître trop guindé"
-        : "Look sharp and credible for meetings without feeling overdressed",
-      image: "/images/occasions/pitch.jpg",
+        ? "Une tenue élégante et soignée pour célébrer ce grand jour avec style"
+        : "Look elegant and celebration-ready, dressed perfectly for the big day",
+      image: "/images/occasions/wedding.jpg",
     },
     {
       id: "interview" as Occasion,
@@ -433,26 +443,107 @@ export function MultiStepProfile({
     },
   ];
 
+  // Dynamic ToC labels based on user selection
+  const isStep0Done = currentStep >= 1 || step0Completed;
+  const isStep1Done = currentStep >= 2 || step1Completed;
+  const isStep2Done = currentStep >= 3 || step2Completed;
+  const isStep3Done = currentStep >= 4 || step3Completed;
+  const isStep4Done = currentStep >= 5 || step4Completed;
+
+  const getStep0Label = () => {
+    if (isStep0Done) {
+      const isFemale = profile.gender_expression === "Female" || profile.gender_cut === "female";
+      const isNeutral = profile.gender_expression === "Neutral" || profile.gender_cut === "neutral";
+      const genderLabel = isFemale
+        ? (isFr ? "Mode féminine" : "Womenswear")
+        : isNeutral
+        ? (isFr ? "Neutre" : "Neutral")
+        : (isFr ? "Mode masculine" : "Menswear");
+
+      const flowLabel =
+        flow === "occasion"
+          ? (isFr ? "Occasion spéciale" : "High-Stakes Occasion")
+          : (isFr ? "Garde-robe capsule" : "Everyday Capsule Wardrobe");
+
+      return `1. ${genderLabel} ${flowLabel}`;
+    }
+    return isFr ? "1. Votre style" : "1. Your Style";
+  };
+
+  const getStep1Label = () => {
+    if (isStep1Done) {
+      if (flow === "occasion") {
+        const found = occasionOptions.find((o) => o.id === occasion);
+        const title = found ? found.label : (isFr ? "Choix de l'occasion" : "Occasion Selection");
+        return `2. ${title}`;
+      } else {
+        const selectedLs = lifestyleOptions.filter((ls) =>
+          (profile.lifestyle || profile.lifestyle_tags || []).includes(ls.id)
+        );
+        const title =
+          selectedLs.length > 0
+            ? selectedLs.map((ls) => ls.label).join(", ")
+            : (isFr ? "Cadre de vie" : "Everyday Setting");
+        return `2. ${title}`;
+      }
+    }
+    return isFr ? "2. Choix de l'occasion" : "2. Occasion Selection";
+  };
+
+  const getStep2Label = () => {
+    if (isStep2Done) {
+      const selectedStyle = styleArchetypes.find(
+        (st) => profile.style === st.id || profile.preferred_styles?.includes(st.id)
+      );
+      const title = selectedStyle ? selectedStyle.label : (isFr ? "Style préféré" : "Preferred Style");
+      return `3. ${title}`;
+    }
+    return isFr ? "3. Style préféré" : "3. Preferred Style";
+  };
+
+  const getStep3Label = () => {
+    if (isStep3Done) {
+      const selectedBody = bodyTypeOptions.find((bt) => bt.id === profile.body_type);
+      const title = selectedBody ? selectedBody.label : (isFr ? "Morphologie" : "Body");
+      return isFr ? `4. Silhouette ${title}` : `4. ${title} Shape`;
+    }
+    return isFr ? "4. Morphologie" : "4. Body Shape";
+  };
+
+  const getStep4Label = () => {
+    if (isStep4Done) {
+      const selectedPal = seasonalPalettes.find(
+        (p) =>
+          profile.palette_season === p.id ||
+          profile.seasonal_colour === p.id ||
+          (typeof profile.palette_season === "string" && profile.palette_season.includes(p.id))
+      );
+      const title = selectedPal ? selectedPal.name : (isFr ? "Couleurs" : "Colour");
+      return `5. ${title}`;
+    }
+    return isFr ? "5. Couleurs" : "5. Colour";
+  };
+
   const tocSections = [
     {
       step: 0,
-      label: isFr ? "1. Votre style" : "1. Your Style",
+      label: getStep0Label(),
     },
     {
       step: 1,
-      label: isFr ? "2. Choix de l'occasion" : "2. Occasion Selection",
+      label: getStep1Label(),
     },
     {
       step: 2,
-      label: isFr ? "3. Style préféré" : "3. Preferred Style",
+      label: getStep2Label(),
     },
     {
       step: 3,
-      label: isFr ? "4. Morphologie" : "4. Body Shape",
+      label: getStep3Label(),
     },
     {
       step: 4,
-      label: isFr ? "5. Couleurs" : "5. Colour",
+      label: getStep4Label(),
     },
     {
       step: 5,
@@ -508,7 +599,7 @@ export function MultiStepProfile({
                   {/* Label / Pill */}
                   <div className="flex-1 min-w-0">
                     {isCurrent ? (
-                      <div className="inline-block bg-verified text-white px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-fitting font-semibold text-xs sm:text-sm tracking-tight shadow-xs whitespace-nowrap">
+                      <div className="inline-block bg-verified text-white px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-fitting font-semibold text-xs sm:text-sm tracking-tight shadow-xs leading-snug">
                         {item.label}
                       </div>
                     ) : isCompleted ? (
@@ -518,7 +609,7 @@ export function MultiStepProfile({
                           setCurrentStep(idx);
                           window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
-                        className="text-left text-xs sm:text-sm font-semibold text-verified hover:underline transition-colors cursor-pointer py-1 block truncate"
+                        className="text-left text-xs sm:text-sm font-semibold text-verified hover:underline transition-colors cursor-pointer py-1 block leading-snug break-words"
                         title={item.label}
                       >
                         {item.label}

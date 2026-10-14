@@ -529,7 +529,7 @@ export default function AboutPage() {
               href="/"
               className="inline-block px-8 py-3.5 rounded-fitting bg-surface text-ink hover:bg-white text-sm font-semibold shadow-fitting-raised transition-all hover:scale-[1.03]"
             >
-              Style Advisor →
+              {language === "fr" ? "Trouver Mon Style →" : "Find My Look →"}
             </Link>
           </div>
         </div>

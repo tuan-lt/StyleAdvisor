@@ -100,14 +100,14 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
             </button>
           </div>
 
-          {/* CTA Button: Style Advisor (Without arrow) */}
+          {/* CTA Button: Find My Look (Without arrow) */}
           <div className="pt-4 flex justify-center">
             <button
               type="button"
               onClick={() => onEnterFittingRoom("occasion")}
               className="w-full sm:w-auto px-9 py-3 rounded-fitting bg-accent hover:bg-accent/90 text-white text-sm font-semibold shadow-fitting-card hover:shadow-fitting-raised transition-all hover:scale-[1.02] cursor-pointer"
             >
-              Style Advisor
+              {language === "fr" ? "Trouver Mon Style" : "Find My Look"}
             </button>
           </div>
 
@@ -127,15 +127,15 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
             )}
           </p>
 
-          {/* No guesswork tagline (Enlarged) */}
+          {/* Tagline: Unlock your confidence */}
           <p className="text-base sm:text-lg md:text-xl font-serif italic text-thread font-medium pt-1">
-            {language === "fr" ? "Sans casse-tête, sans achats inutiles." : "No guesswork, no wasted shopping."}
+            {language === "fr" ? "Libérez votre confiance" : "Unlock your confidence"}
           </p>
 
           {/* Metric Highlights (3 ô - Mở rộng độ rộng, 2 dòng rõ ràng) */}
           <div className="pt-3.5 sm:pt-4 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto text-center border-t border-border/60">
             <div className="p-2.5 sm:p-3 bg-surface-raised/75 rounded-fitting border border-border/50 shadow-2xs flex flex-col justify-center items-center">
-              <div className="text-base sm:text-xl font-serif font-bold text-ink sm:whitespace-nowrap">
+              <div className="text-base sm:text-xl font-serif font-bold text-thread sm:whitespace-nowrap">
                 {t.landing.metric1Title}
               </div>
               <div className="text-[10px] sm:text-xs text-ink-muted uppercase tracking-wider mt-0.5 sm:whitespace-nowrap">
@@ -143,7 +143,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
               </div>
             </div>
             <div className="p-2.5 sm:p-3 bg-surface-raised/75 rounded-fitting border border-border/50 shadow-2xs flex flex-col justify-center items-center">
-              <div className="text-base sm:text-xl font-serif font-bold text-verified sm:whitespace-nowrap">
+              <div className="text-base sm:text-xl font-serif font-bold text-thread sm:whitespace-nowrap">
                 {t.landing.metric2Title}
               </div>
               <div className="text-[10px] sm:text-xs text-ink-muted uppercase tracking-wider mt-0.5 sm:whitespace-nowrap">
