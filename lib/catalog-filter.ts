@@ -164,6 +164,7 @@ export function matchOccasion(
     ) {
       return true;
     }
+    if (target === "wedding" && (gOccs.includes("wedding") || gOccs.includes("formal") || gOccs.includes("date") || gOccs.includes("date-night") || gOccs.includes("smart-casual") || gOccs.includes("pitch"))) return true;
     if (target === "pitch" && (gOccs.includes("work") || gOccs.includes("interview") || gOccs.includes("business-casual"))) return true;
     if (target === "interview" && (gOccs.includes("work") || gOccs.includes("pitch") || gOccs.includes("formal"))) return true;
     if (target === "court" && (gOccs.includes("interview") || gOccs.includes("formal"))) return true;

@@ -125,7 +125,7 @@ export function SharedProfile({
   ];
 
   const occasionTiles: { id: Occasion; label: string; context: string }[] = [
-    { id: "pitch", label: isFr ? "Pitch / Présentation d'affaires" : "Pitching to investors", context: isFr ? "Crédible, rassurant sans rigidité" : "Founder stakes, VC credibility" },
+    { id: "wedding", label: isFr ? "Mariage / Célébration" : "Wedding celebration", context: isFr ? "Élégant, soigné et festif pour le grand jour" : "Celebration-ready, refined wedding guest attire" },
     { id: "interview", label: isFr ? "Entrevue d'embauche" : "Job interview", context: isFr ? "Professionnel, compétent et soigné" : "Professional competence & poise" },
     { id: "family", label: isFr ? "Rencontre familiale" : "Meeting partner's family", context: isFr ? "Chaleureux, respectueux et élégant" : "Warm, respectful, considered" },
     { id: "date", label: isFr ? "Premier rendez-vous / Soirée" : "First date", context: isFr ? "Raffiné, à l'aise et charmant" : "Refined, comfortable, magnetic" },

@@ -36,6 +36,7 @@ function matchOccasion(garmentOccasions, targetOccasion) {
   const gOccs = (garmentOccasions || []).map((o) => o.toLowerCase());
   return targets.some((target) => {
     if (gOccs.includes(target)) return true;
+    if (target === "wedding" && (gOccs.includes("wedding") || gOccs.includes("formal") || gOccs.includes("pitch") || gOccs.includes("date") || gOccs.includes("smart-casual"))) return true;
     if (target === "pitch" && (gOccs.includes("work") || gOccs.includes("interview"))) return true;
     if (target === "court" && (gOccs.includes("interview") || gOccs.includes("formal"))) return true;
     if (target === "funeral" && (gOccs.includes("formal") || gOccs.includes("court"))) return true;
@@ -97,5 +98,27 @@ const budgetResult = filterCandidates(catalog, {
 console.log('Budget $ candidates count by slot:', budgetResult.slots);
 console.log('Budget $ total candidates:', budgetResult.total);
 console.log('Is valid pool:', budgetResult.isValid);
+
+console.log('\n=== TEST 4: Wedding Occasion (Male, Medium Budget $$) ===');
+const weddingMaleResult = filterCandidates(catalog, {
+  gender_expression: 'Male',
+  budget: '$$',
+  occasion: 'wedding',
+  flow: 'occasion'
+});
+console.log('Wedding Male candidates count by slot:', weddingMaleResult.slots);
+console.log('Wedding Male total candidates:', weddingMaleResult.total);
+console.log('Is valid pool:', weddingMaleResult.isValid);
+
+console.log('\n=== TEST 5: Wedding Occasion (Female, Medium Budget $$) ===');
+const weddingFemaleResult = filterCandidates(catalog, {
+  gender_expression: 'Female',
+  budget: '$$',
+  occasion: 'wedding',
+  flow: 'occasion'
+});
+console.log('Wedding Female candidates count by slot:', weddingFemaleResult.slots);
+console.log('Wedding Female total candidates:', weddingFemaleResult.total);
+console.log('Is valid pool:', weddingFemaleResult.isValid);
 
 console.log('\n✅ All tests passed with 100% valid candidate pools across slots!');

@@ -123,7 +123,8 @@
       "travel",
       "business-casual",
       "lounge",
-      "date-night"
+      "date-night",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -178,7 +179,8 @@
       "pitch",
       "work",
       "formal",
-      "date-night"
+      "date-night",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -233,7 +235,8 @@
     "occasions": [
       "pitch",
       "work",
-      "formal"
+      "formal",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -291,7 +294,8 @@
       "formal",
       "pitch",
       "work",
-      "date-night"
+      "date-night",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -349,7 +353,8 @@
       "date-night",
       "work",
       "travel",
-      "lounge"
+      "lounge",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -404,7 +409,8 @@
       "work",
       "business-casual",
       "formal",
-      "date-night"
+      "date-night",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -459,7 +465,8 @@
       "casual",
       "travel",
       "business-casual",
-      "date-night"
+      "date-night",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -517,7 +524,8 @@
       "travel",
       "pitch",
       "work",
-      "formal"
+      "formal",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -571,7 +579,8 @@
       "pitch",
       "work",
       "formal",
-      "date-night"
+      "date-night",
+      "wedding"
     ],
     "palette_seasons": [
       "winter"
@@ -626,7 +635,8 @@
       "date-night",
       "casual",
       "business-casual",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "winter",
@@ -680,7 +690,8 @@
       "casual",
       "travel",
       "business-casual",
-      "date-night"
+      "date-night",
+      "wedding"
     ],
     "palette_seasons": [
       "spring",
@@ -734,7 +745,8 @@
       "travel",
       "business-casual",
       "smart-casual",
-      "date-night"
+      "date-night",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -789,7 +801,8 @@
       "date-night",
       "casual",
       "business-casual",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn"
@@ -843,7 +856,8 @@
       "business-casual",
       "smart-casual",
       "date-night",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "winter",
@@ -898,7 +912,8 @@
       "date-night",
       "casual",
       "business-casual",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "spring",
@@ -953,7 +968,8 @@
       "travel",
       "business-casual",
       "date-night",
-      "lounge"
+      "lounge",
+      "wedding"
     ],
     "palette_seasons": [
       "winter",
@@ -1064,7 +1080,8 @@
       "date-night",
       "casual",
       "business-casual",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn"
@@ -1116,7 +1133,8 @@
       "work",
       "smart-casual",
       "date-night",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "winter"
@@ -1281,7 +1299,8 @@
       "casual",
       "business-casual",
       "travel",
-      "lounge"
+      "lounge",
+      "wedding"
     ],
     "palette_seasons": [
       "winter",
@@ -1389,7 +1408,8 @@
       "travel",
       "outdoor",
       "smart-casual",
-      "date-night"
+      "date-night",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -1443,7 +1463,8 @@
       "business-casual",
       "smart-casual",
       "date-night",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "summer"
@@ -1498,7 +1519,8 @@
       "smart-casual",
       "pitch",
       "work",
-      "date-night"
+      "date-night",
+      "wedding"
     ],
     "palette_seasons": [
       "summer"
@@ -1553,7 +1575,8 @@
       "business-casual",
       "formal",
       "date-night",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "summer"
@@ -1608,7 +1631,8 @@
       "business-casual",
       "smart-casual",
       "date-night",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "spring"
@@ -1662,7 +1686,8 @@
       "work",
       "formal",
       "date-night",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "spring"
@@ -1716,7 +1741,8 @@
       "work",
       "formal",
       "date-night",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "spring"
@@ -1771,7 +1797,8 @@
       "business-casual",
       "smart-casual",
       "date-night",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn"
@@ -1826,7 +1853,8 @@
       "business-casual",
       "formal",
       "date-night",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn"
@@ -1881,7 +1909,8 @@
       "business-casual",
       "formal",
       "date-night",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn"
@@ -1936,7 +1965,8 @@
       "business-casual",
       "smart-casual",
       "date-night",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "winter"
@@ -1991,7 +2021,8 @@
       "business-casual",
       "formal",
       "date-night",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "winter",
@@ -2046,7 +2077,8 @@
       "work",
       "formal",
       "date-night",
-      "business-casual"
+      "business-casual",
+      "wedding"
     ],
     "palette_seasons": [
       "winter",
@@ -2156,7 +2188,8 @@
       "business-casual",
       "date-night",
       "travel",
-      "lounge"
+      "lounge",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn"
@@ -2208,7 +2241,8 @@
       "business-casual",
       "date-night",
       "travel",
-      "lounge"
+      "lounge",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -2261,7 +2295,8 @@
       "date-night",
       "travel",
       "business-casual",
-      "lounge"
+      "lounge",
+      "wedding"
     ],
     "palette_seasons": [
       "winter",
@@ -2798,7 +2833,8 @@
       "travel",
       "outdoor",
       "business-casual",
-      "date-night"
+      "date-night",
+      "wedding"
     ],
     "palette_seasons": [
       "spring",
@@ -2851,7 +2887,8 @@
       "work",
       "business-casual",
       "travel",
-      "lounge"
+      "lounge",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -2903,7 +2940,8 @@
       "work",
       "business-casual",
       "travel",
-      "lounge"
+      "lounge",
+      "wedding"
     ],
     "palette_seasons": [
       "spring",
@@ -3432,7 +3470,8 @@
       "casual",
       "business-casual",
       "lounge",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -3595,7 +3634,8 @@
       "smart-casual",
       "date-night",
       "casual",
-      "date"
+      "date",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -3650,7 +3690,8 @@
       "travel",
       "outdoor",
       "date-night",
-      "business-casual"
+      "business-casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -3704,7 +3745,8 @@
       "date",
       "work",
       "court",
-      "funeral"
+      "funeral",
+      "wedding"
     ],
     "palette_seasons": [
       "winter",
@@ -3760,7 +3802,8 @@
       "travel",
       "work",
       "family",
-      "interview"
+      "interview",
+      "wedding"
     ],
     "palette_seasons": [
       "winter",
@@ -3819,7 +3862,8 @@
       "date",
       "family",
       "work",
-      "funeral"
+      "funeral",
+      "wedding"
     ],
     "palette_seasons": [
       "winter",
@@ -3875,7 +3919,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -3928,7 +3973,8 @@
       "casual",
       "date-night",
       "date",
-      "outdoor"
+      "outdoor",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -3980,7 +4026,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4030,7 +4077,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4082,7 +4130,8 @@
       "smart-casual",
       "casual",
       "outdoor",
-      "travel"
+      "travel",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4134,7 +4183,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4184,7 +4234,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4234,7 +4285,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4284,7 +4336,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4334,7 +4387,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4384,7 +4438,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4436,7 +4491,8 @@
       "smart-casual",
       "casual",
       "date-night",
-      "date"
+      "date",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4487,7 +4543,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4537,7 +4594,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4587,7 +4645,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4640,7 +4699,8 @@
       "casual",
       "date-night",
       "date",
-      "outdoor"
+      "outdoor",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4692,7 +4752,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4745,7 +4806,8 @@
       "casual",
       "date-night",
       "date",
-      "outdoor"
+      "outdoor",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4797,7 +4859,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4849,7 +4912,8 @@
       "smart-casual",
       "casual",
       "date-night",
-      "date"
+      "date",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4901,7 +4965,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -4951,7 +5016,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -5001,7 +5067,8 @@
     "occasions": [
       "work",
       "smart-casual",
-      "casual"
+      "casual",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",
@@ -5054,7 +5121,8 @@
       "casual",
       "date-night",
       "date",
-      "outdoor"
+      "outdoor",
+      "wedding"
     ],
     "palette_seasons": [
       "autumn",

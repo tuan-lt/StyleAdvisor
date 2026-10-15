@@ -85,7 +85,7 @@ function generateCacheKey(body: RecommendRequestBody): string {
     owned_item_ids: (body.owned_item_ids || body.user_profile?.owned_item_ids || []).slice().sort(),
     excluded_garment_ids: (body.excluded_garment_ids || []).slice().sort(),
     iteration: body.iteration ?? 0,
-    occasion: body.occasion || "pitch",
+    occasion: body.occasion || "wedding",
     season: body.season_or_climate || body.season_of_wear || body.user_profile?.season_or_climate || body.user_profile?.season_of_wear || "fall_winter",
     audience_text: (body.audience_text || "").trim().toLowerCase(),
     flow: body.flow || "occasion",
@@ -128,13 +128,13 @@ function generateDeterministicRecommendation(
   body: RecommendRequestBody
 ): LLMRecommendationPayload {
   const { candidates_by_slot } = filteredCandidates;
-  const audience = body.audience_text || "seed fund partners, ex-engineers in Gastown";
-  const occasion = body.occasion || "pitch";
+  const audience = body.audience_text || (body.locale === "fr" ? "Célébration de mariage avec proches et amis" : "Wedding celebration with family and friends");
+  const occasion = body.occasion || "wedding";
   const style = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]) || "classic";
   const targetPalette = body.user_profile?.seasonal_colour || body.user_profile?.palette_season;
 
   let targetFormality = body.formality_target || getDefaultFormalityForOccasion(occasion);
-  let signal = occasion === "date" ? "relaxed_charm" : "considered_not_corporate";
+  let signal = occasion === "wedding" ? "festive_elegance" : occasion === "date" ? "relaxed_charm" : "considered_not_corporate";
   let nudgeReasoning = "";
 
   if (body.nudge === "too_formal") {
@@ -191,7 +191,13 @@ function generateDeterministicRecommendation(
   // Specific high-taste styling reasoning matching PRD persona Sam
   let reasoning = "";
   if (isFr) {
-    if (occasion === "pitch") {
+    if (occasion === "wedding") {
+      reasoning = `Pour un mariage, l'élégance festive et le raffinement sont de mise. Nous avons coordonné ${
+        outerwearGarment ? outerwearGarment.name : "une veste ou étole habillée"
+      } avec ${topGarment ? topGarment.name : "un haut soigné"} et ${
+        bottomGarment ? bottomGarment.name : "un bas élégant"
+      } pour une allure chic, respectueuse du cadre et prête pour la célébration.`;
+    } else if (occasion === "pitch") {
       reasoning = `Pour une présentation d'affaires, la crédibilité et le confort priment sur le costume strict. Nous avons associé ${
         outerwearGarment ? outerwearGarment.name : "le veston souple"
       } avec ${bottomGarment ? bottomGarment.name : "un pantalon ajusté"} et ${
@@ -221,7 +227,13 @@ function generateDeterministicRecommendation(
       }${outerwearGarment ? ` complété par ${outerwearGarment.name}` : ""}. L'ensemble allie élégance canadienne et aisance pratique au quotidien.`;
     }
   } else {
-    if (occasion === "pitch") {
+    if (occasion === "wedding") {
+      reasoning = `For a wedding celebration, festive elegance and refined tailoring strike the ideal balance. We paired ${
+        outerwearGarment ? outerwearGarment.name : "a polished layer"
+      } with ${topGarment ? topGarment.name : "an elevated top"} and ${
+        bottomGarment ? bottomGarment.name : "tailored trousers"
+      } to ensure you look celebration-ready, dignified, and comfortable from ceremony to reception.`;
+    } else if (occasion === "pitch") {
       reasoning = `For a pitching session with former engineering partners in Gastown, structure matters more than corporate formality. We paired the ${
         outerwearGarment ? outerwearGarment.name : "unstructured blazer"
       } with clean ${bottomGarment ? bottomGarment.name : "tailored chinos"} and ${
@@ -260,7 +272,9 @@ function generateDeterministicRecommendation(
 
   let interpretationSummary = "";
   if (isFr) {
-    if (occasion === "pitch") {
+    if (occasion === "wedding") {
+      interpretationSummary = "Célébration de mariage. Allure festive, élégante et soignée pour ce grand jour.";
+    } else if (occasion === "pitch") {
       interpretationSummary = "Cadre d'affaires moderne et dynamique. Allure soignée et crédible, sans rigidité.";
     } else if (occasion === "interview") {
       interpretationSummary = "Entrevue professionnelle. Allure confiante, soignée et structurée.";
@@ -274,7 +288,9 @@ function generateDeterministicRecommendation(
       interpretationSummary = `Cadre ${occasion}. Tenue harmonieuse et adaptée.`;
     }
   } else {
-    if (occasion === "pitch") {
+    if (occasion === "wedding") {
+      interpretationSummary = "Wedding celebration. Aiming for festive elegance, refined tailoring, and memorable style.";
+    } else if (occasion === "pitch") {
       interpretationSummary = "Technical partners, casual office. Aiming for considered, not corporate.";
     } else if (occasion === "funeral") {
       interpretationSummary = "Solemn gathering, respectful protocol. Aiming for quiet, understated decorum.";
@@ -400,7 +416,7 @@ async function callOpenAIEngine(
     throw new Error("NO_API_KEY");
   }
 
-  const occasion = body.occasion || "pitch";
+  const occasion = body.occasion || "wedding";
   const style = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]) || "classic";
   const overrideCheck = checkOccasionOverride(occasion, style);
 
@@ -433,8 +449,8 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
     task: "Select and calibrate exactly one complete outfit from candidates",
     user_context: {
       gender_expression: body.user_profile?.gender_expression || body.user_profile?.gender_cut || "male",
-      occasion: body.occasion || "pitch",
-      audience_free_text: body.audience_text || "VC partners in Gastown",
+      occasion: body.occasion || "wedding",
+      audience_free_text: body.audience_text || (isFr ? "Célébration de mariage avec proches et amis" : "Wedding celebration with family and friends"),
       season: body.season_or_climate || body.season_of_wear || "fall_winter",
       style: style,
       nudge: body.nudge || null,
@@ -510,7 +526,7 @@ async function callAnthropicEngine(
     throw new Error("NO_API_KEY");
   }
 
-  const occasion = body.occasion || "pitch";
+  const occasion = body.occasion || "wedding";
   const style = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]) || "classic";
   const overrideCheck = checkOccasionOverride(occasion, style);
 
@@ -584,7 +600,7 @@ async function callOpenRouterEngine(
   }
   const model = aiConfig.selected_model || process.env.OPENROUTER_MODEL || "openrouter/free";
 
-  const occasion = body.occasion || "pitch";
+  const occasion = body.occasion || "wedding";
   const style = body.user_profile?.style || (body.user_profile?.preferred_styles && body.user_profile.preferred_styles[0]) || "classic";
   const overrideCheck = checkOccasionOverride(occasion, style);
 
@@ -616,8 +632,8 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
     task: "Select and calibrate exactly one complete outfit from candidates",
     user_context: {
       gender_expression: body.user_profile?.gender_expression || body.user_profile?.gender_cut || "male",
-      occasion: body.occasion || "pitch",
-      audience_free_text: body.audience_text || "VC partners in Gastown",
+      occasion: body.occasion || "wedding",
+      audience_free_text: body.audience_text || (isFr ? "Célébration de mariage avec proches et amis" : "Wedding celebration with family and friends"),
       season: body.season_or_climate || body.season_of_wear || "fall_winter",
       style: style,
       nudge: body.nudge || null,
@@ -959,7 +975,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       ...body.user_profile,
       gender_cut: body.user_profile.gender_cut || (body.user_profile.gender_expression?.toLowerCase() as any) || "male",
       budget_tier: body.user_profile.budget_tier || (body.user_profile.budget as any) || "$$",
-      occasion: body.occasion || "pitch",
+      occasion: body.occasion || "wedding",
       season_of_wear: body.season_of_wear || (body.season_or_climate as any) || "fall_winter",
       flow: body.flow || "occasion",
       audience_text: body.audience_text,
@@ -1021,7 +1037,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
     const validCandidateIds = new Set(filterResult.all_candidate_ids);
     const slotCandidates = filterResult.candidates_by_slot;
     const selectedIds = { ...llmPayload.selected_garment_ids };
-    let overrideApplied = llmPayload.override_applied || checkOccasionOverride(body.occasion || "pitch", body.user_profile.style);
+    let overrideApplied = llmPayload.override_applied || checkOccasionOverride(body.occasion || "wedding", body.user_profile.style);
 
     const scoringOpts = {
       targetFormality: body.formality_target || getDefaultFormalityForOccasion(body.occasion),

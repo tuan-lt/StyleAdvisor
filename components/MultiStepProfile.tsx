@@ -359,7 +359,7 @@ export function MultiStepProfile({
 
   const occasionOptions = [
     {
-      id: "pitch" as Occasion,
+      id: "wedding" as Occasion,
       label: isFr ? "Mariage" : "Wedding",
       context: isFr
         ? "Une tenue élégante et soignée pour célébrer ce grand jour avec style"
@@ -572,7 +572,7 @@ export function MultiStepProfile({
                   {idx < tocSections.length - 1 && (
                     <div
                       className={`absolute left-[7px] top-[16px] w-[2px] h-[calc(100%+16px)] sm:h-[calc(100%+20px)] transition-colors duration-300 ${
-                        idx < currentStep ? "bg-verified" : "bg-border"
+                        idx < currentStep ? "bg-accent" : "bg-border"
                       }`}
                     />
                   )}
@@ -586,11 +586,11 @@ export function MultiStepProfile({
                           setCurrentStep(idx);
                           window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
-                        className="w-3 h-3 rounded-full bg-verified hover:scale-125 transition-transform cursor-pointer ring-2 ring-surface-raised"
+                        className="w-3 h-3 rounded-full bg-accent hover:scale-125 transition-transform cursor-pointer ring-2 ring-surface-raised"
                         title={`Go to ${item.label}`}
                       />
                     ) : isCurrent ? (
-                      <div className="w-3.5 h-3.5 rounded-full bg-verified ring-4 ring-verified/25" />
+                      <div className="w-3.5 h-3.5 rounded-full bg-accent ring-4 ring-accent/25" />
                     ) : (
                       <div className="w-3 h-3 rounded-full bg-border" />
                     )}
@@ -599,7 +599,7 @@ export function MultiStepProfile({
                   {/* Label / Pill */}
                   <div className="flex-1 min-w-0">
                     {isCurrent ? (
-                      <div className="inline-block bg-verified text-white px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-fitting font-semibold text-xs sm:text-sm tracking-tight shadow-xs leading-snug">
+                      <div className="inline-block bg-accent text-white px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-fitting font-semibold text-xs sm:text-sm tracking-tight shadow-xs leading-snug">
                         {item.label}
                       </div>
                     ) : isCompleted ? (
@@ -609,7 +609,7 @@ export function MultiStepProfile({
                           setCurrentStep(idx);
                           window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
-                        className="text-left text-xs sm:text-sm font-semibold text-verified hover:underline transition-colors cursor-pointer py-1 block leading-snug break-words"
+                        className="text-left text-xs sm:text-sm font-semibold text-accent hover:underline transition-colors cursor-pointer py-1 block leading-snug break-words"
                         title={item.label}
                       >
                         {item.label}

@@ -132,29 +132,29 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterFitting
             {language === "fr" ? "Libérez votre confiance. Zéro doute, zéro gaspillage." : "Unlock your confidence. No guesswork, no wasted"}
           </p>
 
-          {/* Metric Highlights (3 ô - Mở rộng độ rộng, 2 dòng rõ ràng) */}
-          <div className="pt-3.5 sm:pt-4 grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto text-center border-t border-border/60">
-            <div className="p-2.5 sm:p-3 bg-surface-raised/75 rounded-fitting border border-border/50 shadow-2xs flex flex-col justify-center items-center">
-              <div className="text-base sm:text-xl font-serif font-bold text-accent sm:whitespace-nowrap">
+          {/* Metric Highlights (3 ô - Cân đối không bị tràn chữ khi đổi ngôn ngữ) */}
+          <div className="pt-3.5 sm:pt-4 grid grid-cols-3 gap-2.5 sm:gap-4 max-w-2xl mx-auto text-center border-t border-border/60">
+            <div className="p-2 sm:p-3 bg-surface-raised/75 rounded-fitting border border-border/50 shadow-2xs flex flex-col justify-center items-center text-center min-h-[78px] sm:min-h-[88px]">
+              <div className="text-sm sm:text-lg md:text-xl font-serif font-bold text-accent leading-tight">
                 {t.landing.metric1Title}
               </div>
-              <div className="text-[10px] sm:text-xs text-ink-muted uppercase tracking-wider mt-0.5 sm:whitespace-nowrap">
+              <div className="text-[10px] sm:text-xs text-ink-muted uppercase tracking-normal sm:tracking-wider mt-1 leading-snug">
                 {t.landing.metric1Desc}
               </div>
             </div>
-            <div className="p-2.5 sm:p-3 bg-surface-raised/75 rounded-fitting border border-border/50 shadow-2xs flex flex-col justify-center items-center">
-              <div className="text-base sm:text-xl font-serif font-bold text-accent sm:whitespace-nowrap">
+            <div className="p-2 sm:p-3 bg-surface-raised/75 rounded-fitting border border-border/50 shadow-2xs flex flex-col justify-center items-center text-center min-h-[78px] sm:min-h-[88px]">
+              <div className="text-sm sm:text-lg md:text-xl font-serif font-bold text-accent leading-tight">
                 {t.landing.metric2Title}
               </div>
-              <div className="text-[10px] sm:text-xs text-ink-muted uppercase tracking-wider mt-0.5 sm:whitespace-nowrap">
+              <div className="text-[10px] sm:text-xs text-ink-muted uppercase tracking-normal sm:tracking-wider mt-1 leading-snug">
                 {t.landing.metric2Desc}
               </div>
             </div>
-            <div className="p-2.5 sm:p-3 bg-surface-raised/75 rounded-fitting border border-border/50 shadow-2xs flex flex-col justify-center items-center">
-              <div className="text-base sm:text-xl font-serif font-bold text-accent sm:whitespace-nowrap">
+            <div className="p-2 sm:p-3 bg-surface-raised/75 rounded-fitting border border-border/50 shadow-2xs flex flex-col justify-center items-center text-center min-h-[78px] sm:min-h-[88px]">
+              <div className="text-sm sm:text-lg md:text-xl font-serif font-bold text-accent leading-tight">
                 {t.landing.metric3Title}
               </div>
-              <div className="text-[10px] sm:text-xs text-ink-muted uppercase tracking-wider mt-0.5 sm:whitespace-nowrap">
+              <div className="text-[10px] sm:text-xs text-ink-muted uppercase tracking-normal sm:tracking-wider mt-1 leading-snug">
                 {t.landing.metric3Desc}
               </div>
             </div>

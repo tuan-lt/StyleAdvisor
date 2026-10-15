@@ -21,8 +21,8 @@ type ViewState = "landing" | "profile" | "result";
 export default function Home() {
   const { language, t } = useLanguage();
   const { profile, isLoaded, updateProfile, toggleOwnedItem } = useProfileStorage();
-  const [occasion, setOccasion] = useState<Occasion>("pitch");
-  const [audienceText, setAudienceText] = useState<string>("Seed fund, partners are ex-engineers, meeting at their office in Gastown");
+  const [occasion, setOccasion] = useState<Occasion>("wedding");
+  const [audienceText, setAudienceText] = useState<string>("Outdoor summer wedding celebration, elegant attire with family & friends");
   const [flow, setFlow] = useState<"occasion" | "everyday">("occasion");
   const [viewState, setViewState] = useState<ViewState>("landing");
   const [profileMode, setProfileMode] = useState<"wizard" | "single">("wizard");
