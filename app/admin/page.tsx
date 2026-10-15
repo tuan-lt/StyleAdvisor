@@ -269,6 +269,7 @@ export default function AdminCatalogPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedSlot, setSelectedSlot] = useState<string>("all");
   const [selectedBrand, setSelectedBrand] = useState<string>("all");
+  const [selectedOccasion, setSelectedOccasion] = useState<string>("all");
   const [selectedHealthFilter, setSelectedHealthFilter] = useState<string>("all");
 
   // Modal State
@@ -847,6 +848,10 @@ export default function AdminCatalogPage() {
 
       if (selectedSlot !== "all" && g.slot !== selectedSlot) return false;
       if (selectedBrand !== "all" && g.brand !== selectedBrand) return false;
+      if (selectedOccasion !== "all") {
+        const occs = (g.occasions || []).map((o) => o.toLowerCase());
+        if (!occs.includes(selectedOccasion.toLowerCase())) return false;
+      }
 
       if (selectedHealthFilter !== "all") {
         const health = urlHealthMap[g.id];
@@ -857,7 +862,7 @@ export default function AdminCatalogPage() {
 
       return true;
     });
-  }, [garments, searchQuery, selectedSlot, selectedBrand, selectedHealthFilter, urlHealthMap]);
+  }, [garments, searchQuery, selectedSlot, selectedBrand, selectedOccasion, selectedHealthFilter, urlHealthMap]);
 
   // Metrics
   const metrics = useMemo(() => {
@@ -1221,6 +1226,27 @@ export default function AdminCatalogPage() {
               ))}
             </select>
 
+            {/* Occasion */}
+            <select
+              value={selectedOccasion}
+              onChange={(e) => setSelectedOccasion(e.target.value)}
+              className={`px-2.5 py-1.5 text-xs bg-surface border rounded-fitting text-ink focus:outline-none focus:border-accent ${
+                selectedOccasion !== "all" ? "border-accent ring-1 ring-accent/30 font-medium" : "border-border"
+              }`}
+            >
+              <option value="all">All Occasions</option>
+              {ALL_OCCASIONS.map((occ) => {
+                const count = garments.filter((g) => (g.occasions || []).includes(occ)).length;
+                return (
+                  <option key={occ} value={occ}>
+                    {occ === "wedding"
+                      ? `💍 Wedding (${count})`
+                      : `${occ.charAt(0).toUpperCase() + occ.slice(1).replace("-", " ")} (${count})`}
+                  </option>
+                );
+              })}
+            </select>
+
             {/* Health */}
             <select
               value={selectedHealthFilter}
@@ -1233,13 +1259,14 @@ export default function AdminCatalogPage() {
               <option value="untested">Untested</option>
             </select>
 
-            {(searchQuery || selectedSlot !== "all" || selectedBrand !== "all" || selectedHealthFilter !== "all") && (
+            {(searchQuery || selectedSlot !== "all" || selectedBrand !== "all" || selectedOccasion !== "all" || selectedHealthFilter !== "all") && (
               <button
                 type="button"
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedSlot("all");
                   setSelectedBrand("all");
+                  setSelectedOccasion("all");
                   setSelectedHealthFilter("all");
                 }}
                 className="text-xs text-thread font-medium hover:underline px-1"
@@ -1413,20 +1440,28 @@ export default function AdminCatalogPage() {
 
                         {/* Occasions */}
                         <td className="py-3.5 px-3">
-                          <div className="flex flex-wrap gap-1 max-w-[180px]">
-                            {garment.occasions?.slice(0, 3).map((occ) => (
-                              <span
-                                key={occ}
-                                className="px-1.5 py-0.5 bg-surface border border-border rounded text-[10px] text-ink-muted"
-                              >
-                                {occ}
-                              </span>
-                            ))}
-                            {(garment.occasions?.length || 0) > 3 && (
-                              <span className="text-[10px] text-ink-muted">
-                                +{garment.occasions.length - 3}
-                              </span>
-                            )}
+                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                            {garment.occasions?.map((occ) => {
+                              const isWedding = occ === "wedding";
+                              const isCurrentFilter = selectedOccasion === occ;
+                              return (
+                                <button
+                                  type="button"
+                                  key={occ}
+                                  onClick={() => setSelectedOccasion(isCurrentFilter ? "all" : occ)}
+                                  title={`Click to filter by ${occ}`}
+                                  className={`px-1.5 py-0.5 rounded text-[10px] transition-all cursor-pointer ${
+                                    isCurrentFilter
+                                      ? "bg-accent text-white font-bold shadow-xs"
+                                      : isWedding
+                                      ? "bg-accent/15 text-accent border border-accent/40 font-semibold hover:bg-accent/25"
+                                      : "bg-surface border border-border text-ink-muted hover:border-thread/50 hover:text-ink"
+                                  }`}
+                                >
+                                  {isWedding ? "💍 wedding" : occ}
+                                </button>
+                              );
+                            })}
                           </div>
                         </td>
 

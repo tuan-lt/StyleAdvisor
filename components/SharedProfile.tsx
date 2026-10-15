@@ -222,7 +222,27 @@ export function SharedProfile({
               </label>
               <button
                 type="button"
-                onClick={() => onAudienceChange(isFr ? "Rencontre d'équipe informelle dans un café à Vancouver" : "Seed fund, partners are ex-engineers, meeting at their office in Gastown")}
+                onClick={() => {
+                  if (occasion === "wedding") {
+                    onAudienceChange(
+                      isFr
+                        ? "Mariage estival en plein air, tenue festive et élégante pour la cérémonie et la réception"
+                        : "Outdoor summer wedding celebration, elegant and festive guest attire for ceremony and reception"
+                    );
+                  } else if (occasion === "interview") {
+                    onAudienceChange(
+                      isFr
+                        ? "Entrevue d'embauche professionnelle en personne au centre-ville"
+                        : "In-person professional job interview at a downtown corporate office"
+                    );
+                  } else {
+                    onAudienceChange(
+                      isFr
+                        ? "Événement officiel sobre et soigné avec collègues et proches"
+                        : "Refined, stylish gathering with colleagues and friends"
+                    );
+                  }
+                }}
                 className="text-xs text-thread hover:underline cursor-pointer"
               >
                 {isFr ? "Exemple" : "Demo Preset"}
@@ -232,7 +252,15 @@ export function SharedProfile({
               type="text"
               value={audienceText}
               onChange={(e) => onAudienceChange(e.target.value)}
-              placeholder={isFr ? "ex. Dîner avec un mentor, café décontracté ou écrivez 'NoAI' pour le mode algorithmique" : "e.g., Tech partners in Gastown, coffee chat with a mentor..."}
+              placeholder={
+                occasion === "wedding"
+                  ? isFr
+                    ? "ex. Mariage champêtre chic, tenue cocktail en bord de mer, ou écrivez 'NoAI'..."
+                    : "e.g. Garden wedding cocktail, elegant outdoor ceremony, or type 'NoAI'..."
+                  : isFr
+                  ? "ex. Dîner avec des collègues, cadre officiel ou écrivez 'NoAI' pour le mode algorithmique"
+                  : "e.g. Downtown dinner, formal reception, or type 'NoAI' for pure algorithm mode"
+              }
               className="w-full px-4 py-2.5 text-sm bg-surface border border-border rounded-fitting focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>

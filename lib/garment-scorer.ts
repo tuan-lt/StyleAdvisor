@@ -66,7 +66,7 @@ export function scoreGarment(garment: Garment, options: ScoreGarmentOptions): nu
       score += 4;
     } else if (
       ((occ === "date" || occ === "date-night") && (gOccs.includes("dinner-out") || gOccs.includes("smart-casual"))) ||
-      (occ === "wedding" && (gOccs.includes("wedding") || gOccs.includes("formal") || gOccs.includes("pitch") || gOccs.includes("date") || gOccs.includes("smart-casual"))) ||
+      (occ === "wedding" && (gOccs.includes("wedding") || gOccs.includes("formal") || gOccs.includes("cocktail") || gOccs.includes("gala"))) ||
       (occ === "pitch" && (gOccs.includes("work") || gOccs.includes("smart-casual") || gOccs.includes("interview"))) ||
       (occ === "interview" && (gOccs.includes("work") || gOccs.includes("formal") || gOccs.includes("pitch"))) ||
       (occ === "family" && (gOccs.includes("casual") || gOccs.includes("smart-casual"))) ||
@@ -108,10 +108,19 @@ export function scoreGarment(garment: Garment, options: ScoreGarmentOptions): nu
     // Occasion context synergy in stylist notes
     if (options.targetOccasion) {
       const occ = options.targetOccasion.toLowerCase();
-      if (notes.includes(occ)) {
+      if (occ === "wedding") {
+        if (notes.includes("wedding") || notes.includes("celebration") || notes.includes("cocktail") || notes.includes("gala") || notes.includes("reception")) {
+          notesBonus += 4;
+        } else if (notes.includes("formal") || notes.includes("suit") || notes.includes("dress") || notes.includes("tailored") || notes.includes("silk") || notes.includes("linen")) {
+          notesBonus += 2;
+        }
+        // Strongly penalize pitch/founder/tech/startup notes when occasion is wedding
+        if (notes.includes("pitch") || notes.includes("founder") || notes.includes("vc ") || notes.includes("coffee") || notes.includes("laptop")) {
+          notesBonus -= 10;
+        }
+      } else if (notes.includes(occ)) {
         notesBonus += 3;
       } else if (
-        (occ === "wedding" && (notes.includes("wedding") || notes.includes("celebration") || notes.includes("cocktail") || notes.includes("formal") || notes.includes("blazer") || notes.includes("suit") || notes.includes("dress") || notes.includes("tailored") || notes.includes("elegant"))) ||
         (occ === "pitch" && (notes.includes("founder") || notes.includes("pitch") || notes.includes("blazer") || notes.includes("tailored"))) ||
         (occ === "interview" && (notes.includes("sharp") || notes.includes("professional") || notes.includes("tailored") || notes.includes("poise"))) ||
         (occ === "court" && (notes.includes("solemn") || notes.includes("formal") || notes.includes("structured") || notes.includes("slacks"))) ||

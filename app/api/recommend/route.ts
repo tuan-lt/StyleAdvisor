@@ -435,6 +435,10 @@ async function callOpenAIEngine(
   const candidatePoolPrompt = prepareCandidatePoolPrompt(candidatesBySlot, body);
 
   const isFr = body.locale === "fr";
+  const weddingGuideline =
+    occasion === "wedding"
+      ? "\n- WEDDING OCCASION PROTOCOL: The user is dressing as a wedding guest for a celebratory ceremony and reception. Select celebratory, elegant, polished garments (tailored suits, celebration blazers, cocktail/slip dresses, crisp dress shirts, tailored trousers, formal footwear). Do NOT select casual tech founder pieces, startup pitch wear, gym layers, or streetwear sneakers. Write reasoning highlighting festive elegance, dignity, and celebration harmony."
+      : "";
 
   const systemPrompt = `You are the AI Styling Engine for "Style Advisor" (Canadian Climate & High-Stakes Dressing).
 ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
@@ -443,6 +447,7 @@ ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
 - Write editorial styling reasoning in a confident Newsreader serif tone.${isFr ? "\n- CRITICAL: Write all reasoning and interpretation_summary in conversational, polite, and natural French (Canadian French)." : ""}
 - Schema compliance is mandatory.
 ${overrideCheck ? `OCCASION OVERRIDE NOTICE: ${overrideCheck}` : ""}
+${weddingGuideline}
 ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
 
   const userPrompt = JSON.stringify({
@@ -618,6 +623,10 @@ async function callOpenRouterEngine(
 
   const candidatePoolPrompt = prepareCandidatePoolPrompt(candidatesBySlot, body);
   const isFr = body.locale === "fr";
+  const weddingGuideline =
+    occasion === "wedding"
+      ? "\n- WEDDING OCCASION PROTOCOL: The user is dressing as a wedding guest for a celebratory ceremony and reception. Select celebratory, elegant, polished garments (tailored suits, celebration blazers, cocktail/slip dresses, crisp dress shirts, tailored trousers, formal footwear). Do NOT select casual tech founder pieces, startup pitch wear, gym layers, or streetwear sneakers. Write reasoning highlighting festive elegance, dignity, and celebration harmony."
+      : "";
 
   const systemPrompt = `You are the AI Styling Engine for "Style Advisor" (Canadian Climate & High-Stakes Dressing).
 ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
@@ -626,6 +635,7 @@ ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
 - Write editorial styling reasoning in a confident Newsreader serif tone.${isFr ? "\n- CRITICAL: Write all reasoning and interpretation_summary in conversational, polite, and natural French (Canadian French)." : ""}
 - Return ONLY valid JSON containing: calibration (formality_score, signal, notes), interpretation_summary, selected_garment_ids (outerwear, top, bottom, shoes, accessory), reasoning, override_applied.
 ${overrideCheck ? `OCCASION OVERRIDE NOTICE: ${overrideCheck}` : ""}
+${weddingGuideline}
 ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
 
   const userPrompt = JSON.stringify({

@@ -805,13 +805,39 @@ export function MultiStepProfile({
                   </label>
                   <button
                     type="button"
-                    onClick={() =>
-                      onAudienceChange(
-                        isFr
-                          ? "Rencontre avec des fondateurs de start-up dans un café à Vancouver"
-                          : "Meeting tech startup founders at a casual coffee shop in Vancouver"
-                      )
-                    }
+                    onClick={() => {
+                      if (occasion === "wedding") {
+                        onAudienceChange(
+                          isFr
+                            ? "Mariage estival en plein air, tenue festive et élégante pour la cérémonie et la réception"
+                            : "Outdoor summer wedding celebration, elegant and festive guest attire for ceremony and reception"
+                        );
+                      } else if (occasion === "interview") {
+                        onAudienceChange(
+                          isFr
+                            ? "Entrevue d'embauche professionnelle en personne au centre-ville"
+                            : "In-person professional job interview at a downtown corporate office"
+                        );
+                      } else if (occasion === "date") {
+                        onAudienceChange(
+                          isFr
+                            ? "Souper romantique dans un bon restaurant en ville"
+                            : "Romantic dinner date at an upscale downtown restaurant"
+                        );
+                      } else if (occasion === "family") {
+                        onAudienceChange(
+                          isFr
+                            ? "Réunion de famille chaleureuse et soignée"
+                            : "Warm and polished family gathering or anniversary dinner"
+                        );
+                      } else {
+                        onAudienceChange(
+                          isFr
+                            ? "Événement officiel sobre et soigné"
+                            : "Formal and refined gathering with friends and colleagues"
+                        );
+                      }
+                    }}
                     className="text-xs text-thread hover:underline cursor-pointer"
                   >
                     {isFr ? "Exemple" : "Use example"}
@@ -822,9 +848,13 @@ export function MultiStepProfile({
                   value={audienceText}
                   onChange={(e) => onAudienceChange(e.target.value)}
                   placeholder={
-                    isFr
-                      ? "ex. Café informel avec un collègue, dîner entre amis, ou écrivez 'NoAI' pour le mode déterministe"
-                      : "e.g. Meeting tech partners at a casual cafe, or type 'NoAI' for pure algorithm mode"
+                    occasion === "wedding"
+                      ? isFr
+                        ? "ex. Mariage champêtre chic, tenue cocktail en bord de mer, ou écrivez 'NoAI'..."
+                        : "e.g. Garden wedding cocktail, elegant outdoor ceremony, or type 'NoAI'..."
+                      : isFr
+                      ? "ex. Cadre de l'événement, code vestimentaire souhaité, ou écrivez 'NoAI' pour le mode déterministe"
+                      : "e.g. Event venue, preferred vibe, or type 'NoAI' for pure algorithm mode"
                   }
                   className="w-full px-4 py-3 text-sm bg-surface/40 border border-border rounded-fitting focus:outline-none focus:ring-1 focus:ring-accent focus:bg-surface-raised transition-all"
                 />
