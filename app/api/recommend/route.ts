@@ -358,6 +358,36 @@ function prepareCandidatePoolPrompt(
 }
 
 /**
+ * Safely extracts text content from LLM choice, handling string, array, and reasoning/thinking formats
+ */
+function extractLlmContent(choice: any): string | null {
+  if (!choice) return null;
+  const message = choice.message;
+  let content = message?.content;
+
+  if (Array.isArray(content)) {
+    content = content
+      .map((item: any) => (typeof item === "string" ? item : item.text || item.content || ""))
+      .join("\n")
+      .trim();
+  } else if (typeof content === "string") {
+    content = content.trim();
+  }
+
+  // Fallback to reasoning block for thinking models (e.g. DeepSeek R1, Nemotron)
+  if (!content && message?.reasoning && typeof message.reasoning === "string") {
+    content = message.reasoning.trim();
+  }
+
+  // Fallback to legacy completion text field
+  if (!content && choice.text && typeof choice.text === "string") {
+    content = choice.text.trim();
+  }
+
+  return content || null;
+}
+
+/**
  * Call OpenAI API with candidate IDs and minimal metadata (Zero-Hallucination)
  */
 async function callOpenAIEngine(
@@ -461,7 +491,7 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
   }
 
   const result = await response.json();
-  const content = result.choices?.[0]?.message?.content;
+  const content = extractLlmContent(result.choices?.[0]);
   if (!content) throw new Error("EMPTY_LLM_RESPONSE");
 
   return JSON.parse(content) as LLMRecommendationPayload;
@@ -617,6 +647,12 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
     },
   });
 
+  // Build fallback model list for OpenRouter: requested model first, then guaranteed reliable alternatives
+  const primaryModel = model || "google/gemini-2.5-flash";
+  const modelList = Array.from(
+    new Set([primaryModel, "google/gemini-2.5-flash", "openai/gpt-4o-mini", "meta-llama/llama-3.3-70b-instruct"])
+  );
+
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -626,7 +662,7 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
       "X-Title": "Style Advisor",
     },
     body: JSON.stringify({
-      model,
+      models: modelList,
       temperature: 0.7,
       max_tokens: 2048,
       messages: [
@@ -643,7 +679,36 @@ ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
   }
 
   const result = await response.json();
-  const content = result.choices?.[0]?.message?.content;
+  let content = extractLlmContent(result.choices?.[0]);
+
+  // If content is empty despite HTTP 200, retry once with guaranteed structured model
+  if (!content) {
+    console.warn("OpenRouter returned empty content. Retrying with google/gemini-2.5-flash fallback...");
+    const retryRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        "X-Title": "Style Advisor Fallback",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        temperature: 0.7,
+        max_tokens: 2048,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      }),
+      signal,
+    });
+    if (retryRes.ok) {
+      const retryResult = await retryRes.json();
+      content = extractLlmContent(retryResult.choices?.[0]);
+    }
+  }
+
   if (!content) throw new Error("EMPTY_LLM_RESPONSE");
 
   const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -803,24 +868,35 @@ Return ONLY valid JSON matching this schema.`;
       headers = { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` };
     }
 
+    const primaryCapsuleModel = model || "google/gemini-2.5-flash";
+    const capsuleModels = provider === "openrouter"
+      ? Array.from(new Set([primaryCapsuleModel, "google/gemini-2.5-flash", "openai/gpt-4o-mini"]))
+      : undefined;
+
+    const reqBody: any = {
+      temperature: 0.7,
+      max_tokens: 1500,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+    };
+    if (capsuleModels) {
+      reqBody.models = capsuleModels;
+    } else {
+      reqBody.model = model;
+    }
+
     const res = await fetch(endpoint, {
       method: "POST",
       headers,
-      body: JSON.stringify({
-        model,
-        temperature: 0.7,
-        max_tokens: 1500,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      }),
+      body: JSON.stringify(reqBody),
       signal,
     });
 
     if (!res.ok) throw new Error(`LLM Error HTTP ${res.status}`);
     const json = await res.json();
-    const content = json.choices?.[0]?.message?.content;
+    let content = extractLlmContent(json.choices?.[0]);
     if (!content) throw new Error("Empty response");
 
     const match = content.match(/\{[\s\S]*\}/);

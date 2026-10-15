@@ -48,7 +48,7 @@ const TMP_CONFIG_PATH = path.join("/tmp", "ai-config.json");
 let memoryConfigCache: Partial<AiConfig> | null = null;
 
 export const DEFAULT_AI_CONFIG: AiConfig = {
-  selected_model: "openrouter/free",
+  selected_model: "google/gemini-2.5-flash",
   provider: "openrouter",
   openrouter_api_key: "",
   updated_at: new Date().toISOString(),
@@ -57,22 +57,22 @@ export const DEFAULT_AI_CONFIG: AiConfig = {
 export const PROVIDER_MODELS: Record<AiProvider, ProviderModel[]> = {
   openrouter: [
     {
-      id: "openrouter/free",
-      name: "Open(Free)",
-      fullName: "Open(Free) — OpenRouter Free Tier",
-      badge: "Default (Free)",
-      badgeColor: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
-      description: "Automatically routes to zero-cost models. No credits consumed.",
-      provider: "openrouter",
-      isDefault: true,
-    },
-    {
       id: "google/gemini-2.5-flash",
-      name: "google/gemini-2.5-flash",
+      name: "Google Gemini 2.5 Flash",
       fullName: "Google Gemini 2.5 Flash",
       badge: "Fast & Recommended",
       badgeColor: "bg-blue-500/10 text-blue-700 border-blue-500/20",
       description: "Sub-second response time, deep context comprehension, ultra cost-effective (~$0.001/call).",
+      provider: "openrouter",
+      isDefault: true,
+    },
+    {
+      id: "openrouter/free",
+      name: "Open(Free)",
+      fullName: "Open(Free) — OpenRouter Free Tier",
+      badge: "Free Tier",
+      badgeColor: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+      description: "Automatically routes to zero-cost models. No credits consumed.",
       provider: "openrouter",
       isDefault: false,
     },
