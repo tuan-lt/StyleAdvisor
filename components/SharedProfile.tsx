@@ -227,25 +227,49 @@ export function SharedProfile({
                     onAudienceChange(
                       isFr
                         ? "Mariage estival en plein air, tenue festive et élégante pour la cérémonie et la réception"
-                        : "Outdoor summer wedding celebration, elegant and festive guest attire for ceremony and reception"
+                        : "Outdoor summer garden wedding celebration, cocktail-formal attire for ceremony and evening reception"
                     );
                   } else if (occasion === "interview") {
                     onAudienceChange(
                       isFr
-                        ? "Entrevue d'embauche professionnelle en personne au centre-ville"
-                        : "In-person professional job interview at a downtown corporate office"
+                        ? "Entrevue d'embauche professionnelle en personne au centre-ville, tenue d'affaires soignée et moderne"
+                        : "In-person professional interview at a downtown corporate office, modern business-casual with clean lines"
+                    );
+                  } else if (occasion === "family") {
+                    onAudienceChange(
+                      isFr
+                        ? "Premier souper avec la famille de mon partenaire à la maison, chaleureux, respectueux et élégant"
+                        : "First dinner meeting with partner's family at a warm home setting, approachable, respectful, and polished"
+                    );
+                  } else if (occasion === "date") {
+                    onAudienceChange(
+                      isFr
+                        ? "Souper en tête-à-tête dans un restaurant branché et bar à vin, charme naturel et décontracté"
+                        : "Evening dinner date at a stylish downtown restaurant and wine bar, effortless charm and relaxed sophistication"
+                    );
+                  } else if (occasion === "court") {
+                    onAudienceChange(
+                      isFr
+                        ? "Audience matinale au tribunal, tenue formelle sobre et conservatrice témoignant de respect et de dignité"
+                        : "Morning courtroom appearance, conservative formal attire showing respect, composure, and strict decorum"
+                    );
+                  } else if (occasion === "funeral") {
+                    onAudienceChange(
+                      isFr
+                        ? "Service commémoratif solennel en après-midi, tenue sombre sobre et respectueuse empreinte de discrétion"
+                        : "Solemn afternoon memorial service, quiet and respectful dark-toned attire with understated dignity"
                     );
                   } else {
                     onAudienceChange(
                       isFr
                         ? "Événement officiel sobre et soigné avec collègues et proches"
-                        : "Refined, stylish gathering with colleagues and friends"
+                        : "Refined and polished gathering with friends and colleagues"
                     );
                   }
                 }}
                 className="text-xs text-thread hover:underline cursor-pointer"
               >
-                {isFr ? "Exemple" : "Demo Preset"}
+                {isFr ? "Exemple" : "Use example"}
               </button>
             </div>
             <input
@@ -257,6 +281,26 @@ export function SharedProfile({
                   ? isFr
                     ? "ex. Mariage champêtre chic, tenue cocktail en bord de mer, ou écrivez 'NoAI'..."
                     : "e.g. Garden wedding cocktail, elegant outdoor ceremony, or type 'NoAI'..."
+                  : occasion === "interview"
+                  ? isFr
+                    ? "ex. Entrevue en cabinet d'avocats, startup techno décontractée, ou écrivez 'NoAI'..."
+                    : "e.g. Tech startup panel, downtown financial firm, or type 'NoAI'..."
+                  : occasion === "family"
+                  ? isFr
+                    ? "ex. Dîner du dimanche chez les beaux-parents, fête de famille, ou écrivez 'NoAI'..."
+                    : "e.g. Sunday family brunch, holiday dinner at in-laws, or type 'NoAI'..."
+                  : occasion === "date"
+                  ? isFr
+                    ? "ex. Bar à vin feutré, souper terrasse branché, ou écrivez 'NoAI'..."
+                    : "e.g. Candlelit rooftop cocktails, casual bistro dinner, or type 'NoAI'..."
+                  : occasion === "court"
+                  ? isFr
+                    ? "ex. Audience officielle au palais de justice, audience solennelle, ou écrivez 'NoAI'..."
+                    : "e.g. Morning courtroom appearance, official judicial hearing, or type 'NoAI'..."
+                  : occasion === "funeral"
+                  ? isFr
+                    ? "ex. Cérémonie commémorative à la chapelle, recueillement intime, ou écrivez 'NoAI'..."
+                    : "e.g. Chapel memorial service, solemn celebration of life, or type 'NoAI'..."
                   : isFr
                   ? "ex. Dîner avec des collègues, cadre officiel ou écrivez 'NoAI' pour le mode algorithmique"
                   : "e.g. Downtown dinner, formal reception, or type 'NoAI' for pure algorithm mode"

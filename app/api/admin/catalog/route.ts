@@ -16,11 +16,35 @@ import {
   deleteGarmentFromDb,
 } from "../../../../lib/db";
 
+const CURRENT_EXTENSION_VERSION = "1.0.5";
+const MIN_SUPPORTED_EXTENSION_VERSION = "1.0.5";
+
+/**
+ * Compare two semver strings (e.g. "1.0.4" vs "1.0.5")
+ * Returns true if client is strictly older than minVersion.
+ */
+function isVersionOutdated(clientVer: string, minVer: string): boolean {
+  if (!clientVer) return true;
+  const parse = (v: string) => v.split(".").map((n) => parseInt(n, 10) || 0);
+  const c = parse(clientVer);
+  const m = parse(minVer);
+  for (let i = 0; i < Math.max(c.length, m.length); i++) {
+    const cv = c[i] || 0;
+    const mv = m[i] || 0;
+    if (cv < mv) return true;
+    if (cv > mv) return false;
+  }
+  return false;
+}
+
 // CORS Headers for Chrome Extension & local dev access
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-Requested-With, Accept",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, X-Requested-With, Accept, X-Client-Version, X-Client-Tool",
+  "Access-Control-Expose-Headers": "X-Server-Version, X-Min-Extension-Version",
+  "X-Server-Version": CURRENT_EXTENSION_VERSION,
+  "X-Min-Extension-Version": MIN_SUPPORTED_EXTENSION_VERSION,
 };
 
 /**
@@ -121,6 +145,29 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = (await req.json()) as any;
+
+    // Phase 1: API-Level Version Enforcement for Chrome Extension clients
+    const clientTool = req.headers.get("x-client-tool") || (body && body.client_tool) || "";
+    const clientVersion = req.headers.get("x-client-version") || (body && body.client_version) || "";
+    const origin = req.headers.get("origin") || "";
+    const isExtension = clientTool === "style-advisor-chrome-extension" || origin.startsWith("chrome-extension://");
+
+    if (isExtension) {
+      if (!clientVersion || isVersionOutdated(clientVersion, MIN_SUPPORTED_EXTENSION_VERSION)) {
+        return corsJson(
+          {
+            success: false,
+            error: "VERSION_DEPRECATED",
+            message: `Your Style Advisor Extension (v${clientVersion || "legacy"}) is outdated and no longer supported. Minimum required version is v${MIN_SUPPORTED_EXTENSION_VERSION}. Please update to v${CURRENT_EXTENSION_VERSION} from the Admin Ingestion Hub.`,
+            client_version: clientVersion || "legacy",
+            min_version: MIN_SUPPORTED_EXTENSION_VERSION,
+            latest_version: CURRENT_EXTENSION_VERSION,
+            download_url: "/admin",
+          },
+          { status: 426 }
+        );
+      }
+    }
 
     // Validate minimum required fields
     const name = (body.name || body.title || "").trim();

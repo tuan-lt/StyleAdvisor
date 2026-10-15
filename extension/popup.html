@@ -14,7 +14,7 @@
         <span class="logo-icon">✨</span>
         <div class="title-wrap">
           <h1>Style Advisor</h1>
-          <span class="badge-tag">Ingestor v1.0.4</span>
+          <span class="badge-tag">Ingestor v1.0.5</span>
         </div>
       </div>
       <div id="endpointStatusBadge" class="status-badge checking">
@@ -22,6 +22,20 @@
         <span id="statusText">Checking...</span>
       </div>
     </header>
+
+    <!-- Version Warning / Deprecation Banner -->
+    <div id="versionWarningBanner" class="version-banner hidden">
+      <div class="version-banner-icon">⚠️</div>
+      <div class="version-banner-body">
+        <div class="version-banner-title">Update Required</div>
+        <div id="versionWarningMessage" class="version-banner-desc">
+          Your extension is outdated. Please update to v1.0.5 to continue ingesting.
+        </div>
+        <a id="versionWarningLink" href="http://localhost:3000/admin" target="_blank" class="version-banner-btn">
+          Download Update from Admin Hub ↗
+        </a>
+      </div>
+    </div>
 
     <!-- Scanner / Loading Area -->
     <div id="loadingBox" class="loading-box">
@@ -63,7 +77,7 @@
         <div class="field-row">
           <div class="field-col flex-1">
             <label for="inputPrice">Price (CAD) *</label>
-            <input type="number" id="inputPrice" min="0" step="1" required>
+            <input type="number" id="inputPrice" min="0" step="any" required>
           </div>
           <div class="field-col flex-1">
             <label for="selectSlot">Wardrobe Slot *</label>
@@ -73,6 +87,14 @@
               <option value="outerwear">OUTERWEAR (Coats / Jackets)</option>
               <option value="shoes">SHOES (Footwear)</option>
               <option value="accessory">ACCESSORY (Bags / Belts)</option>
+            </select>
+          </div>
+          <div class="field-col flex-1">
+            <label for="selectGender">Gender / Cut *</label>
+            <select id="selectGender">
+              <option value="women">Women</option>
+              <option value="men">Men</option>
+              <option value="unisex">Unisex</option>
             </select>
           </div>
         </div>

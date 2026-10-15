@@ -1,6 +1,6 @@
 /**
  * Style Advisor - In-Page Content Extractor & Draggable Floating Ingestion Widget
- * Version: 1.0.4
+ * Version: 1.0.5
  */
 
 (function () {
@@ -431,6 +431,18 @@
       result.slot = "top";
     }
 
+    // -------------------------------------------------------------
+    // Smart Gender / Cut Auto-Classification
+    // -------------------------------------------------------------
+    const genderText = `${titleLower} ${urlLower} ${descLower}`;
+    if (/\b(women|womens|women's|female|lady|ladies|dress|blouse|skirt|high-rise|high rise|bra|align|bikini)\b/i.test(genderText)) {
+      result.gender_cut = "women";
+    } else if (/\b(men|mens|men's|male|gentleman|abc pant|commission)\b/i.test(genderText)) {
+      result.gender_cut = "men";
+    } else {
+      result.gender_cut = "unisex";
+    }
+
     return result;
   }
 
@@ -816,6 +828,31 @@
           color: #B71C1C;
           border: 1px solid #FFCDD2;
         }
+        /* Version Warning Banner */
+        .sa-version-banner {
+          display: flex;
+          gap: 8px;
+          background: #fee2e2;
+          border: 1px solid #f87171;
+          border-radius: 8px;
+          padding: 8px 10px;
+          align-items: flex-start;
+          animation: sa-slide-down 0.2s ease-out;
+        }
+        .sa-version-banner.hidden {
+          display: none !important;
+        }
+        @keyframes sa-slide-down {
+          from { opacity: 0; transform: translateY(-4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .sa-btn-primary.locked-btn {
+          background: #991b1b !important;
+          border: 1px solid #ef4444 !important;
+          color: #fee2e2 !important;
+          cursor: not-allowed !important;
+          opacity: 0.9 !important;
+        }
         /* Minimized floating pill */
         #sa-minimized-pill {
           position: fixed !important;
@@ -845,7 +882,7 @@
       <!-- Minimized Floating Pill -->
       <div id="sa-minimized-pill">
         <span>✨ Style Advisor Ingestor</span>
-        <span style="font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px;">v1.0.4</span>
+        <span style="font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px;">v1.0.5</span>
       </div>
 
       <!-- Main Draggable Modal Container -->
@@ -856,7 +893,7 @@
             <span class="sa-logo-icon">✨</span>
             <div class="sa-title-wrap">
               <span class="sa-title">Style Advisor</span>
-              <span class="sa-badge">Ingestor v1.0.4</span>
+              <span class="sa-badge">Ingestor v1.0.5</span>
             </div>
           </div>
           <div class="sa-controls">
@@ -867,6 +904,20 @@
 
         <!-- Body -->
         <div class="sa-body">
+          <!-- Version Deprecation Warning Banner -->
+          <div id="sa-version-banner" class="sa-version-banner hidden">
+            <span style="font-size: 15px; line-height: 1;">⚠️</span>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+              <strong style="color: #991b1b; font-size: 11px; text-transform: uppercase;">Update Required</strong>
+              <span id="sa-version-msg" style="font-size: 11px; color: #7f1d1d; line-height: 1.3;">
+                Your extension is outdated. Ingestion is locked.
+              </span>
+              <a id="sa-version-link" href="http://localhost:3000/admin" target="_blank" style="align-self: flex-start; margin-top: 4px; padding: 3px 8px; background: #dc2626; color: #ffffff; font-size: 10px; font-weight: 700; text-decoration: none; border-radius: 4px;">
+                Update in Admin Hub ↗
+              </a>
+            </div>
+          </div>
+
           <!-- Preview Card -->
           <div class="sa-preview-card">
             <div class="sa-preview-img-box">
@@ -910,6 +961,17 @@
                 <option value="accessory">Accessory (Bag, Belt, Scarf)</option>
               </select>
             </div>
+            <div class="sa-col">
+              <label class="sa-label">Gender / Cut *</label>
+              <select id="sa-select-gender" class="sa-select">
+                <option value="women">Women</option>
+                <option value="men">Men</option>
+                <option value="unisex">Unisex</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="sa-field-row">
             <div class="sa-col">
               <label class="sa-label">Color & Swatch</label>
               <div class="sa-color-wrap">
@@ -972,6 +1034,7 @@
     const inputBrand = shadowRoot.getElementById("sa-input-brand");
     const inputPrice = shadowRoot.getElementById("sa-input-price");
     const selectSlot = shadowRoot.getElementById("sa-select-slot");
+    const selectGender = shadowRoot.getElementById("sa-select-gender");
     const inputHex = shadowRoot.getElementById("sa-input-hex");
     const inputColor = shadowRoot.getElementById("sa-input-color");
     const inputFabric = shadowRoot.getElementById("sa-input-fabric");
@@ -987,6 +1050,85 @@
 
     let activeEndpoint = "http://localhost:3000/api/admin/catalog";
     const DEFAULT_DEV_KEY = "sa_dev_secret_key_2026";
+    const EXTENSION_VERSION = "1.0.5";
+    const EXTENSION_TOOL_NAME = "style-advisor-chrome-extension";
+    let isWidgetLocked = false;
+
+    // Version banner elements
+    const versionBanner = shadowRoot.getElementById("sa-version-banner");
+    const versionMsg = shadowRoot.getElementById("sa-version-msg");
+    const versionLink = shadowRoot.getElementById("sa-version-link");
+
+    // Version comparison helper: returns true if current is older than minRequired
+    function isSemverOutdated(current, minRequired) {
+      if (!current) return true;
+      const parse = (v) => v.split(".").map((n) => parseInt(n, 10) || 0);
+      const c = parse(current);
+      const m = parse(minRequired);
+      for (let i = 0; i < Math.max(c.length, m.length); i++) {
+        const cv = c[i] || 0;
+        const mv = m[i] || 0;
+        if (cv < mv) return true;
+        if (cv > mv) return false;
+      }
+      return false;
+    }
+
+    // Set widget deprecation lock state
+    function setWidgetLock(locked, minVer = "1.0.5", customMsg = "") {
+      isWidgetLocked = locked;
+      if (locked) {
+        if (versionBanner) versionBanner.classList.remove("hidden");
+        if (versionMsg) {
+          versionMsg.textContent =
+            customMsg ||
+            `You are using v${EXTENSION_VERSION}. Minimum required version is v${minVer}. Ingestion is locked.`;
+        }
+        if (versionLink) {
+          const baseOrigin = activeEndpoint.includes("StyleAdvisor.online") || activeEndpoint.includes("styleadvisor.online")
+            ? "https://StyleAdvisor.online"
+            : "http://localhost:3000";
+          const key = inputKey.value.trim() || DEFAULT_DEV_KEY;
+          versionLink.href = `${baseOrigin}/admin?key=${encodeURIComponent(key)}`;
+          versionLink.textContent = `Update in Admin Hub (v${minVer}) ↗`;
+        }
+        btnIngest.disabled = true;
+        btnIngest.classList.add("locked-btn");
+        ingestText.textContent = "⚠️ Update Required to Ingest";
+      } else {
+        if (versionBanner) versionBanner.classList.add("hidden");
+        btnIngest.classList.remove("locked-btn");
+        btnIngest.disabled = false;
+        ingestText.textContent = "🚀 Ingest into Catalog";
+      }
+    }
+
+    // Check version compatibility with API
+    async function checkWidgetApiVersion() {
+      try {
+        const baseUrl = activeEndpoint.replace(/\/api\/admin\/.*$/, "");
+        const versionUrl = `${baseUrl}/api/admin/version`;
+        const apiKey = inputKey.value.trim() || DEFAULT_DEV_KEY;
+        const res = await fetch(versionUrl, {
+          headers: {
+            "X-Client-Version": EXTENSION_VERSION,
+            "X-Client-Tool": EXTENSION_TOOL_NAME,
+            "Authorization": `Bearer ${apiKey}`,
+            "x-api-key": apiKey
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.min_version && isSemverOutdated(EXTENSION_VERSION, data.min_version)) {
+            setWidgetLock(true, data.min_version, data.message);
+          } else {
+            setWidgetLock(false);
+          }
+        }
+      } catch (e) {
+        // Non-fatal if offline
+      }
+    }
 
     // Load stored key
     if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
@@ -1006,9 +1148,11 @@
         } else {
           inputKey.value = DEFAULT_DEV_KEY;
         }
+        checkWidgetApiVersion();
       });
     } else {
       inputKey.value = DEFAULT_DEV_KEY;
+      checkWidgetApiVersion();
     }
 
     // Show Toast Helper
@@ -1043,6 +1187,9 @@
       inputBrand.value = data.brand || "Canadian Retailer";
       inputPrice.value = data.price || 0;
       selectSlot.value = data.slot || "top";
+      if (selectGender && data.gender_cut) {
+        selectGender.value = data.gender_cut;
+      }
       inputColor.value = data.color || "Classic";
       inputFabric.value = data.fabric || "";
       inputImage.value = data.image || "";
@@ -1054,6 +1201,7 @@
     inputBrand.addEventListener("input", updateLivePreview);
     inputPrice.addEventListener("input", updateLivePreview);
     selectSlot.addEventListener("change", updateLivePreview);
+    if (selectGender) selectGender.addEventListener("change", updateLivePreview);
     inputImage.addEventListener("input", updateLivePreview);
 
     inputKey.addEventListener("input", () => {
@@ -1162,14 +1310,20 @@
     btnIngest.addEventListener("click", async () => {
       const title = inputTitle.value.trim();
       const brand = inputBrand.value.trim();
-      const price = Number(inputPrice.value) || 0;
+      const price = parseFloat(inputPrice.value) || 0;
       const slot = selectSlot.value;
+      const genderCut = selectGender ? selectGender.value : "unisex";
       const imageUrl = inputImage.value.trim();
       const fabric = inputFabric.value.trim();
       const color = inputColor.value.trim() || "Classic";
       const hexColor = inputHex.value;
       const apiKey = inputKey.value.trim() || DEFAULT_DEV_KEY;
       const currentUrl = window.location.href.split("?")[0];
+
+      if (isWidgetLocked) {
+        showToast("⚠️ Extension is deprecated. Please update from Admin Hub.", false);
+        return;
+      }
 
       if (!title) {
         showToast("Please enter a product title / name.", false);
@@ -1188,15 +1342,21 @@
         retailer_url: currentUrl,
         image_url: imageUrl,
         slot: slot,
+        gender_cut: genderCut,
         color: color,
         hex_color: hexColor,
         fabric_composition: fabric || "Premium Canadian Fabric Blend",
-        gender_cut: "unisex",
-        budget_tier: price > 200 ? "$$$" : price > 80 ? "$$" : "$"
+        budget_tier: price > 200 ? "$$$" : price > 80 ? "$$" : "$",
+        client_version: EXTENSION_VERSION,
+        client_tool: EXTENSION_TOOL_NAME
       };
 
       try {
-        const headers = { "Content-Type": "application/json" };
+        const headers = {
+          "Content-Type": "application/json",
+          "X-Client-Version": EXTENSION_VERSION,
+          "X-Client-Tool": EXTENSION_TOOL_NAME
+        };
         if (apiKey) {
           headers["Authorization"] = `Bearer ${apiKey}`;
           headers["x-api-key"] = apiKey;
@@ -1209,6 +1369,14 @@
         });
 
         const json = await res.json();
+
+        // HTTP 426 Upgrade Required (Phase 1 & Phase 2 Integration)
+        if (res.status === 426 || json.error === "VERSION_DEPRECATED") {
+          setWidgetLock(true, json.min_version || "1.0.5", json.message);
+          showToast(json.message || "Update Required: Your extension is deprecated.", false);
+          return;
+        }
+
         if (json.success) {
           showToast(`✓ Ingested "${title}" into Style Advisor!`, true);
           ingestText.textContent = "✓ Ingested Successfully!";

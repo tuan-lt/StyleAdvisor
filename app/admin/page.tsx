@@ -46,7 +46,6 @@ const ALL_OCCASIONS: Occasion[] = [
 ];
 const ALL_SEASONS: SeasonOfWear[] = [
   "all-season",
-  "all_season",
   "fall",
   "winter",
   "spring",
@@ -2107,6 +2106,9 @@ export default function AdminCatalogPage() {
                 <div>
                   <h2 className="text-base font-serif font-semibold text-ink leading-tight flex items-center gap-2">
                     Chrome Extension Ingestion Hub
+                    <span className="px-2 py-0.5 rounded-full bg-accent/15 text-accent text-[10px] font-sans font-bold border border-accent/30">
+                      v1.0.5 Latest
+                    </span>
                     <span className="px-2 py-0.5 rounded-full bg-verified/15 text-verified text-[10px] font-sans font-bold border border-verified/30">
                       CORS & Preflight Active
                     </span>
@@ -2168,7 +2170,7 @@ export default function AdminCatalogPage() {
                       ) : (
                         <>
                           <span>📥</span>
-                          <span>Download Extension (.ZIP)</span>
+                          <span>Download Extension v1.0.5 (.ZIP)</span>
                         </>
                       )}
                     </button>

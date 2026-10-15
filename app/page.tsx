@@ -22,7 +22,7 @@ export default function Home() {
   const { language, t } = useLanguage();
   const { profile, isLoaded, updateProfile, toggleOwnedItem } = useProfileStorage();
   const [occasion, setOccasion] = useState<Occasion>("wedding");
-  const [audienceText, setAudienceText] = useState<string>("Outdoor summer wedding celebration, elegant attire with family & friends");
+  const [audienceText, setAudienceText] = useState<string>("");
   const [flow, setFlow] = useState<"occasion" | "everyday">("occasion");
   const [viewState, setViewState] = useState<ViewState>("landing");
   const [profileMode, setProfileMode] = useState<"wizard" | "single">("wizard");

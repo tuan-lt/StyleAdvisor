@@ -113,6 +113,87 @@ body {
   background: var(--danger);
 }
 
+.status-badge.deprecated {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+.status-badge.deprecated .dot {
+  background: #ef4444;
+  animation: pulse-danger 1.5s infinite;
+}
+
+@keyframes pulse-danger {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* Version Warning Banner */
+.version-banner {
+  display: flex;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.85) 0%, rgba(88, 28, 28, 0.95) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  align-items: flex-start;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.25s ease-out;
+}
+
+.version-banner.hidden {
+  display: none !important;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.version-banner-icon {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.version-banner-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.version-banner-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fecaca;
+}
+
+.version-banner-desc {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #fee2e2;
+}
+
+.version-banner-btn {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 4px;
+  align-self: flex-start;
+  transition: background-color 0.15s;
+}
+
+.version-banner-btn:hover {
+  background: #dc2626;
+}
+
 /* Loading Box */
 .loading-box {
   display: flex;
@@ -323,6 +404,15 @@ input[type="color"] {
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.btn-primary.locked-btn {
+  background: #7f1d1d !important;
+  border: 1px solid #ef4444 !important;
+  color: #fecaca !important;
+  cursor: not-allowed !important;
+  opacity: 0.9 !important;
+  box-shadow: none !important;
 }
 
 /* Footer Settings */

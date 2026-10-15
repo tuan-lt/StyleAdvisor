@@ -18,11 +18,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const previewPrice = document.getElementById("previewPrice");
   const previewSlot = document.getElementById("previewSlot");
 
+  // Version Banner elements
+  const versionWarningBanner = document.getElementById("versionWarningBanner");
+  const versionWarningMessage = document.getElementById("versionWarningMessage");
+  const versionWarningLink = document.getElementById("versionWarningLink");
+
   // Form inputs
   const inputTitle = document.getElementById("inputTitle");
   const inputBrand = document.getElementById("inputBrand");
   const inputPrice = document.getElementById("inputPrice");
   const selectSlot = document.getElementById("selectSlot");
+  const selectGender = document.getElementById("selectGender");
   const inputColor = document.getElementById("inputColor");
   const inputHex = document.getElementById("inputHex");
   const hexValueText = document.getElementById("hexValueText");
@@ -40,6 +46,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const toastMessage = document.getElementById("toastMessage");
 
   let currentTabUrl = "";
+
+  const EXTENSION_VERSION = "1.0.5";
+  const EXTENSION_TOOL_NAME = "style-advisor-chrome-extension";
+  let isVersionLocked = false;
 
   const LOCAL_ENDPOINT = "http://localhost:3000/api/admin/catalog";
   const PROD_ENDPOINT = "https://StyleAdvisor.online/api/admin/catalog";
@@ -163,15 +173,95 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
-  // 1. Check API Health
+  // Version comparison helper: returns true if current is older than minRequired
+  const isVersionOutdated = (current, minRequired) => {
+    if (!current) return true;
+    const parse = (v) => v.split(".").map((n) => parseInt(n, 10) || 0);
+    const c = parse(current);
+    const m = parse(minRequired);
+    for (let i = 0; i < Math.max(c.length, m.length); i++) {
+      const cv = c[i] || 0;
+      const mv = m[i] || 0;
+      if (cv < mv) return true;
+      if (cv > mv) return false;
+    }
+    return false;
+  };
+
+  // Auto-lock helper for deprecated extension version
+  const setVersionLock = (isLocked, minVersion = "1.0.5", downloadUrl = "/admin", customMessage = "") => {
+    isVersionLocked = isLocked;
+    if (isLocked) {
+      if (versionWarningBanner) {
+        versionWarningBanner.classList.remove("hidden");
+      }
+      if (versionWarningMessage) {
+        versionWarningMessage.textContent =
+          customMessage ||
+          `You are using v${EXTENSION_VERSION}. Minimum required version is v${minVersion}. Ingestion is locked until updated.`;
+      }
+      if (versionWarningLink) {
+        const currentEndpoint = endpointUrlInput.value.trim();
+        const baseOrigin = currentEndpoint.includes("StyleAdvisor.online") || currentEndpoint.includes("styleadvisor.online")
+          ? "https://StyleAdvisor.online"
+          : "http://localhost:3000";
+        const key = adminApiKeyInput?.value?.trim() || DEFAULT_DEV_KEY;
+        versionWarningLink.href = `${baseOrigin}/admin?key=${encodeURIComponent(key)}`;
+        versionWarningLink.textContent = `Update from Admin Hub (v${minVersion}) ↗`;
+      }
+      endpointBadge.className = "status-badge deprecated";
+      statusText.textContent = "Deprecated";
+      btnIngest.disabled = true;
+      btnIngest.classList.add("locked-btn");
+      btnIngestText.textContent = "⚠️ Update Required to Ingest";
+    } else {
+      if (versionWarningBanner) {
+        versionWarningBanner.classList.add("hidden");
+      }
+      btnIngest.classList.remove("locked-btn");
+      btnIngest.disabled = false;
+      btnIngestText.textContent = "Ingest into Catalog";
+    }
+  };
+
+  // 1. Check API Health & Version Compatibility
   const checkApiHealth = async () => {
     const url = endpointUrlInput.value.trim();
     const apiKey = adminApiKeyInput?.value?.trim() || "";
     endpointBadge.className = "status-badge checking";
     statusText.textContent = "Checking...";
 
+    // 1a. Query dedicated version endpoint for proactive policy check
     try {
-      const headers = {};
+      const baseUrl = url.replace(/\/api\/admin\/.*$/, "");
+      const versionUrl = `${baseUrl}/api/admin/version`;
+      const versionHeaders = {
+        "X-Client-Version": EXTENSION_VERSION,
+        "X-Client-Tool": EXTENSION_TOOL_NAME,
+      };
+      if (apiKey) {
+        versionHeaders["Authorization"] = `Bearer ${apiKey}`;
+        versionHeaders["x-api-key"] = apiKey;
+      }
+
+      const vRes = await fetch(versionUrl, { method: "GET", headers: versionHeaders });
+      if (vRes.ok) {
+        const vData = await vRes.json();
+        if (vData.min_version && isVersionOutdated(EXTENSION_VERSION, vData.min_version)) {
+          setVersionLock(true, vData.min_version, vData.download_url, vData.message);
+          return false;
+        }
+      }
+    } catch (e) {
+      // Continue to OPTIONS probe if version endpoint is unreachable
+    }
+
+    // 1b. Probe catalog endpoint with OPTIONS
+    try {
+      const headers = {
+        "X-Client-Version": EXTENSION_VERSION,
+        "X-Client-Tool": EXTENSION_TOOL_NAME,
+      };
       if (apiKey) {
         headers["Authorization"] = `Bearer ${apiKey}`;
         headers["x-api-key"] = apiKey;
@@ -179,16 +269,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const res = await fetch(url, {
         method: "OPTIONS",
-        headers
+        headers,
       });
 
+      // Check exposed header for minimum version
+      const serverMinVersion = res.headers.get("x-min-extension-version");
+      if (serverMinVersion && isVersionOutdated(EXTENSION_VERSION, serverMinVersion)) {
+        setVersionLock(true, serverMinVersion);
+        return false;
+      }
+
       if (res.ok || res.status === 200 || res.status === 204) {
+        setVersionLock(false);
         endpointBadge.className = "status-badge online";
         statusText.textContent = "Ready";
         return true;
       } else if (res.status === 401) {
         endpointBadge.className = "status-badge offline";
         statusText.textContent = "401 Invalid Key";
+        return false;
+      } else if (res.status === 426) {
+        setVersionLock(true);
         return false;
       } else {
         endpointBadge.className = "status-badge offline";
@@ -236,6 +337,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         inputPrice.value = data.price || 0;
         inputImage.value = data.image || "";
         selectSlot.value = data.slot || "top";
+        if (selectGender && data.gender_cut) {
+          selectGender.value = data.gender_cut;
+        }
         inputFabric.value = data.fabric || "";
         inputColor.value = data.color || "Classic";
 
@@ -253,6 +357,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   inputBrand.addEventListener("input", updatePreview);
   inputPrice.addEventListener("input", updatePreview);
   selectSlot.addEventListener("change", updatePreview);
+  if (selectGender) selectGender.addEventListener("change", updatePreview);
   inputImage.addEventListener("input", updatePreview);
   inputHex.addEventListener("input", (e) => {
     hexValueText.textContent = e.target.value;
@@ -260,10 +365,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // 3. Handle Ingest Button Click
   btnIngest.addEventListener("click", async () => {
+    if (isVersionLocked) {
+      showToast("⚠️ Extension is deprecated. Please update from Admin Hub.", false);
+      return;
+    }
+
     const title = inputTitle.value.trim();
     const brand = inputBrand.value.trim();
-    const price = Number(inputPrice.value) || 0;
+    const price = parseFloat(inputPrice.value) || 0;
     const slot = selectSlot.value;
+    const genderCut = selectGender ? selectGender.value : "unisex";
     const imageUrl = inputImage.value.trim();
     const fabric = inputFabric.value.trim();
     const color = inputColor.value.trim() || "Classic";
@@ -288,16 +399,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       retailer_url: currentTabUrl || "https://retailer.ca/product",
       image_url: imageUrl,
       slot: slot,
+      gender_cut: genderCut,
       color: color,
       hex_color: hexColor,
       fabric_composition: fabric || "Premium Canadian Fabric Blend",
-      gender_cut: "unisex",
-      budget_tier: price > 200 ? "$$$" : price > 80 ? "$$" : "$"
+      budget_tier: price > 200 ? "$$$" : price > 80 ? "$$" : "$",
+      client_version: EXTENSION_VERSION,
+      client_tool: EXTENSION_TOOL_NAME
     };
 
     try {
       const headers = {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "X-Client-Version": EXTENSION_VERSION,
+        "X-Client-Tool": EXTENSION_TOOL_NAME
       };
       if (apiKey) {
         headers["Authorization"] = `Bearer ${apiKey}`;
@@ -311,6 +426,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       const json = await res.json();
+
+      // HTTP 426 Upgrade Required (Phase 1 & Phase 2 Integration)
+      if (res.status === 426 || json.error === "VERSION_DEPRECATED") {
+        setVersionLock(true, json.min_version || "1.0.5", json.download_url || "/admin", json.message);
+        showToast(json.message || "Update Required: Your extension is deprecated.", false);
+        return;
+      }
 
       if (json.success) {
         showToast(`✓ Ingested "${title}" into Style Advisor!`, true);
