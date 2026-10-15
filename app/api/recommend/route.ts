@@ -23,25 +23,14 @@ import { rankCandidates, getDefaultFormalityForOccasion, selectBalancedCapsule15
 import { getAiConfig, getAiConfigAsync, AiConfig } from "../../../lib/ai-config";
 
 /**
- * Get catalog directly from Postgres database with local catalog.json fallback
+ * Get catalog directly from Postgres database (100% DB, no fallback)
  */
 async function getLatestCatalog(): Promise<Garment[]> {
-  try {
-    const dbGarments = await getAllGarmentsFromDb();
-    if (dbGarments && dbGarments.length > 0) {
-      return dbGarments;
-    }
-  } catch (err: any) {
-    console.warn("Postgres fetch failed, falling back to local data/catalog.json:", err?.message);
+  const dbGarments = await getAllGarmentsFromDb();
+  if (!dbGarments || dbGarments.length === 0) {
+    throw new Error("No garments found in Postgres database.");
   }
-
-  try {
-    const localCatalog = require("../../../data/catalog.json");
-    return (localCatalog || []) as Garment[];
-  } catch (e) {
-    console.error("Failed to load local data/catalog.json fallback:", e);
-    return [];
-  }
+  return dbGarments;
 }
 
 // In-Memory Deterministic Response Cache (keyed on input MD5 hash)
@@ -162,6 +151,7 @@ function generateDeterministicRecommendation(
     targetOccasion: occasion,
     targetBodyType: body.user_profile?.body_type,
     targetSize: body.user_profile?.size,
+    targetGender: body.user_profile?.gender_expression || body.user_profile?.gender_cut || "male",
     audienceText: body.audience_text,
     excludedIds: excludedSet,
   };
@@ -351,6 +341,7 @@ function prepareCandidatePoolPrompt(
       targetOccasion,
       targetBodyType,
       targetSize,
+      targetGender: body.user_profile?.gender_expression || body.user_profile?.gender_cut,
       audienceText,
       excludedIds,
     });
@@ -435,6 +426,14 @@ async function callOpenAIEngine(
   const candidatePoolPrompt = prepareCandidatePoolPrompt(candidatesBySlot, body);
 
   const isFr = body.locale === "fr";
+  const genderTarget = body.user_profile?.gender_expression || body.user_profile?.gender_cut || "male";
+  const genderGuideline =
+    genderTarget.toLowerCase() === "female" || genderTarget.toLowerCase() === "women"
+      ? "\n- STRICT GENDER REQUIREMENT: The user is dressing with a female gender expression. You MUST select garments strictly cut for women ('women' / 'female'). NEVER select garments designed for men or unisex pieces when women's pieces are present."
+      : genderTarget.toLowerCase() === "male" || genderTarget.toLowerCase() === "men"
+      ? "\n- STRICT GENDER REQUIREMENT: The user is dressing with a male gender expression. You MUST select garments strictly cut for men ('men' / 'male'). NEVER select garments designed for women."
+      : "";
+
   const weddingGuideline =
     occasion === "wedding"
       ? "\n- WEDDING OCCASION PROTOCOL: The user is dressing as a wedding guest for a celebratory ceremony and reception. Select celebratory, elegant, polished garments (tailored suits, celebration blazers, cocktail/slip dresses, crisp dress shirts, tailored trousers, formal footwear). Do NOT select casual tech founder pieces, startup pitch wear, gym layers, or streetwear sneakers. Write reasoning highlighting festive elegance, dignity, and celebration harmony."
@@ -447,6 +446,7 @@ ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
 - Write editorial styling reasoning in a confident Newsreader serif tone.${isFr ? "\n- CRITICAL: Write all reasoning and interpretation_summary in conversational, polite, and natural French (Canadian French)." : ""}
 - Schema compliance is mandatory.
 ${overrideCheck ? `OCCASION OVERRIDE NOTICE: ${overrideCheck}` : ""}
+${genderGuideline}
 ${weddingGuideline}
 ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
 
@@ -623,6 +623,14 @@ async function callOpenRouterEngine(
 
   const candidatePoolPrompt = prepareCandidatePoolPrompt(candidatesBySlot, body);
   const isFr = body.locale === "fr";
+  const genderTarget = body.user_profile?.gender_expression || body.user_profile?.gender_cut || "male";
+  const genderGuideline =
+    genderTarget.toLowerCase() === "female" || genderTarget.toLowerCase() === "women"
+      ? "\n- STRICT GENDER REQUIREMENT: The user is dressing with a female gender expression. You MUST select garments strictly cut for women ('women' / 'female'). NEVER select garments designed for men or unisex pieces when women's pieces are present."
+      : genderTarget.toLowerCase() === "male" || genderTarget.toLowerCase() === "men"
+      ? "\n- STRICT GENDER REQUIREMENT: The user is dressing with a male gender expression. You MUST select garments strictly cut for men ('men' / 'male'). NEVER select garments designed for women."
+      : "";
+
   const weddingGuideline =
     occasion === "wedding"
       ? "\n- WEDDING OCCASION PROTOCOL: The user is dressing as a wedding guest for a celebratory ceremony and reception. Select celebratory, elegant, polished garments (tailored suits, celebration blazers, cocktail/slip dresses, crisp dress shirts, tailored trousers, formal footwear). Do NOT select casual tech founder pieces, startup pitch wear, gym layers, or streetwear sneakers. Write reasoning highlighting festive elegance, dignity, and celebration harmony."
@@ -635,6 +643,7 @@ ARCHITECTURAL LAW: "The AI is allowed to have taste, but not facts."
 - Write editorial styling reasoning in a confident Newsreader serif tone.${isFr ? "\n- CRITICAL: Write all reasoning and interpretation_summary in conversational, polite, and natural French (Canadian French)." : ""}
 - Return ONLY valid JSON containing: calibration (formality_score, signal, notes), interpretation_summary, selected_garment_ids (outerwear, top, bottom, shoes, accessory), reasoning, override_applied.
 ${overrideCheck ? `OCCASION OVERRIDE NOTICE: ${overrideCheck}` : ""}
+${genderGuideline}
 ${weddingGuideline}
 ${nudgeGuideline ? `\n${nudgeGuideline}` : ""}`;
 
@@ -1056,6 +1065,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       targetOccasion: body.occasion,
       targetBodyType: body.user_profile?.body_type,
       targetSize: body.user_profile?.size,
+      targetGender: body.user_profile?.gender_expression || body.user_profile?.gender_cut,
       audienceText: body.audience_text,
     };
 
@@ -1143,6 +1153,10 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
       } finally {
         clearTimeout(capsuleTimeoutId);
       }
+
+      if (capsuleInsight) {
+        capsuleInsight.garments = capsule15;
+      }
     }
 
     const responseData = {
@@ -1170,6 +1184,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<RecommendApiR
         total_candidates: filterResult.total_candidates,
       },
       capsule: capsuleInsight,
+      capsule_garments: capsuleInsight?.garments || undefined,
     };
 
     // Store in Deterministic Cache

@@ -16,6 +16,7 @@ export interface ScoreGarmentOptions {
   targetOccasion?: Occasion | string;
   targetBodyType?: BodyType | string;
   targetSize?: ClothingSize | string;
+  targetGender?: string;
   audienceText?: string;
   excludedIds?: Set<string>;
 }
@@ -28,6 +29,34 @@ export interface ScoreGarmentOptions {
  */
 export function scoreGarment(garment: Garment, options: ScoreGarmentOptions): number {
   let score = 10; // base score
+
+  // 0. Gender Expression Match (Boost exact gender match, penalize unisex/wrong gender)
+  if (options.targetGender) {
+    const tg = options.targetGender.toLowerCase();
+    const isTargetFemale = tg === "female" || tg === "women" || tg === "woman";
+    const isTargetMale = tg === "male" || tg === "men" || tg === "man";
+    const gCuts = (Array.isArray(garment.gender_cut) ? garment.gender_cut : [garment.gender_cut || ""]).map((c) =>
+      c.toLowerCase()
+    );
+
+    if (isTargetFemale) {
+      if (gCuts.includes("women") || gCuts.includes("female")) {
+        score += 8;
+      } else if (gCuts.includes("unisex") || gCuts.includes("neutral")) {
+        score -= 20; // Strongly demote unisex when user explicitly chose woman
+      } else {
+        score -= 50; // Wrong gender
+      }
+    } else if (isTargetMale) {
+      if (gCuts.includes("men") || gCuts.includes("male")) {
+        score += 8;
+      } else if (gCuts.includes("unisex") || gCuts.includes("neutral")) {
+        score -= 20; // Demote unisex when user explicitly chose man
+      } else {
+        score -= 50;
+      }
+    }
+  }
 
   // 1. Formality proximity (closer to targetFormality = higher score)
   const targetFormality = options.targetFormality ?? 4;

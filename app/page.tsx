@@ -313,6 +313,7 @@ export default function Home() {
             onReplanCapsule={handleReplanCapsule}
             isReplanning={isReplanning}
             capsuleAiData={recommendationData?.capsule}
+            capsuleGarments={recommendationData?.capsule_garments || recommendationData?.capsule?.garments}
           />
         )}
       </main>

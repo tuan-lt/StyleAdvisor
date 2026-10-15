@@ -772,7 +772,14 @@ export default function AdminCatalogPage() {
     setEditingGarment(garment);
     setTestUrlHealth(null);
     setExtractUrlInput(garment.product_url || "");
-    setFormData({ ...garment });
+    const rawCut = String(garment.gender_cut || "").toLowerCase();
+    const normalizedCut: GenderCut =
+      rawCut === "female" || rawCut === "women"
+        ? "women"
+        : rawCut === "male" || rawCut === "men"
+        ? "men"
+        : "unisex";
+    setFormData({ ...garment, gender_cut: normalizedCut });
     setIsModalOpen(true);
   };
 
@@ -814,7 +821,11 @@ export default function AdminCatalogPage() {
       if (json.success && json.garment) {
         showToast(json.message || "Garment saved successfully!", "success");
         setIsModalOpen(false);
-        fetchCatalog();
+        // Optimistically update garment in state so UI reflects changes immediately
+        setGarments((prev) =>
+          prev.map((g) => (g.id === json.garment.id ? json.garment : g))
+        );
+        fetchCatalog(true);
       } else {
         showToast(json.message || "Failed to save garment.", "error");
       }
@@ -1239,9 +1250,7 @@ export default function AdminCatalogPage() {
                 const count = garments.filter((g) => (g.occasions || []).includes(occ)).length;
                 return (
                   <option key={occ} value={occ}>
-                    {occ === "wedding"
-                      ? `💍 Wedding (${count})`
-                      : `${occ.charAt(0).toUpperCase() + occ.slice(1).replace("-", " ")} (${count})`}
+                    {`${occ.charAt(0).toUpperCase() + occ.slice(1).replace("-", " ")} (${count})`}
                   </option>
                 );
               })}
@@ -1458,7 +1467,7 @@ export default function AdminCatalogPage() {
                                       : "bg-surface border border-border text-ink-muted hover:border-thread/50 hover:text-ink"
                                   }`}
                                 >
-                                  {isWedding ? "💍 wedding" : occ}
+                                  {occ}
                                 </button>
                               );
                             })}
@@ -1556,7 +1565,7 @@ export default function AdminCatalogPage() {
                   {editingGarment ? `Edit Garment: ${editingGarment.name}` : "Add New Garment to Catalog"}
                 </h2>
                 <p className="text-xs text-ink-muted">
-                  Persists into <code className="font-mono text-thread">data/catalog.json</code> with strict validation.
+                  Persists into <code className="font-mono text-thread">PostgreSQL Database</code> with strict validation.
                 </p>
               </div>
               <button
@@ -1667,9 +1676,16 @@ export default function AdminCatalogPage() {
                       type="number"
                       required
                       min={0}
-                      step={1}
-                      value={formData.price || 0}
-                      onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                      step="any"
+                      value={formData.price === undefined || formData.price === null ? "" : formData.price}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData({
+                          ...formData,
+                          price: val === "" ? 0 : parseFloat(val) || 0,
+                        });
+                      }}
+                      placeholder="0.00"
                       className="w-full p-2 bg-surface border border-border rounded-fitting text-ink focus:outline-none focus:border-accent"
                     />
                   </div>

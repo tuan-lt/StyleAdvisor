@@ -93,15 +93,17 @@ async function runLinkVerification() {
   console.log("  STYLE ADVISOR — PRE-DEMO LINK VERIFICATION SUITE");
   console.log("============================================================\n");
 
-  const catalogPath = path.resolve(process.cwd(), "data/catalog.json");
-  if (!fs.existsSync(catalogPath)) {
-    console.error(`❌ Catalog file not found at ${catalogPath}`);
+  const { Pool } = require("pg");
+  const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL || process.env.PRISMA_DATABASE_URL;
+  if (!connectionString) {
+    console.error("❌ Database URL not found in environment.");
     process.exit(1);
   }
-
-  const raw = fs.readFileSync(catalogPath, "utf-8");
-  const garments = JSON.parse(raw);
-  console.log(`📦 Loaded ${garments.length} garments from catalog.`);
+  const pool = new Pool({ connectionString, ssl: { rejectUnauthorized: false } });
+  const dbRes = await pool.query("SELECT * FROM garments ORDER BY created_at DESC");
+  const garments = dbRes.rows;
+  await pool.end();
+  console.log(`📦 Loaded ${garments.length} garments from PostgreSQL Database.`);
   console.log(`⏱️  Pinging all retailer URLs with ${TIMEOUT_MS}ms timeout threshold...\n`);
 
   const results = [];

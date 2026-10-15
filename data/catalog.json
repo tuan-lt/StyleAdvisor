@@ -1981,7 +1981,7 @@
     "currency": "CAD",
     "product_url": "https://www.rw-co.com/products/slim-fit-wool-blend-charcoal-check-blazer-497001?_gl=1*1h2ur39*_up*MQ..*_ga*ODMxNDg2MTk3LjE3OTA2Mjk1ODQ.*_ga_7CSR14LRYL*czE3OTA2Mjk1ODMkbzEkZzEkdDE3OTA2Mjk1OTAkajUzJGwwJGgw",
     "image_url": "https://cdn.shopify.com/s/files/1/0901/1160/6806/files/45f3a1dbe6b251ba18f7229b50ac2dda8bb72e45_497001_19_B.jpg?v=1783487036",
-    "gender_cut": "unisex",
+    "gender_cut": "men",
     "budget_tier": "premium",
     "occasions": [
       "wedding",
@@ -2135,7 +2135,7 @@
     "currency": "CAD",
     "product_url": "https://www.roots.com/ca/en/jacq-shoulder-bag-tribe-56010940.html?dwvar_56010940_color=Y21",
     "image_url": "https://www.roots.com/dw/image/v2/BGGS_PRD/on/demandware.static/-/Sites-roots_master_catalog/default/dw42a77922/images/56010940_Y21_a.jpg?sw=1200&sh=1200&sm=fit",
-    "gender_cut": "unisex",
+    "gender_cut": "women",
     "budget_tier": "luxury",
     "occasions": [
       "wedding",
@@ -4816,7 +4816,7 @@
     "currency": "CAD",
     "product_url": "https://www.rw-co.com/products/knit-pullover-boat-neck-3-4-sleeve-496723",
     "image_url": "http://www.rw-co.com/cdn/shop/files/740ddcb9862ad731867ef4e2050fd1ab47a7aa59_496723_1_B.jpg?v=1776734210",
-    "gender_cut": "unisex",
+    "gender_cut": "women",
     "budget_tier": "budget",
     "occasions": [
       "work",
@@ -4867,7 +4867,7 @@
     "currency": "CAD",
     "product_url": "https://www.rw-co.com/products/slim-fit-wool-blend-prince-of-wales-pant-496955",
     "image_url": "http://www.rw-co.com/cdn/shop/files/d73e4e13b9daa20a75012b0b525899f4792ee8a2_496955_278_B.jpg?v=1784552666",
-    "gender_cut": "unisex",
+    "gender_cut": "men",
     "budget_tier": "mid",
     "occasions": [
       "work",
@@ -4918,7 +4918,7 @@
     "currency": "CAD",
     "product_url": "https://www.rw-co.com/products/tailored-brown-pinstripe-wool-blend-pant-497318",
     "image_url": "http://www.rw-co.com/cdn/shop/files/0780fa0b81f2ffdc07002659824bcb54fd2d4bd1_497318_913_B.jpg?v=1785762211",
-    "gender_cut": "unisex",
+    "gender_cut": "men",
     "budget_tier": "mid",
     "occasions": [
       "work",
@@ -4969,7 +4969,7 @@
     "currency": "CAD",
     "product_url": "https://shop.lululemon.com/en-ca/p/nulu-cropped-define-jacket/oo2vz3qc01",
     "image_url": "https://images.lululemon.com/is/image/lululemon/LW3HWES_074115_1",
-    "gender_cut": "unisex",
+    "gender_cut": "women",
     "budget_tier": "mid",
     "occasions": [
       "work",
@@ -5013,332 +5013,6 @@
       "minimalist",
       "sporty",
       "casual"
-    ]
-  },
-  {
-    "id": "ca_aritzia_only-slip-midi-dress_9101",
-    "name": "Wilfred Only Slip Midi Dress",
-    "brand": "Aritzia",
-    "slot": "top",
-    "price": 138,
-    "currency": "CAD",
-    "product_url": "https://www.aritzia.com/en/product/only-slip-dress/75997.html",
-    "image_url": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=800&q=80",
-    "gender_cut": "women",
-    "budget_tier": "$$",
-    "occasions": [
-      "wedding",
-      "formal",
-      "date-night"
-    ],
-    "palette_seasons": [
-      "winter",
-      "autumn",
-      "summer",
-      "spring"
-    ],
-    "body_types": [
-      "rectangle",
-      "bottom_triangle",
-      "hourglass",
-      "oval",
-      "top_triangle"
-    ],
-    "season_of_wear": [
-      "all_season",
-      "spring_summer",
-      "fall_winter"
-    ],
-    "formality_score": 8,
-    "color": "Emerald",
-    "hex_color": "#1B4D3E",
-    "fabric": {
-      "care": "Machine wash delicate or hand wash cold.",
-      "composition": "100% Glossy Japanese Matte Satin Crepe",
-      "sustainable": true
-    },
-    "return_policy": {
-      "policy_note": "Free returns and exchanges within 30 days at Aritzia.",
-      "window_days": 30,
-      "free_returns": true
-    },
-    "description": "Flowing biased-cut slip midi dress with fluid drape, designed for wedding guests and celebration banquets.",
-    "styling_notes": "The definitive wedding guest silhouette: luxurious drape, flattering bias cut, and radiant jewel tone.",
-    "in_stock": true,
-    "verified_date": "2026-10-15",
-    "styles": [
-      "classic",
-      "fabulous",
-      "minimalist"
-    ]
-  },
-  {
-    "id": "ca_rwco_floral-jacquard-cocktail-dress_9102",
-    "name": "Sleeveless Floral Jacquard Cocktail Dress",
-    "brand": "RW&CO.",
-    "slot": "bottom",
-    "price": 159,
-    "currency": "CAD",
-    "product_url": "https://www.rw-co.com/en/floral-jacquard-cocktail-dress/478201.html",
-    "image_url": "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80",
-    "gender_cut": "women",
-    "budget_tier": "$$",
-    "occasions": [
-      "wedding",
-      "formal"
-    ],
-    "palette_seasons": [
-      "winter",
-      "autumn",
-      "summer",
-      "spring"
-    ],
-    "body_types": [
-      "rectangle",
-      "hourglass",
-      "bottom_triangle",
-      "oval"
-    ],
-    "season_of_wear": [
-      "all_season",
-      "spring_summer"
-    ],
-    "formality_score": 8,
-    "color": "Midnight Navy",
-    "hex_color": "#182238",
-    "fabric": {
-      "care": "Dry clean recommended.",
-      "composition": "90% Polyester, 10% Metallic Jacquard Weave",
-      "sustainable": false
-    },
-    "return_policy": {
-      "policy_note": "Free returns and exchanges within 30 days at RW&CO.",
-      "window_days": 30,
-      "free_returns": true
-    },
-    "description": "Architectural cocktail dress in shimmering floral jacquard, tailored for evening wedding celebrations and galas.",
-    "styling_notes": "Sophisticated structured cocktail dress providing glamorous celebration polish without outshining the ceremony.",
-    "in_stock": true,
-    "verified_date": "2026-10-15",
-    "styles": [
-      "classic",
-      "fabulous"
-    ]
-  },
-  {
-    "id": "ca_maguire_rachel-metallic-heel_9103",
-    "name": "Rachel Strappy Block Heel Sandal",
-    "brand": "Maguire",
-    "slot": "shoes",
-    "price": 210,
-    "currency": "CAD",
-    "product_url": "https://maguireshoes.com/products/rachel-metallic-gold",
-    "image_url": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=800&q=80",
-    "gender_cut": "women",
-    "budget_tier": "$$",
-    "occasions": [
-      "wedding",
-      "formal",
-      "date-night"
-    ],
-    "palette_seasons": [
-      "summer",
-      "spring",
-      "autumn",
-      "winter"
-    ],
-    "body_types": [
-      "rectangle",
-      "bottom_triangle",
-      "hourglass",
-      "oval",
-      "top_triangle"
-    ],
-    "season_of_wear": [
-      "all_season",
-      "spring_summer"
-    ],
-    "formality_score": 8,
-    "color": "Champagne Gold",
-    "hex_color": "#D4AF37",
-    "fabric": {
-      "care": "Wipe with damp cloth.",
-      "composition": "100% Italian Nappa Leather with Metallic Finish",
-      "sustainable": true
-    },
-    "return_policy": {
-      "policy_note": "Free returns and exchanges within 30 days at Maguire.",
-      "window_days": 30,
-      "free_returns": true
-    },
-    "description": "Designed in Montreal and handcrafted in Italy, this block heel sandal pairs dance-floor comfort with wedding glamour.",
-    "styling_notes": "The ideal wedding shoe: sturdy 65mm block heel that won't sink into grass during outdoor ceremony lawn cocktails.",
-    "in_stock": true,
-    "verified_date": "2026-10-15",
-    "styles": [
-      "classic",
-      "fabulous"
-    ]
-  },
-  {
-    "id": "ca_lintervalle_paloma-strappy-heel_9104",
-    "name": "Paloma Leather Strappy Celebration Heel",
-    "brand": "L'Intervalle",
-    "slot": "shoes",
-    "price": 178,
-    "currency": "CAD",
-    "product_url": "https://lintervalleshoes.com/products/paloma-black-leather",
-    "image_url": "https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?auto=format&fit=crop&w=800&q=80",
-    "gender_cut": "women",
-    "budget_tier": "$$",
-    "occasions": [
-      "wedding",
-      "formal",
-      "date-night"
-    ],
-    "palette_seasons": [
-      "winter",
-      "autumn",
-      "summer",
-      "spring"
-    ],
-    "body_types": [
-      "rectangle",
-      "bottom_triangle",
-      "hourglass",
-      "oval",
-      "top_triangle"
-    ],
-    "season_of_wear": [
-      "all_season"
-    ],
-    "formality_score": 8,
-    "color": "Black",
-    "hex_color": "#1A1A1A",
-    "fabric": {
-      "care": "Leather protectant spray.",
-      "composition": "100% Genuine Spanish Calfskin Leather",
-      "sustainable": true
-    },
-    "return_policy": {
-      "policy_note": "Free returns within 30 days at L'Intervalle Montreal.",
-      "window_days": 30,
-      "free_returns": true
-    },
-    "description": "Montreal-designed strappy evening heel crafted with cushioned footbed for seamless transition from ceremony to dance floor.",
-    "styling_notes": "Sleek and minimalist evening heel adding modern edge to cocktail dresses and tailored trousers.",
-    "in_stock": true,
-    "verified_date": "2026-10-15",
-    "styles": [
-      "classic",
-      "minimalist",
-      "fabulous"
-    ]
-  },
-  {
-    "id": "ca_rwco_celebration-tux-blazer_9105",
-    "name": "Slim-Fit Celebration Tuxedo Blazer with Satin Lapel",
-    "brand": "RW&CO.",
-    "slot": "outerwear",
-    "price": 348,
-    "currency": "CAD",
-    "product_url": "https://www.rw-co.com/en/slim-fit-tuxedo-jacket/472891.html",
-    "image_url": "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80",
-    "gender_cut": "men",
-    "budget_tier": "$$$",
-    "occasions": [
-      "wedding",
-      "formal"
-    ],
-    "palette_seasons": [
-      "winter",
-      "autumn",
-      "summer",
-      "spring"
-    ],
-    "body_types": [
-      "rectangle",
-      "oval",
-      "top_triangle"
-    ],
-    "season_of_wear": [
-      "all_season",
-      "fall_winter"
-    ],
-    "formality_score": 9,
-    "color": "Midnight Black",
-    "hex_color": "#111111",
-    "fabric": {
-      "care": "Dry clean only.",
-      "composition": "98% Fine Italian Wool, 2% Elastane, Satin Silk Lapels",
-      "sustainable": true
-    },
-    "return_policy": {
-      "policy_note": "Free returns and exchanges within 30 days at RW&CO.",
-      "window_days": 30,
-      "free_returns": true
-    },
-    "description": "Black-tie ready tuxedo jacket with grosgrain satin peak lapel and sharp structured shoulder tailoring.",
-    "styling_notes": "The gold standard for formal and black-tie wedding celebrations, delivering unmatched regal posture and dignity.",
-    "in_stock": true,
-    "verified_date": "2026-10-15",
-    "styles": [
-      "classic",
-      "formal"
-    ]
-  },
-  {
-    "id": "ca_rwco_silk-pocket-square-cufflink_9106",
-    "name": "Mulberry Silk Pocket Square & Cufflink Set",
-    "brand": "RW&CO.",
-    "slot": "accessory",
-    "price": 55,
-    "currency": "CAD",
-    "product_url": "https://www.rw-co.com/en/silk-pocket-square-set/461280.html",
-    "image_url": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=800&q=80",
-    "gender_cut": "unisex",
-    "budget_tier": "$",
-    "occasions": [
-      "wedding",
-      "formal"
-    ],
-    "palette_seasons": [
-      "winter",
-      "autumn",
-      "summer",
-      "spring"
-    ],
-    "body_types": [
-      "rectangle",
-      "bottom_triangle",
-      "hourglass",
-      "oval",
-      "top_triangle"
-    ],
-    "season_of_wear": [
-      "all_season"
-    ],
-    "formality_score": 8,
-    "color": "Champagne Ivory",
-    "hex_color": "#F5F2EB",
-    "fabric": {
-      "care": "Dry clean only.",
-      "composition": "100% Pure Mulberry Silk, Silver-Tone Brass Cufflinks",
-      "sustainable": true
-    },
-    "return_policy": {
-      "policy_note": "Free returns and exchanges within 30 days at RW&CO.",
-      "window_days": 30,
-      "free_returns": true
-    },
-    "description": "Pure mulberry silk pocket square paired with brushed rhodium cufflinks to add the finishing celebratory touch.",
-    "styling_notes": "The quintessential wedding accessory set: adds festive light and ceremonial dignity to suit lapels.",
-    "in_stock": true,
-    "verified_date": "2026-10-15",
-    "styles": [
-      "classic",
-      "fabulous",
-      "minimalist"
     ]
   }
 ]

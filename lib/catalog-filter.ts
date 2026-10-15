@@ -64,13 +64,21 @@ export function matchGender(
   });
 
   const normalizedTarget =
-    target === "men" || target === "male"
+    target === "men" || target === "male" || target === "man"
       ? "male"
-      : target === "women" || target === "female"
+      : target === "women" || target === "female" || target === "woman"
       ? "female"
       : "neutral";
 
-  return normalizedCuts.includes(normalizedTarget) || normalizedCuts.includes("neutral");
+  // STRICT GENDER MATCHING: When a user selects Female (Woman), ONLY garments specifically for women are matched.
+  // When a user selects Male (Man), ONLY garments specifically for men are matched.
+  if (normalizedTarget === "female") {
+    return normalizedCuts.includes("female");
+  }
+  if (normalizedTarget === "male") {
+    return normalizedCuts.includes("male");
+  }
+  return true;
 }
 
 /**

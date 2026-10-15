@@ -376,6 +376,7 @@ export interface RecommendApiResponse {
       total_candidates: number;
     };
     capsule?: CapsuleAiData;
+    capsule_garments?: Garment[];
   };
   error?: string;
   message?: string;
@@ -396,5 +397,6 @@ export interface CapsuleAiData {
   versatility_metric?: string;
   looks: CapsuleAiLook[];
   ai_model?: string;
+  garments?: Garment[];
 }
 

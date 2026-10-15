@@ -48,14 +48,14 @@ export async function OPTIONS() {
 }
 
 /**
- * Helper to read catalog directly from Postgres database
+ * Helper to read catalog directly from Postgres database (100% DB, no fallback)
  */
 async function readCatalog(): Promise<Garment[]> {
   return await getAllGarmentsFromDb();
 }
 
 /**
- * Helper to write garment directly to Postgres database
+ * Helper to write garment directly to Postgres database (100% DB)
  */
 async function writeCatalog(garment: Garment): Promise<void> {
   await upsertGarmentToDb(garment);
@@ -152,13 +152,24 @@ export async function POST(req: NextRequest) {
       id = `ca_${brandSlug}_${nameSlug}_${timestamp}`;
     }
 
-    // Gender cut detection & fallback
+    // Gender cut: Prioritize explicit user input from Admin UI / payload, fallback to auto-detection
     let gender_cut: GenderCut = "unisex";
-    const genderText = `${name} ${productUrl} ${body.gender_cut || body.gender || ""}`.toLowerCase();
-    if (/\b(women|womens|women's|female|lady|ladies|dress|blouse|skirt|high-rise|high rise|bra|align)\b/.test(genderText)) {
+    const rawGender = String(body.gender_cut || body.gender || "").toLowerCase().trim();
+
+    if (rawGender === "women" || rawGender === "female") {
       gender_cut = "women";
-    } else if (/\b(men|mens|men's|male|gentleman|abc pant|commission)\b/.test(genderText)) {
+    } else if (rawGender === "men" || rawGender === "male") {
       gender_cut = "men";
+    } else if (rawGender === "unisex" || rawGender === "neutral") {
+      gender_cut = "unisex";
+    } else {
+      // Only auto-detect if gender was not explicitly provided (e.g. extension raw scraping)
+      const genderText = `${name} ${productUrl}`.toLowerCase();
+      if (/\b(women|womens|women's|female|lady|ladies|dress|blouse|skirt|high-rise|high rise|bra|align)\b/.test(genderText)) {
+        gender_cut = "women";
+      } else if (/\b(men|mens|men's|male|gentleman|abc pant|commission)\b/.test(genderText)) {
+        gender_cut = "men";
+      }
     }
 
     const budget_tier = normalizeBudgetTier(price, body.budget_tier);

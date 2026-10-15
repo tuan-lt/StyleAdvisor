@@ -2,16 +2,11 @@
 
 import React, { useState, useMemo } from "react";
 import { Garment, GarmentSlot, UserProfile, CapsuleAiData } from "../types/catalog";
-import { matchGender } from "../lib/catalog-filter";
 import {
-  selectBalancedCapsule15,
   assembleWorkedOutfit,
   rankCandidates,
 } from "../lib/garment-scorer";
-import rawCatalog from "../data/catalog.json";
 import { useLanguage } from "../lib/LanguageContext";
-
-const catalog = rawCatalog as Garment[];
 
 interface CapsuleResultProps {
   profile?: UserProfile;
@@ -24,6 +19,7 @@ interface CapsuleResultProps {
   onReplanCapsule?: () => void;
   isReplanning?: boolean;
   capsuleAiData?: CapsuleAiData;
+  capsuleGarments?: Garment[];
 }
 
 export function CapsuleResult({
@@ -37,28 +33,24 @@ export function CapsuleResult({
   onReplanCapsule,
   isReplanning,
   capsuleAiData,
+  capsuleGarments,
 }: CapsuleResultProps) {
   const { language, t } = useLanguage();
   const isFr = language === "fr";
 
   const [activeCombinationIndex, setActiveCombinationIndex] = useState<number>(0);
   const [filterSlot, setFilterSlot] = useState<string>("all");
-  const [capsuleIteration, setCapsuleIteration] = useState<number>(0);
 
-  const gender = profile?.gender_expression || profile?.gender_cut || "unisex";
-  const activeCatalog = useMemo(() => {
-    const matched = catalog.filter((g) => matchGender(g.gender_cut, gender as any));
-    return matched.length >= 10 ? matched : catalog;
-  }, [gender]);
-
-  // Select 15 modular foundation items with balanced formal/casual distribution
+  // Select 15 modular foundation items provided by the Database server response
   const capsule15: Garment[] = useMemo(() => {
-    return selectBalancedCapsule15(activeCatalog, {
-      targetPalette: profile?.seasonal_colour || profile?.palette_season,
-      targetStyle: profile?.style || (profile?.preferred_styles && profile?.preferred_styles[0]),
-      iteration: capsuleIteration,
-    });
-  }, [activeCatalog, profile, capsuleIteration]);
+    if (capsuleGarments && capsuleGarments.length > 0) {
+      return capsuleGarments;
+    }
+    if (capsuleAiData?.garments && capsuleAiData.garments.length > 0) {
+      return capsuleAiData.garments;
+    }
+    return [];
+  }, [capsuleGarments, capsuleAiData]);
 
   // Starter Set of 5 Core Foundation Pieces
   const starterSetIds = useMemo(() => {
@@ -183,7 +175,6 @@ export function CapsuleResult({
   }, [capsule15, profile, isFr, capsuleAiData]);
 
   const handleReplan = () => {
-    setCapsuleIteration((prev) => prev + 1);
     if (onReplanCapsule) {
       onReplanCapsule();
     }
